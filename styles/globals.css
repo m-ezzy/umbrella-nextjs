@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  h1 {
+    @apply text-3xl;
+  }
+  h2 {
+    @apply text-2xl;
+  }
+  a {
+    @apply text-blue-500 font-bold;
+  }
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -30,4 +42,14 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+.bg-primary {
+  background-color: #ac37ff;
+}
+.bg-secondary {
+  background-color: #ff0080;
+}
+.bg-tertiary {
+  background-color: #ff4d4d;
 }
