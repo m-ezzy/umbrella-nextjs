@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 // import { signIn } from '@/auth';
 // import { signIn, signOut, getProviders, SessionProvider, useSession, SignInResponse } from 'next-auth/react'
-import { authenticateWithCredentials } from '@/lib/auth'
+import { authenticateWithCredentials } from '@/lib/authThings'
 
 function CredentialsLoginForm({ setError }: any) {
   const uniqueIdentifierRef = useRef<HTMLInputElement>(null)
@@ -15,7 +15,7 @@ function CredentialsLoginForm({ setError }: any) {
   // const [errorMessage, dispatch] = useFormState(authenticateWithCredentials, undefined);
   // if(errorMessage) setError(errorMessage);
 
-  const handleClick = async (e) => {
+  const handleClick = (e: any) => {
     e.preventDefault();
     const uniqueIdentifier = uniqueIdentifierRef.current?.value;
     const password = passwordRef.current?.value;
@@ -28,8 +28,8 @@ function CredentialsLoginForm({ setError }: any) {
     // `true` if the signin was successful
     // url: string | null
     // `null` if there was an error, otherwise the url the user should have been redirected to.
-    
-    const res: any = await authenticateWithCredentials({ 'uniqueIdentifier' : uniqueIdentifier, 'password' : password })
+
+    const res: any = authenticateWithCredentials({ 'uniqueIdentifier' : uniqueIdentifier, 'password' : password })
     // const res: any = await signIn('credentials', { redirect: true, 'uniqueIdentifier' : uniqueIdentifier, 'password' : password })
     // const res: any = await auth('login', { uniqueIdentifier, password })
 

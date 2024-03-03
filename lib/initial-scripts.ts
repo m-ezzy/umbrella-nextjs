@@ -8,7 +8,7 @@ async function initialScripts() {
   colors.enable();
 
   // database scripts
-  await createDatabase();
+  // await createDatabase();
   await seedDatabase();
 
   console.log('Initial scripts complete.'.green);

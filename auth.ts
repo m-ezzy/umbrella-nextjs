@@ -33,7 +33,7 @@ const CredentialsProviderOptions: any = {
       return null;
     }
     const user: any = await queryDatabase(
-      "SELECT * FROM users WHERE (id = ? OR username = ? OR primary_email = ? OR mobile = ?) AND password = ?", 
+      "SELECT * FROM user WHERE (id = ? OR username = ? OR primary_email = ? OR contact_no = ?) AND password = ?", 
       [credentials.uniqueIdentifier, credentials.uniqueIdentifier, credentials.uniqueIdentifier, credentials.uniqueIdentifier, credentials.password]
     )
     .catch((err: any) => {
@@ -131,11 +131,11 @@ const nextAuthOptions: NextAuthConfig = ({ // nextAuthOptions //authOptions
           return (user ? true : "User not found");
         case "google":
           // let emailCheck: boolean = profile.email_verified && profile.email.endsWith("@google.com")
-          userCheck = await queryDatabase("SELECT * FROM users WHERE google_email = ?", [user.email || profile.email]);
+          userCheck = await queryDatabase("SELECT * FROM user WHERE google_email = ?", [user.email || profile.email]);
           console.log(userCheck);
           return (userCheck.length > 0 ? true : "User is not registered with this Google ID")
         case "github":
-          userCheck = await queryDatabase("SELECT * FROM users WHERE github_username = ?", [profile.username])
+          userCheck = await queryDatabase("SELECT * FROM user WHERE github_username = ?", [profile.username])
           console.log(userCheck);
           return (userCheck.length > 0 ? true : "User is not registered with this Github ID");
       }
@@ -147,14 +147,15 @@ const nextAuthOptions: NextAuthConfig = ({ // nextAuthOptions //authOptions
     // Using the `...rest` parameter to be able to narrow down the type based on `trigger`
     // Note, that `rest.session` can be any arbitrary object, remember to validate it!
     async session({ session, token, trigger, newSession }: any) {
-      console.log("session", session);
-      console.log("token", token);
+      console.log("session");
+      // console.log("session", session);
+      // console.log("token", token);
       // console.log("trigger", trigger);
       // console.log("newSession", newSession);
 
       if (trigger === "update" && newSession?.name) {
         // Make sure the updated value is reflected on the client
-        session.name = newSession.name
+        // session.name = newSession.name
         
         // You can update the session in the database if it's not already updated.
         // await prismaAdapter.updateUser(session.user.id, { name: newSession.name })

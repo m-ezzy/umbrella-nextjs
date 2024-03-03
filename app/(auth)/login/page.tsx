@@ -7,13 +7,14 @@ import { CredentialsLoginForm, GoogleLoginForm, GithubLoginForm } from '@/compon
 export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
-  // const { data, status } = useSession()
-  // console.log(data, status)
-  // if (status === 'loading') {
-  //   setLoading(true)
-  // } else if(status === 'authenticated' || data) {
-  //   redirect('/')
-  // }
+  
+  const { data, status } = useSession();
+  console.log(data, status)
+  if (status === 'loading') {
+    setLoading(true)
+  } else if(status === 'authenticated' || data) {
+    redirect('/')
+  }
 
   // let styles = {
   //   backgroundImage: "url(/asests/images/black-umbrella-png-9.png)",

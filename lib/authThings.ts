@@ -1,6 +1,6 @@
 "use server";
-import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import { signIn, signOut } from '@/auth';
 
 export async function authenticateWithCredentials(credentials: any) {
   const result: any = await signIn('credentials', credentials)
@@ -14,4 +14,7 @@ export async function authenticateWithCredentials(credentials: any) {
   //   }
   // });
   // return { success: result };
+}
+export async function logout() {
+  return await signOut({ redirect: true, redirectTo: '/login' });
 }

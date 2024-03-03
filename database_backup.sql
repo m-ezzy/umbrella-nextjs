@@ -2,6 +2,7 @@ DROP DATABASE IF EXISTS `umbrella`;
 CREATE DATABASE `umbrella`;
 USE `umbrella`;
 
+-- 'sessions', 'user_roles', 'roles', 'role_permissions', 'permissions'
 CREATE TABLE `user` (
 	`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	`username` VARCHAR(50) UNIQUE,
@@ -87,6 +88,7 @@ CREATE TABLE `department` (
  	`name` VARCHAR(255) NOT NULL UNIQUE,
 	`name_acronym` VARCHAR(255) NOT NULL UNIQUE,
 	`building_id` INT NOT NULL,
+	--head_of_department
 	FOREIGN KEY (`building_id`) REFERENCES building(id)
 );
 CREATE TABLE `degree` (
@@ -171,9 +173,9 @@ CREATE TABLE `department_user` (
 	`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	`user_id` INT NOT NULL REFERENCES user(id),
 	`department_id` INT NOT NULL,
-	`designation` VARCHAR(255) NOT NULL, -- lecturer, professor, assistant_professor, associate_professor, professor, dean, director, principal, vice_chancellor, chancellor
-	`joining_date` DATE NOT NULL,
-	`retirement_date` DATE NOT NULL,
+	`designation` VARCHAR(255) NOT NULL, -- lecturer, professor, assistant_professor, associate_professor, professor, dean, director, principal, vice_chancellor, chancellor, librarian
+	`date_join` DATE NOT NULL,
+	`date_leave` DATE NOT NULL,
 	`qualification` VARCHAR(255) NOT NULL,
 	`experience` INT NOT NULL,
 	`specialization` VARCHAR(255) NOT NULL,
@@ -181,7 +183,7 @@ CREATE TABLE `department_user` (
 	FOREIGN KEY (`user_id`) REFERENCES user(id),
 	FOREIGN KEY (`department_id`) REFERENCES department(id)
 );
-CREATE TABLE `teaching` ( --assigned_teaching division_course_professor
+CREATE TABLE `teaching` ( --assigned_teaching division_course_professor instructor
 	`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	`division_id`  INT NOT NULL REFERENCES division(id),
 	`course_id`    INT NOT NULL REFERENCES course(id),

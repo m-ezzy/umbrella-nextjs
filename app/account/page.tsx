@@ -1,33 +1,12 @@
-"use client"
-import { redirect } from "next/navigation"
-import { useSession, signIn, signOut } from "next-auth/react"
+import { redirect } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { auth, signOut } from "@/auth";
+import { logout } from "@/lib/authThings";
+import AccountPage from "@/components/AccountPage";
 
-export default function Account() {
-  // const { data: session }: any = useSession()
-  const { status, data }: any = useSession({
-    required: true,
-    onUnauthenticated() {
-      redirect("/login")
-    },
-  })
-  console.log(data)
-
-  if (status === "loading") {
-    return <div>Loading...</div>
-  }
-  if (status === "unauthenticated") {
-    redirect("/login")
-  }
+export default async function Account() {
+  const session:any = await auth();
   return (
-    <div className="p-4">
-      <div>{JSON.stringify(data, null, 4)}</div>
-      <button className="btn border p-2 bg-purple-500 hover:bg-purple-400" onClick={() => signOut({ callbackUrl: "/login" })}>Logout</button>
-      {/* <form
-        action={async () => {
-          'use server';
-          await signOut();
-        }}
-      ></form> */}
-    </div>
+    <AccountPage user={session.user} />
   );
 }

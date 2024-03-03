@@ -1,12 +1,13 @@
-import type { Metadata } from "next";
-import { SessionProvider } from "next-auth/react";
 import { Inter } from "next/font/google";
 import "../styles/globals.css";
-// import { Providers } from "./providers";
-import { auth } from "@/auth";
-import initialScripts from "@/lib/initial-scripts";
 
-const inter = Inter({ subsets: ["latin"] });
+import type { Metadata } from "next";
+import { useRouter, redirect } from 'next/navigation'
+import Link from "next/link";
+import { SessionProvider, useSession } from "next-auth/react";
+import initialScripts from "@/lib/initial-scripts";
+import { auth } from "@/auth";
+import DashboardSelector from '../components/DashboardSelector'
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,12 +19,26 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-  initialScripts();
+  await initialScripts();
 
+  const session: any = await auth();
+  console.log("88888888888888888888888888888888888888888888888888888888888888".bgCyan, session);
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
+        {session?.user ?
+          <div className="bg-gray-600 p-2 flex justify-between items-center">
+            <Link href={"/"} className="flex gap-2 items-center">
+              <img src="/assets/images/black-umbrella-png-9.png" alt="Umbrella" className="w-12 h-12" />
+              <span className="text-xl">Umbrella</span>
+            </Link>
+            <span className="flex items-center">
+              {session?.user ? <Link href={"/account"}>Account</Link> : <Link href={"/login"}>Login</Link>}
+            </span>
+          </div>
+          :
+          <></>
+        }
         <SessionProvider session={session}>
           {children}
         </SessionProvider>

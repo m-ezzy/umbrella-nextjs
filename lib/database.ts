@@ -2,7 +2,8 @@ import fs, { createReadStream } from 'fs';
 import * as csv from 'csv';
 // import mysql from 'mysql';
 // import { Connection } from 'mysql2';
-import mysql, { Connection, ConnectionOptions } from 'mysql2/promise';
+import mysql, { QueryError, Connection, ConnectionOptions } from 'mysql2/promise';
+import { FieldInfo, MysqlError } from 'mysql';
 
 const connectionOptions: ConnectionOptions = {
   host: process.env.DATABASE_HOST,
@@ -55,44 +56,77 @@ async function seedDatabase() { //seeder
   // const tables = await queryDatabase(`SHOW TABLES in ${process.env.DATABASE_NAME};`);
   // console.log(tables);
 
+  const connection: any = await mysql.createConnection(connectionOptions);
+
+  const path = `../Data/${process.env.UNIVERSITY_NAME}/csv/`;
+  const tableNames:any = [];
+  // const tableNames = ['user', 'campus', 'building', 'department', 'degree', 'syllabus', 'batch', 'division', 'batch_user'];
+
   // Empty all tables
-  // for (const table of tables) {
-  //   // await queryDatabase(`DELETE FROM ${Object.values(table)[0]}`);
-  //   await queryDatabase(`TRUNCATE TABLE ${Object.values(table)[0]}`)
-  //   .then((result) => {
-  //     console.log(`Table ${table[Object.keys(table)[0]]} emptied`.bgGreen);
-  //   })
-  //   .catch((error: any) => {
-  //     console.error(error);
-  //   });
-  // }
+  let tableNamesReverse = tableNames;
+  tableNamesReverse.reverse();
+  for (const tableName of tableNamesReverse) {
+    // await queryDatabase(`DELETE FROM ${Object.values(table)[0]}`);
+    await queryDatabase(`TRUNCATE TABLE ${tableName}`)
+    .then((result) => {
+      console.log(`Table ${tableName} emptied`.bgGreen);
+    })
+    .catch((error: any) => {
+      console.error(error);
+    });
+  }
 
-  const path = "../../../Data/GLS University/csv/";
+  // read csv files and insert data into MySQL tables
+  for (const tableName of tableNames) {
+    const filePath = path + tableName + '.csv';
+    let headers:string[] = [];
+    let rows:any[] = [];
 
-  // read csv files
-  // const files = fs.readdirSync(path
-  // );
+    // let stream = createReadStream(filePath);
+    // let parser = csv.parse({delimiter: ','});
+    // stream.pipe(parser);
 
-  // for (const file of files) {
-  //   const table = file.split('.')[0];
-  //   const filePath = path + file;
-  //   const stream = createReadStream(
-  //     filePath
-  //   );
+    // parser.on('readable', function () {
+    //   let record;
+    //   while (record = parser.read()) {
+    //     console.log(record);
+    //   }
+    // });
 
-  //   const parser = csv.parse({
-  //     columns: true,
-  //     delimiter: ','
-  //   });
+    csv.parse(fs.readFileSync(filePath), (error: any, data: any) => {
+      if (error) {
+        console.error(error);
+        return;
+      }
 
-  //   const data: any[] = [];
-  //   parser.on('readable', () => {
-  //     let record;
-  //     while (record = parser.read()) {
-  //       data.push(record);
-  //     }
-  //   });
-  // }
+      console.log(data);
+      headers = data[0];
+      data.shift();
+      rows = data;
+
+      const valuesString = rows.map((row: any) => {
+        return `(${row.map((value: any) => {
+          return `'${value}'`;
+        }).join(', ')})`;
+      }).join(', ');
+  
+      console.log(valuesString);
+
+      rows.forEach(async (row: any) => {
+        const query = `INSERT INTO ${tableName} (${headers.join(', ')}) VALUES (${row.map((value: any) => '?')} );`;
+
+        await connection.query(query, row, (error: QueryError, results: any, fields: FieldInfo) => {
+          if (error) throw error;
+        });
+        console.log('CSV file successfully processed.');
+      });
+    });
+
+    console.log(headers);
+  }
+  
+  // Close MySQL connection after processing the CSV file
+  // connection.end();
 }
 
 async function queryDatabase(query: string, values?: any[]) {
