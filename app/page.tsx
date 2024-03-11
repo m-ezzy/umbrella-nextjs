@@ -6,7 +6,7 @@ import DashboardSelector from '../components/DashboardSelector'
 
 export default async function App() {
   const session: any = await auth();
-  console.log(session, "7777777777777777777777777777777777777777".bgMagenta);
+  // console.log("session".bgCyan, session);
   if(session?.user == null) {
     redirect('/login')
   } else if(session.user) {

@@ -1,10 +1,11 @@
 import process from "process";
 import bcrypt from "bcrypt";
-import NextAuth, { type NextAuthConfig, type NextAuthResult } from 'next-auth';
+import NextAuth, { Session, type NextAuthConfig, type NextAuthResult } from 'next-auth';
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import { queryDatabase } from "@/lib/database";
+import { NextRequest } from "next/server";
 
 const CredentialsProviderOptions: any = {
   id: "credentials", // You can specify more than one credentials provider by specifying a unique id for each one
@@ -40,11 +41,11 @@ const CredentialsProviderOptions: any = {
       console.log(err);
       return null;
     });
-    console.log(user);
+    console.log("credentials - authorize - user".bgCyan, user);
     // if(!user || !user.password) return null;
     // const passwordsMatch = await bcrypt.compare(credentials.password, user.password);
     // if(passwordsMatch) return user;
-    return user.length > 0 ? { ...user[0], password: null } : null;
+    return user.length > 0 ? { user: {...user[0], password: null} } : null;
   },
 }
 const GoogleProviderOptions: any = {
@@ -52,6 +53,12 @@ const GoogleProviderOptions: any = {
   name: "Google", // The name to display on the sign in form (e.g. "Sign in with...")
   clientId: String(process.env.AUTH_GOOGLE_ID),
   clientSecret: String(process.env.AUTH_GOOGLE_SECRET),
+  async profile(profile: any) {
+    // You can use the profile data to create a user in your database
+    let result:any = await queryDatabase("SELECT * FROM user WHERE google_email = ?", [profile.email]);
+    if(result.length > 0) return { user: {...result[0], password: null} };
+    return { user: null };
+  }
 }
 const GithubProviderOptions: any = {
   id: "github",
@@ -60,67 +67,29 @@ const GithubProviderOptions: any = {
   clientSecret: String(process.env.AUTH_GITHUB_SECRET),
 }
 
-const providers: any = [
-  CredentialsProvider(CredentialsProviderOptions),
-  GoogleProvider(GoogleProviderOptions),
-  GithubProvider(GithubProviderOptions),
-]
-
-const nextAuthOptions: NextAuthConfig = ({ // nextAuthOptions //authOptions
+const nextAuthOptions: NextAuthConfig = { // nextAuthOptions //authOptions
   // adapter: Mysql(),
   // basePath: process.env.AUTH_PATH,
   secret: process.env.AUTH_SECRET,
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 30 * 24 * 60 * 60, //30 days
   },
-  // jwt: {
-  //   secret: process.env.SECRET,
-  // },
   pages: {
     signIn: '/login',
   },
-  providers: providers,
+  providers: [
+    CredentialsProvider(CredentialsProviderOptions),
+    GoogleProvider(GoogleProviderOptions),
+    GithubProvider(GithubProviderOptions),
+  ],
   callbacks: {
     async signIn({ user, account, profile, email, credentials, ...other }: any ) {
-      // console.log("user", user);
-      // {
-      //   id: '100370553291476971055',
-      //   name: 'C21_Murtaza Ezzy',
-      //   email: 'murtazaezzy1001@gmail.com',
-      //   image: 'https://lh3.googleusercontent.com/a/ACg8ocIuxzQ4hli7hw9TyW3Npujo9YCVS3j8k9ouvdcvaIRL8jE=s96-c'
-      // }
-      // console.log("account", account);
-      // {
-      //   provider: 'google',
-      //   type: 'oauth',
-      //   providerAccountId: '100370553291476971055',
-      //   access_token: 'ya29.a0AfB_byDUnfryqF092lbDkWzHN92YwbSC5CTVDujuoPVyp0ABx9356DSFubfFQwmGo0ECiAj7TkKypsPIGkv8qLujfMAgvq5FiyzV0XFDOkztiSVmNT_q63DSoWWW-LiqzStKq0ui2pBJHigVKidz1q2eCAci9IzQdAaCgYKAVQSARISFQHGX2MiIlBuWqIUbULUUbW3BUlZ-A0169',
-      //   expires_at: 1708702571,
-      //   scope: 'openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
-      //   token_type: 'Bearer',
-      //   id_token: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjU1YzE4OGE4MzU0NmZjMTg4ZTUxNTc2YmE3MjgzNmUwNjAwZThiNzMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIyODIzMzE0Njk4MTAtdm43M2h1M2UzZDQ1ZGdhZGs1Z2E1c3R2cDBrbnFjY3QuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIyODIzMzE0Njk4MTAtdm43M2h1M2UzZDQ1ZGdhZGs1Z2E1c3R2cDBrbnFjY3QuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDAzNzA1NTMyOTE0NzY5NzEwNTUiLCJlbWFpbCI6Im11cnRhemFlenp5MTAwMUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXRfaGFzaCI6Ii1HV2phTm5YV3Z0TjhhSFpXZl9OcFEiLCJuYW1lIjoiQzIxX011cnRhemEgRXp6eSIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJdXh6UTRobGk3aHc5VHlXM05wdWpvOVlDVlMzajhrOW91dmRjdmFJUkw4akU9czk2LWMiLCJnaXZlbl9uYW1lIjoiQzIxX011cnRhemEiLCJmYW1pbHlfbmFtZSI6IkV6enkiLCJsb2NhbGUiOiJlbi1HQiIsImlhdCI6MTcwODY5ODk3MywiZXhwIjoxNzA4NzAyNTczfQ.BI4wu8eRqTFZLPoA898Bw-RC13jNIWjVv5W9NvydhkUO_r8pjm-40Tqulh5PkzNcplBcWl1mTg4RIixvAhYqi8kX0hKP-TgaCsw6wB2OgYK1G9Uhc_lcgJTyXuw9yHfsG6lssED7KA4x5uIwgsQl_LBvronICW_zax8Rtw4TIL6W0gpMuu6ib2vRL5lzSgNstwsKFLSIk4Lg7Ii4nDyenW6ZeaPfU02WLVflC4ogxWbr1hi3n-eKB0gWVbnEUbvpPGm8wIA-VNJxaXsyvryT58LPVXdAEULRhw34uXREPu1KLa5GyDK54NVnr4jUOOkVdLFyQOIj6vu28vxyde3WXA'
-      // }
-      // console.log("profile", profile);
-      // profile {
-      //   iss: 'https://accounts.google.com',
-      //   azp: '282331469810-vn73hu3e3d45dgadk5ga5stvp0knqcct.apps.googleusercontent.com',
-      //   aud: '282331469810-vn73hu3e3d45dgadk5ga5stvp0knqcct.apps.googleusercontent.com',
-      //   sub: '100370553291476971055',
-      //   email: 'murtazaezzy1001@gmail.com',
-      //   email_verified: true,
-      //   at_hash: '-GWjaNnXWvtN8aHZWf_NpQ',
-      //   name: 'C21_Murtaza Ezzy',
-      //   picture: 'https://lh3.googleusercontent.com/a/ACg8ocIuxzQ4hli7hw9TyW3Npujo9YCVS3j8k9ouvdcvaIRL8jE=s96-c',
-      //   given_name: 'C21_Murtaza',
-      //   family_name: 'Ezzy',
-      //   locale: 'en-GB',
-      //   iat: 1708698973,
-      //   exp: 1708702573
-      // }
-      // console.log("email", email);
-      // console.log("credentials", credentials);
-      // console.log("other", other);
+      console.log("signIn".bgCyan);
+      // console.log(user, account, profile, email, credentials, other);
+
+      // console.log("important".bgBlue);
+      // console.log(user.email, account.provider, account.access_token, profile.email, profile.email_verified);
 
       let userCheck: any = null;
 
@@ -139,46 +108,73 @@ const nextAuthOptions: NextAuthConfig = ({ // nextAuthOptions //authOptions
           console.log(userCheck);
           return (userCheck.length > 0 ? true : "User is not registered with this Github ID");
       }
-      return "no provider matched";
+      return false;
     },
-    async redirect({ url, baseUrl }) {
-      return baseUrl;
-    },
-    // Using the `...rest` parameter to be able to narrow down the type based on `trigger`
-    // Note, that `rest.session` can be any arbitrary object, remember to validate it!
-    async session({ session, token, trigger, newSession }: any) {
-      console.log("session");
-      // console.log("session", session);
-      // console.log("token", token);
-      // console.log("trigger", trigger);
-      // console.log("newSession", newSession);
+    // async redirect({ url, baseUrl, ...other }) {
+    //   console.log("redirect".bgCyan);
+    //   // console.log(url, baseUrl, other);
+      
+    //   return baseUrl;
+    // },
+    async session({ session, user, token, trigger, newSession, ...other }: any) {
+      console.log("session".bgCyan);
+      // console.log(session, user, token, trigger, newSession, other);
 
       if (trigger === "update" && newSession?.name) {
         // Make sure the updated value is reflected on the client
-        // session.name = newSession.name
-        
-        // You can update the session in the database if it's not already updated.
-        // await prismaAdapter.updateUser(session.user.id, { name: newSession.name })
+        return { ...session, ...newSession }
       }
-      
+
+      // Add user to the session every time it is accessed
       session.user = token.user;
       // Send properties to the client, like an access_token from a provider.
       // session.accessToken = token.accessToken
+
       return session
     },
-    async jwt({ token, account, user, profile }: any) {
-      // Persist the OAuth access_token to the token right after signin
-      // if (account) {
-      //   token.accessToken = account.access_token;
-      // }
-      if (user) {
-        token.user = user;
-        token.user_id = user.id
+    async jwt({ token, account, profile, user, isNewUser, trigger, session, ...other }: any) {
+      console.log("jwt".bgCyan)
+      // console.log(token, account, profile, user, isNewUser, trigger, other);
+
+      // Add user to the token right after signin
+      if(user) token.user = user.user;
+      // Add access_token to the token right after signin
+      // if(user) token.accessToken = account.accessToken;
+
+      if (trigger === "update" && session) {
+        // Note, that `session` can be any arbitrary object, remember to validate it!
+        token = {...token, session, a:988888888888888};
       }
       return token;
     },
     // authorize user to access the nextUrl. Return true if allowed, false if not. this is used in middleware
-    authorized({ auth, request: { nextUrl } }) {
+    authorized({ auth, request }: { auth: Session | null, request: NextRequest }) {
+      // const user = auth?.user;
+
+      // const isOnAdminPanel = request.nextUrl?.pathname.startsWith("/admin");
+      // const isOnBlogPage = request.nextUrl?.pathname.startsWith("/blog");
+      // const isOnLoginPage = request.nextUrl?.pathname.startsWith("/login");
+
+      // // ONLY ADMIN CAN REACH THE ADMIN DASHBOARD
+
+      // if (isOnAdminPanel && !user?.isAdmin) {
+      //   return false;
+      // }
+
+      // // ONLY AUTHENTICATED USERS CAN REACH THE BLOG PAGE
+
+      // if (isOnBlogPage && !user) {
+      //   return false;
+      // }
+
+      // // ONLY UNAUTHENTICATED USERS CAN REACH THE LOGIN PAGE
+
+      // if (isOnLoginPage && user) {
+      //   return Response.redirect(new URL("/", request.nextUrl));
+      // }
+
+      // return true
+
       // const isLoggedIn = !!auth?.user;
       // const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
         
@@ -191,8 +187,8 @@ const nextAuthOptions: NextAuthConfig = ({ // nextAuthOptions //authOptions
       return true;
     },
   },
-});
+};
 
-const { auth, signIn, signOut, handlers }: NextAuthResult = NextAuth(nextAuthOptions);
+const { auth, unstable_update, signIn, signOut, handlers }: NextAuthResult = NextAuth(nextAuthOptions);
 
-export { nextAuthOptions, auth, signIn, signOut, handlers };
+export { nextAuthOptions, auth, unstable_update as update, signIn, signOut, handlers };

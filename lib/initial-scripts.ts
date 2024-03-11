@@ -1,5 +1,5 @@
 import colors from 'colors';
-import { createDatabase, seedDatabase } from "@/lib/database";
+// import { createDatabase, emptyTables, seedDatabase } from "@/lib/database";
 
 async function initialScripts() {
   console.log('Running initial scripts...'.green);
@@ -8,8 +8,9 @@ async function initialScripts() {
   colors.enable();
 
   // database scripts
+  // await emptyTables();
   // await createDatabase();
-  await seedDatabase();
+  // await seedDatabase();
 
   console.log('Initial scripts complete.'.green);
 }

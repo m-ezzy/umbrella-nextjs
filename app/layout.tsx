@@ -2,12 +2,13 @@ import { Inter } from "next/font/google";
 import "../styles/globals.css";
 
 import type { Metadata } from "next";
+import Image from "next/image";
 import { useRouter, redirect } from 'next/navigation'
 import Link from "next/link";
 import { SessionProvider, useSession } from "next-auth/react";
 import initialScripts from "@/lib/initial-scripts";
 import { auth } from "@/auth";
-import DashboardSelector from '../components/DashboardSelector'
+import NavBar from "@/components/NavBar";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -22,26 +23,20 @@ export default async function RootLayout({
   await initialScripts();
 
   const session: any = await auth();
-  console.log("88888888888888888888888888888888888888888888888888888888888888".bgCyan, session);
+  // console.log("session".bgCyan, session);
+
   return (
     <html lang="en">
-      <body>
-        {session?.user ?
-          <div className="bg-gray-600 p-2 flex justify-between items-center">
-            <Link href={"/"} className="flex gap-2 items-center">
-              <img src="/assets/images/black-umbrella-png-9.png" alt="Umbrella" className="w-12 h-12" />
-              <span className="text-xl">Umbrella</span>
-            </Link>
-            <span className="flex items-center">
-              {session?.user ? <Link href={"/account"}>Account</Link> : <Link href={"/login"}>Login</Link>}
-            </span>
-          </div>
-          :
-          <></>
-        }
-        <SessionProvider session={session}>
-          {children}
-        </SessionProvider>
+      <head>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+      </head>
+      <body className="">
+        <div className="bg-violet-200 h-screen">
+          {session?.user ? <NavBar /> : <></>}
+          <SessionProvider session={session}>
+            {children}
+          </SessionProvider>
+        </div>
       </body>
     </html>
   );

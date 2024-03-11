@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 // import { signIn } from '@/auth';
 // import { signIn, signOut, getProviders, SessionProvider, useSession, SignInResponse } from 'next-auth/react'
-import { authenticateWithCredentials } from '@/lib/authThings'
+import { authenticateWithCredentials, authenticateWithGoogle } from '@/lib/authThings'
 
 function CredentialsLoginForm({ setError }: any) {
   const uniqueIdentifierRef = useRef<HTMLInputElement>(null)
@@ -41,7 +41,7 @@ function CredentialsLoginForm({ setError }: any) {
     }
   }
   return(
-    <form className='form border rounded-lg flex flex-col p-2 gap-2'>
+    <form className='form border border-black rounded-lg flex flex-col p-2 gap-2'>
       <div className="form-outline w-full">
         <input type="text" name="uniqueIdentifier" className="form-control rounded w-full" placeholder="UserID, Username, Email, Mobile" ref={uniqueIdentifierRef} />
       </div>
@@ -49,22 +49,22 @@ function CredentialsLoginForm({ setError }: any) {
         <input type="password" name="password" className="form-control rounded w-full" placeholder="Password" ref={passwordRef} />
       </div>
       <div className="form-outline">
-        <button type="submit" className="form-control w-full border rounded-lg p-2 text-md font-semibold hover:bg-black" onClick={handleClick}>Login with Credentials</button>
+        <button type="submit" className="form-control w-full text-black border border-black rounded-lg p-2 text-md font-semibold hover:bg-violet-200" onClick={handleClick}>Login with Credentials</button>
       </div>
     </form>
   );
 }
 function GoogleLoginForm({ setError }: any) { //GoogleLoginButton
   const handleClick = async () => {
-    const res = await signIn('google') //('google', { callbackUrl: '/api/auth/google/callback' })
+    const res: any = await authenticateWithGoogle();
     if (res?.error) {
       setError(res.error)
     }
   }
   return (
-    <button className="w-full border rounded-lg flex justify-center items-center hover:bg-black" onClick={handleClick}>
+    <button className="w-full bg-transparent border border-black rounded-lg p-0 hover:bg-violet-200" onClick={handleClick}>
       <img src="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png" alt="Google Logo" className='w-14 h-14' />
-      <span className="text-md font-semibold">Login with Google</span>
+      <span className="text-black text-md font-semibold">Login with Google</span>
     </button>
   )
 }
@@ -76,9 +76,9 @@ function GithubLoginForm({ setError }: any) {
     }
   }
   return (
-    <button className="w-full border rounded-lg flex justify-center items-center p-2 space-x-2 hover:bg-black" onClick={handleClick}>
+    <button className="bg-transparent w-full border border-black rounded-lg space-x-2 hover:bg-violet-200" onClick={handleClick}>
       <img src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png" alt="Github Logo" className='w-10 h-10 rounded-md' />
-      <span className="text-md font-semibold">Login with Github</span>
+      <span className="text-black text-md font-semibold">Login with Github</span>
     </button>
   )
 }

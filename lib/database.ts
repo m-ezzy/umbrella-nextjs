@@ -11,9 +11,44 @@ const connectionOptions: ConnectionOptions = {
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: 50,
 };
 
+let connection: any = mysql.createConnection(connectionOptions);
+
+const path = `../Data/${process.env.UNIVERSITY_NAME}/csv/`;
+let tableNames:any = [
+  'user',
+  'campus',
+  'building',
+  'department',
+  'degree',
+  'syllabus',
+  'course',
+  'syllabus_course',
+  'batch',
+  'division',
+  'batch_user'
+];
+
+async function createConnection() {
+  const conn: any = await mysql.createConnection(connectionOptions)
+  .catch((error: any) => {
+    console.log(error);
+  });
+  connection = conn;
+}
+async function deleteDatabase() {
+  const conn = await mysql.createConnection(connectionOptions);
+  await conn.query(`DROP DATABASE ${process.env.DATABASE_NAME}`)
+  .then((result) => {
+    console.log(`Database dropped successfully`.bgGreen);
+  })
+  .catch((error: any) => {
+    console.error(error);
+  });
+  conn.end();
+}
 async function createDatabase() {
   // Read SQL queries from the .sql file
   const queriesString = fs.readFileSync("database.sql", 'utf-8');
@@ -50,7 +85,31 @@ async function createDatabase() {
   // Close the pool after all queries are executed
   pool.end();
 }
+async function emptyTables() {
+  let connection: any = await mysql.createConnection(connectionOptions)
+  .catch((error: any) => {
+    console.error(error);
+    throw error;
+  });
 
+  // Empty all tables
+  let tableNamesReverse = tableNames;
+  await tableNamesReverse.reverse();
+  
+  for (const tableName of tableNamesReverse) {
+    await connection.execute(`DELETE FROM ${tableName}`)
+    // let result:any = await connection.execute(`TRUNCATE TABLE ${tableName}`)
+    .then((result: any) => {
+      console.log(`Table ${tableName} emptied`.bgGreen);
+    })
+    .catch((error: any) => {
+      console.error(error);
+      throw error;
+    });
+  }
+
+  connection.end();
+}
 async function seedDatabase() { //seeder
   // Fetch all tables
   // const tables = await queryDatabase(`SHOW TABLES in ${process.env.DATABASE_NAME};`);
@@ -58,73 +117,44 @@ async function seedDatabase() { //seeder
 
   const connection: any = await mysql.createConnection(connectionOptions);
 
-  const path = `../Data/${process.env.UNIVERSITY_NAME}/csv/`;
-  const tableNames:any = [];
-  // const tableNames = ['user', 'campus', 'building', 'department', 'degree', 'syllabus', 'batch', 'division', 'batch_user'];
-
-  // Empty all tables
-  let tableNamesReverse = tableNames;
-  tableNamesReverse.reverse();
-  for (const tableName of tableNamesReverse) {
-    // await queryDatabase(`DELETE FROM ${Object.values(table)[0]}`);
-    await queryDatabase(`TRUNCATE TABLE ${tableName}`)
-    .then((result) => {
-      console.log(`Table ${tableName} emptied`.bgGreen);
-    })
-    .catch((error: any) => {
-      console.error(error);
-    });
-  }
-
   // read csv files and insert data into MySQL tables
   for (const tableName of tableNames) {
     const filePath = path + tableName + '.csv';
     let headers:string[] = [];
     let rows:any[] = [];
+    const buffer: any = fs.readFileSync(filePath);
 
-    // let stream = createReadStream(filePath);
-    // let parser = csv.parse({delimiter: ','});
-    // stream.pipe(parser);
-
-    // parser.on('readable', function () {
-    //   let record;
-    //   while (record = parser.read()) {
-    //     console.log(record);
-    //   }
-    // });
-
-    csv.parse(fs.readFileSync(filePath), (error: any, data: any) => {
+    csv.parse(buffer, async (error: any, data: any) => {
       if (error) {
         console.error(error);
         return;
       }
-
-      console.log(data);
+      // console.log(data);
       headers = data[0];
+      console.log(headers);
       data.shift();
       rows = data;
 
       const valuesString = rows.map((row: any) => {
-        return `(${row.map((value: any) => {
-          return `'${value}'`;
-        }).join(', ')})`;
-      }).join(', ');
-  
-      console.log(valuesString);
+        return row
+          .map((value: any) => {
+            return `'${value}'`;
+          })
+          .join(',');
+      }).join('), (');
+      // console.log(valuesString);
 
-      rows.forEach(async (row: any) => {
-        const query = `INSERT INTO ${tableName} (${headers.join(', ')}) VALUES (${row.map((value: any) => '?')} );`;
-
-        await connection.query(query, row, (error: QueryError, results: any, fields: FieldInfo) => {
-          if (error) throw error;
-        });
-        console.log('CSV file successfully processed.');
+      const insertQuery = `INSERT INTO ${tableName} (${headers.join(', ')}) VALUES (${valuesString});`;
+      const fields: FieldInfo = await connection.execute(insertQuery)
+      .then((result: any) => {
+        console.log(`Table ${tableName} seeded`.bgGreen);
+      })
+      .catch((error: QueryError) => {
+        console.error(error);
+        throw error;
       });
     });
-
-    console.log(headers);
   }
-  
   // Close MySQL connection after processing the CSV file
   // connection.end();
 }
@@ -132,12 +162,16 @@ async function seedDatabase() { //seeder
 async function queryDatabase(query: string, values?: any[]) {
   const connection: any = await mysql.createConnection(connectionOptions)
   .catch((error: any) => {
-    console.log(error);
+    console.error(error);
+    throw error;
   });
+  
   const [rows, fields]: any = await connection?.execute(query, values)
   .catch((error: any) => {
-    console.log(error);
+    console.error(error);
+    throw error;
   });
+  
   connection?.end();
 	return JSON.parse(JSON.stringify(rows));
 }
@@ -172,4 +206,5 @@ async function queryDatabase(query: string, values?: any[]) {
 // 	)
 // }
 
-export { createDatabase, seedDatabase, queryDatabase };
+
+export { emptyTables, createDatabase, seedDatabase, queryDatabase };
