@@ -1,20 +1,20 @@
 import fs, { createReadStream } from 'fs';
-import * as csv from 'csv';
+import { Pool } from 'mysql2';
+// import * as csv from 'csv';
 // import mysql from 'mysql';
 // import { Connection } from 'mysql2';
 import mysql, { QueryError, Connection, ConnectionOptions } from 'mysql2/promise';
-import { FieldInfo, MysqlError } from 'mysql';
+// import { FieldInfo, MysqlError } from 'mysql';
 
 const connectionOptions: ConnectionOptions = {
   host: process.env.DATABASE_HOST,
   user: process.env.DATABASE_USERNAME,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  waitForConnections: true,
-  connectionLimit: 50,
+  // waitForConnections: true,
 };
 
-let connection: any = mysql.createConnection(connectionOptions);
+// let connection:any = mysql.createConnection(connectionOptions);
 
 const path = `../Data/${process.env.UNIVERSITY_NAME}/csv/`;
 let tableNames:any = [
@@ -160,51 +160,21 @@ async function seedDatabase() { //seeder
 }
 
 async function queryDatabase(query: string, values?: any[]) {
-  const connection: any = await mysql.createConnection(connectionOptions)
+  console.log("database queried".bgYellow);
+
+  const pool: any = mysql.createPool(connectionOptions)
+  // const connection = await pool.getConnection();
+
+  let err: any;
+  const [rows, fields]: any = await pool.query(query, values)
   .catch((error: any) => {
+    err = JSON.stringify(error);
     console.error(error);
-    throw error;
   });
-  
-  const [rows, fields]: any = await connection?.execute(query, values)
-  .catch((error: any) => {
-    console.error(error);
-    throw error;
-  });
-  
-  connection?.end();
+
+  // connection.release();
+  if (err) return { error: err }
 	return JSON.parse(JSON.stringify(rows));
 }
-
-// import { Connection, MysqlError, createConnection } from 'mysql';
-
-// export async function query2(query: string, values?:any[]) {
-// 	return (
-// 		new Promise(async (resolve, reject) => {
-// 			const connection: Connection = createConnection({
-// 				host: process.env.DATABASE_HOSTNAME,
-// 				port: Number(process.env.DATABASE_PORT),
-// 				user: process.env.DATABASE_USERNAME,
-// 				password: process.env.DATABASE_PASSWORD,
-// 				database: process.env.DATABASE_NAME,
-// 			});
-// 			connection.connect((error: MysqlError) => {
-// 				if (error) {
-//       		reject(error);
-// 		    } else {
-// 					connection.query(query, connection, (error: MysqlError, rows: any) => {
-// 						if (error) {
-// 							reject(error);
-// 						} else {
-// 							resolve(JSON.parse(JSON.stringify(rows)));
-// 						}
-// 					});
-// 				}
-// 			});
-// 			connection.end()
-// 		});
-// 	)
-// }
-
 
 export { emptyTables, createDatabase, seedDatabase, queryDatabase };

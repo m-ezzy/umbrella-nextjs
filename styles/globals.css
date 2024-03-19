@@ -18,14 +18,14 @@
   a:hover {
     /* @apply bg-white; */
   }
-  button {
-    @apply bg-violet-600 text-white rounded-md flex p-2 justify-center align-middle content-center items-center;
+  button, button[type=submit] {
+    @apply bg-violet-600 text-white rounded-md flex p-2 gap-1 justify-center justify-items-center align-middle text-center content-center items-center;
   }
   button:hover {
     @apply bg-violet-500;
   }
-  input[type="text"],input[type="email"],input[type="password"] {
-    @apply border-black rounded-md focus:border-violet-600 focus:bg-violet-100;
+  input[type], select {
+    @apply border-violet-400 rounded-md focus:border-violet-600 focus:bg-violet-100;
   }
   .border, .border-t, .border-b, .border-r, .border-l {
     @apply border-black;

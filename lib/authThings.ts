@@ -3,7 +3,7 @@ import { AuthError } from 'next-auth';
 import { signIn, signOut } from '@/auth';
 
 export async function authenticateWithCredentials(credentials: any) {
-  const result: any = await signIn('credentials', {...credentials, redirect:true, redirectTo: '/'})
+  const result: any = await signIn('credentials', {...credentials, redirect:true, redirectTo: '/dashboards'})
   return result;
   // .catch((error: AuthError) => {
   //   switch (error.type) {

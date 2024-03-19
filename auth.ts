@@ -10,7 +10,7 @@ import { NextRequest } from "next/server";
 const CredentialsProviderOptions: any = {
   id: "credentials", // You can specify more than one credentials provider by specifying a unique id for each one
   name: "Credentials", // The name to display on the sign in form (e.g. "Sign in with...")
-  
+
   // `credentials` is used to generate a form on the sign in page.
   // You can specify which fields should be submitted, by adding keys to the `credentials` object.
   // e.g. domain, username, password, 2FA token, etc.
@@ -20,7 +20,7 @@ const CredentialsProviderOptions: any = {
     email: { label: "Email", type: "text", placeholder: "johndoe@example.com" },
     password: { label: "Password", type: "password", placeholder: "********" },
   },
-  
+
   async authorize(credentials: any) {
     // Add logic here to look up the user from the credentials supplied
     // If you return null then an error will be displayed advising the user to check their credentials
@@ -51,8 +51,9 @@ const CredentialsProviderOptions: any = {
 const GoogleProviderOptions: any = {
   id: "google",
   name: "Google", // The name to display on the sign in form (e.g. "Sign in with...")
-  clientId: String(process.env.AUTH_GOOGLE_ID),
-  clientSecret: String(process.env.AUTH_GOOGLE_SECRET),
+  // clientId: String(process.env.AUTH_GOOGLE_ID),
+  // clientSecret: String(process.env.AUTH_GOOGLE_SECRET),
+
   async profile(profile: any) {
     // You can use the profile data to create a user in your database
     let result:any = await queryDatabase("SELECT * FROM user WHERE google_email = ?", [profile.email]);
@@ -63,8 +64,8 @@ const GoogleProviderOptions: any = {
 const GithubProviderOptions: any = {
   id: "github",
   name: "Github",
-  clientId: String(process.env.AUTH_GITHUB_ID),
-  clientSecret: String(process.env.AUTH_GITHUB_SECRET),
+  // clientId: String(process.env.AUTH_GITHUB_ID),
+  // clientSecret: String(process.env.AUTH_GITHUB_SECRET),
 }
 
 const nextAuthOptions: NextAuthConfig = { // nextAuthOptions //authOptions
@@ -148,7 +149,37 @@ const nextAuthOptions: NextAuthConfig = { // nextAuthOptions //authOptions
       return token;
     },
     // authorize user to access the nextUrl. Return true if allowed, false if not. this is used in middleware
-    authorized({ auth, request }: { auth: Session | null, request: NextRequest }) {
+    async authorized({ request, auth }: { request: NextRequest, auth: Session | null }) {
+      console.log("authorized".bgCyan);
+      console.log(request, auth);
+
+
+
+
+      // authorized: ({ token }) => token?.role === "admin",
+      // if(token) return true
+
+
+
+
+
+      // const url = request.nextUrl
+
+      // if(request.method === "POST") {
+      //   const { authToken } = (await request.json()) ?? {}
+      //   // If the request has a valid auth token, it is authorized
+      //   const valid = await validateAuthToken(authToken)
+      //   if(valid) return true
+      //   return NextResponse.json("Invalid auth token", { status: 401 })
+      // }
+
+      // Logged in users are authenticated, otherwise redirect to login page
+      // return !!auth.user
+
+
+
+
+
       // const user = auth?.user;
 
       // const isOnAdminPanel = request.nextUrl?.pathname.startsWith("/admin");
@@ -174,6 +205,10 @@ const nextAuthOptions: NextAuthConfig = { // nextAuthOptions //authOptions
       // }
 
       // return true
+
+
+
+
 
       // const isLoggedIn = !!auth?.user;
       // const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');

@@ -2,7 +2,9 @@
 import Link from "next/link";
 import { auth, update } from "@/auth";
 import { queryDatabase } from "@/lib/database";
-import { getEnrollments } from "@/actions/student";
+import { getEnrollments } from "@/models/student";
+import { getEmployments } from "@/models/professor";
+import { select } from "@/models/Admin";
 
 export default async function DashboardSelector() {
   "use server";
@@ -33,6 +35,31 @@ export default async function DashboardSelector() {
       </Link>
     </li>
   ));
+
+  // for professor
+  const professorEmployeed: any[] = await getEmployments(session.user.id);
+  console.log(professorEmployeed);
+
+  const professorEmployeedList = professorEmployeed.map((item: any) => (
+    <li key={item.department_id} className="border p-2 min-w-44">
+      <Link href={`/professor`}>
+      {/* <Link href={`professor/${item.department_id}/`}> */}
+        <p>Department: {item.department_name}</p>
+      </Link>
+    </li>
+  ));
+  
+  const adminDegrees: any[] = await select(session.user.id);
+  console.log(adminDegrees);
+
+  const adminDegreesList = adminDegrees.map((item: any) => (
+    <li key={item.degree_id} className="border p-2 min-w-44">
+      <Link href={`admin/${item.degree_id}/`}>
+        <p>Degree: {item.degree_name}</p>
+      </Link>
+    </li>
+  ));
+
   return (
     <main className="p-2 space-y-2">
       <h1 className="underline">Dashboard Selector</h1>
@@ -41,12 +68,14 @@ export default async function DashboardSelector() {
       <ul className="flex gap-2">{ studentEnrollmentsList }</ul>
 
       <h3 className="border p-2">Professor</h3>
+      <ul className="flex gap-2">{ professorEmployeedList }</ul>
 
       <h3 className="border p-2">Admin</h3>
+      <ul className="flex gap-2">{ adminDegreesList }</ul>
 
       <h3 className="border p-2">Head</h3>
 
-      <h3 className="border p-2">Director</h3>
+      <h3 className="border p-2">Director/Manager</h3>
 
       <h3 className="border p-2">Staff - Clerks, Librarian, Poen, Watchman,...</h3>
 

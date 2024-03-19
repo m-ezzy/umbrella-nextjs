@@ -7,14 +7,6 @@ import { CredentialsLoginForm, GoogleLoginForm, GithubLoginForm } from '@/compon
 export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
-  
-  const { status } = useSession();
-  console.log("session".bgCyan, status)
-  if (status === 'loading') {
-    setLoading(true)
-  } else if(status === 'authenticated') {
-    redirect('/')
-  }
 
   // let styles = {
   //   backgroundImage: "url(/asests/images/black-umbrella-png-9.png)",
@@ -26,11 +18,11 @@ export default function Login() {
       <title>Login</title>
 
       {/* <Image src={imagePath} alt="Umbrella Logo" fill={true} className="w-32 h-32 mx-auto mt-8" /> */}
-      <div className="bg-violet-100 text-black border border-black rounded-lg mx-auto flex flex-col p-4 gap-4">
+      <div className="bg-violet-200 text-black border border-black rounded-lg mx-auto flex flex-col p-4 gap-4">
         <div className="text-8xl">Umbrella</div>
         <CredentialsLoginForm setError={setError} />
         <GoogleLoginForm setError={setError} />
-        <GithubLoginForm setError={setError} />
+        {/* <GithubLoginForm setError={setError} /> */}
         {error && <div className="text-red-500">{error}</div>}
       </div>
     </main >

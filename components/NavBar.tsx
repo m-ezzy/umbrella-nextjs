@@ -23,7 +23,8 @@ export default async function NavBar() {
           </button>
         </form>
       </div>
-      <span className="flex items-center">
+      <span className="flex items-center gap-2">
+        <span className="material-symbols-outlined">notifications</span>
         {session?.user ? <Link href={"/account"}>Account</Link> : <Link href={"/login"}>Login</Link>}
       </span>
     </nav>

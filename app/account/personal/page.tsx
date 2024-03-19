@@ -7,34 +7,41 @@ export default async function Page() {
 
   return(
     <form className="p-2 block *:block">
-      <h3 className="bg-gray-400 p-2">Personal Information</h3>
-
       <label htmlFor="id">User ID</label>
-      <input type="text" placeholder="User ID" value={user.id} />
+      <input type="text" placeholder="User ID" name="user_id" value={user.id} />
 
       <label htmlFor="username">Username</label>
-      <input type="text" placeholder="Username" value={user.username} />
+      <input type="text" placeholder="Username" name="username" value={user.username} />
 
       <label htmlFor="password">Password</label>
-      <input type="text" placeholder="Password" value={user.password} />
+      <input type="text" placeholder="Password" name="password" value={user.password} />
 
-      <label htmlFor="firstname">First Name</label>
-      <input type="text" placeholder="First Name" value={user.firstname} />
+      <label htmlFor="name_prefix">Name Prefix</label>
+      <input type="text" placeholder="Name Prefix" name="name_prefix" value={user.name_prefix} />
 
-      <label htmlFor="lastname">Last Name</label>
-      <input type="text" placeholder="Last Name" value={user.lastname} />
+      <label htmlFor="name_first">First Name</label>
+      <input type="text" placeholder="First Name" name="name_first" value={user.name_first} />
+
+      <label htmlFor="name_middle">Middle Name</label>
+      <input type="text" placeholder="Middle Name" name="name_middle" value={user.name_middle} />
+
+      <label htmlFor="name_sur">Last Name</label>
+      <input type="text" placeholder="Last Name" name="name_sur" value={user.name_sur} />
+
+      <label htmlFor="name_suffix">Name Suffix</label>
+      <input type="text" placeholder="Name Suffix" name="name_suffix" value={user.name_suffix} />
 
       <label htmlFor="phone">Phone</label>
-      <input type="text" placeholder="Phone" value={user.contact_no} />
+      <input type="text" placeholder="Phone" name="phone" value={user.primary_phone} />
 
       <label htmlFor="email">Email</label>
-      <input type="text" placeholder="Email" value={user.primary_email} />
+      <input type="text" placeholder="Email" name="email" value={user.primary_email} />
 
-      <label htmlFor="">Gender</label>
-      <input type="text" placeholder="gender" value={user.gender} />
+      <label htmlFor="gender">Gender</label>
+      <input type="text" placeholder="gender" name="gender" value={user.gender} />
 
-      <label htmlFor="">Date of Birth</label>
-      <input type="text" placeholder="Date of Birth" value={user.date_of_birth} />
+      <label htmlFor="date_of_birth">Date of Birth</label>
+      <input type="text" placeholder="Date of Birth" name="date_of_birth" value={user.date_of_birth} />
 
       <button className="mt-2">Update</button>
     </form>
