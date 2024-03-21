@@ -2,8 +2,8 @@
 import Link from "next/link";
 import { auth, update } from "@/auth";
 import { queryDatabase } from "@/lib/database";
-import { getEnrollments } from "@/models/student";
-import { getEmployments } from "@/models/professor";
+import { getEnrollments } from "@/models/Student";
+import { getEmployments } from "@/models/Professor";
 import { select } from "@/models/Admin";
 
 export default async function DashboardSelector() {
@@ -24,7 +24,7 @@ export default async function DashboardSelector() {
   // }
 
   const studentEnrollments: any[] = await getEnrollments();
-  console.log(studentEnrollments);
+  // console.log(studentEnrollments);
 
   const studentEnrollmentsList = studentEnrollments.map((item: any) => (
     <li key={item.batch_id} className="border p-2 min-w-44">
@@ -38,7 +38,7 @@ export default async function DashboardSelector() {
 
   // for professor
   const professorEmployeed: any[] = await getEmployments(session.user.id);
-  console.log(professorEmployeed);
+  // console.log(professorEmployeed);
 
   const professorEmployeedList = professorEmployeed.map((item: any) => (
     <li key={item.department_id} className="border p-2 min-w-44">
@@ -50,7 +50,7 @@ export default async function DashboardSelector() {
   ));
   
   const adminDegrees: any[] = await select(session.user.id);
-  console.log(adminDegrees);
+  // console.log(adminDegrees);
 
   const adminDegreesList = adminDegrees.map((item: any) => (
     <li key={item.degree_id} className="border p-2 min-w-44">
@@ -62,26 +62,26 @@ export default async function DashboardSelector() {
 
   return (
     <main className="p-2 space-y-2">
-      <h1 className="underline">Dashboard Selector</h1>
+      <h1 className="mb-6 border-b">Dashboard Selector</h1>
 
-      <h3 className="border p-2">Student</h3>
+      <h3 className="font-semibold border-b p-2">Student</h3>
       <ul className="flex gap-2">{ studentEnrollmentsList }</ul>
 
-      <h3 className="border p-2">Professor</h3>
+      <h3 className="font-semibold border-b p-2">Professor</h3>
       <ul className="flex gap-2">{ professorEmployeedList }</ul>
 
-      <h3 className="border p-2">Admin</h3>
+      <h3 className="font-semibold border-b p-2">Admin</h3>
       <ul className="flex gap-2">{ adminDegreesList }</ul>
 
-      <h3 className="border p-2">Head</h3>
+      <h3 className="font-semibold border-b p-2">Head</h3>
 
-      <h3 className="border p-2">Director/Manager</h3>
+      <h3 className="font-semibold border-b p-2">Director</h3> {/* Director Manager */}
 
-      <h3 className="border p-2">Staff - Clerks, Librarian, Poen, Watchman,...</h3>
+      {/* <h3 className="font-semibold border p-2">Staff - Clerks, Librarian, Poen, Watchman,...</h3> */}
 
-      <h3 className="border p-2">Applicant Student</h3>
+      {/* <h3 className="font-semibold border p-2">Applicant Student</h3> */}
 
-      <h3 className="border p-2">Applicant Faculty</h3>
+      {/* <h3 className="font-semibold border p-2">Applicant Faculty</h3> */}
     </main>
   );
 }

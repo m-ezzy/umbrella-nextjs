@@ -8,13 +8,13 @@ export default async function CheckSession({ children }: { children: ReactNode }
   const headersList = headers()
   const nextRoute = headersList.get("referer")
   // const nextRoute = headersList.get("referer").split('/').splice(3, [activeUrl.split('/').length - 1]).join('/')
-  console.log(session, nextRoute)
+  // console.log(session, nextRoute)
 
   if(session?.user == undefined && nextRoute !== '/login') {
     redirect('/login');
   } else if(session?.user && nextRoute === '/login') {
     redirect('/')
   } else {
-    return <>{children}</>
+    return children
   }
 }

@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { getDegrees, getTeaching, getLectures } from "@/models/professor";
+import { getDegrees, getTeaching, getLectures } from "@/models/Professor";
 import { createLecture } from "@/actions/lecture";
 import Image from "next/image";
-import CreateLecture from "@/components/lecture/CreateLecture"
+import CreateLecture from "@/components/lecture/LectureCreate"
 
 type Lecture = {
   id: number;

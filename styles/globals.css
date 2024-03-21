@@ -19,10 +19,13 @@
     /* @apply bg-white; */
   }
   button, button[type=submit] {
-    @apply bg-violet-600 text-white rounded-md flex p-2 gap-1 justify-center justify-items-center align-middle text-center content-center items-center;
+    @apply bg-violet-500 text-white rounded-md flex p-2 gap-1 justify-center justify-items-center align-middle text-center content-center items-center;
   }
   button:hover {
     @apply bg-violet-500;
+  }
+  button[disabled] {
+    @apply bg-gray-400;
   }
   input[type], select {
     @apply border-violet-400 rounded-md focus:border-violet-600 focus:bg-violet-100;

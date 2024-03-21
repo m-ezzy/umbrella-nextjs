@@ -8,13 +8,13 @@ export default async function NavBar() {
 
   return (
     <nav className="bg-violet-300 sticky top-0 left-0 right-0 p-2 flex justify-between items-center">
-      <Link href="/" className="flex gap-2 items-center active:scale-125 active:transition-all">
+      <Link href="/" className="flex gap-2 items-center"> {/* active:scale-125 active:transition-all */}
         <Image src="/assets/images/black-umbrella-png-9.png" alt="Umbrella" width={40} height={40} className="" />
         <span>| {process.env.UNIVERSITY_NAME}</span>
       </Link>
       <div className="flex gap-2 items-center">
         <form>
-          <input type="text" placeholder="search" />
+          <input type="search" placeholder="search" />
         </form>
         <form>
           <button>

@@ -1,5 +1,5 @@
 import { auth } from '@/auth';
-import { getCourses } from '@/models/professor';
+import { getCourses } from '@/models/Professor';
 import MenuList from '@/components/MenuList';
 
 export default async function Page() {

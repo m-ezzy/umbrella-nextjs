@@ -1,4 +1,4 @@
-import { getAttendance } from "@/models/student";
+import { getAttendance } from "@/models/Student";
 
 export default async function Page() {
   const data = await getAttendance();

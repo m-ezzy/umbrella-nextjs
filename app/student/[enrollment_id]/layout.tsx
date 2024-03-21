@@ -7,7 +7,7 @@ export default function Layout({ children, params }: { children: ReactNode, para
   
   return (
     <div className="h-full flex flex-wrap">
-      <div className='border-r'>
+      <div className='bg-violet-100 border-r'>
         <MenuList menus={nav} pathSegment='' />
       </div>
       {children}

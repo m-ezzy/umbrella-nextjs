@@ -7,15 +7,17 @@ export default function CheckSession({ children }: { children: ReactNode }) {
   const { data: session, status, update }: any = useSession()
   const route = usePathname()
   const nextRoute = route.split('/')[1]
-  console.log(session, status)
+  // console.log(session, status)
   
   if (status === 'loading') {
     return <div>Loading...</div>
+  } else if (status === 'unauthenticated' && nextRoute == '') {
+    return children
   } else if (status === 'unauthenticated' && nextRoute !== 'login') {
     redirect('/login')
   } else if (status === 'authenticated' && nextRoute === 'login') {
-    redirect('/')
+    redirect('/dashboards')
   } else {
-    return <>{children}</>
+    return children
   }
 }

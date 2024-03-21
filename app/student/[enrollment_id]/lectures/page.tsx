@@ -1,5 +1,5 @@
 import { queryDatabase } from "@/lib/database";
-import { getLectures } from "@/models/student";
+import { getLectures } from "@/models/Student";
 import Lecture from "@/components/student/Lecture";
 
 export default async function Page({ params }: any) {

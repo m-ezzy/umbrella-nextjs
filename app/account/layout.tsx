@@ -7,7 +7,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
   const menus: string[] = ["personal", "connections", "manage"];
 
   return (
-    <main className="flex">
+    <main className="h-full flex">
       <div className="border-r">
         <MenuList menus={menus} pathSegment="/account/" />
       </div>

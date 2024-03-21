@@ -1,9 +1,9 @@
 "use client";
 import { use, useEffect, useState } from "react";
-import { getDegrees, getLectures } from "@/models/professor";
+import { getDegrees, getLectures } from "@/models/Professor";
 import { createLecture } from "@/actions/lecture";
 
-export default function CreateLecture({ teaching }: any) {
+export default function LectureCreate({ teaching }: any) {
   const [degrees, setDegrees] = useState([]);
   const [syllabus, setSyllabus] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -96,7 +96,7 @@ export default function CreateLecture({ teaching }: any) {
       <input type="date" name="date" required />
       <input type="time" name="start_time" required />
       <input type="time" name="end_time" required />
-      <input type="number" name="room_id" placeholder="Room ID" required />
+      <input type="number" name="room_id" placeholder="Room Number" required />
       <button type="submit" className="ms-aut">
         <span className="material-symbols-outlined">add</span>
         New Lecture

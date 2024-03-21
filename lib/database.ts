@@ -159,10 +159,10 @@ async function seedDatabase() { //seeder
   // connection.end();
 }
 
+const pool: any = mysql.createPool(connectionOptions)
+
 async function queryDatabase(query: string, values?: any[]) {
   console.log("database queried".bgYellow);
-
-  const pool: any = mysql.createPool(connectionOptions)
   // const connection = await pool.getConnection();
 
   let err: any;
