@@ -3,9 +3,10 @@ import { deleteTeaching } from '@/actions/teaching';
 
 export default async function TeachingList({ teaching }) {
   const teachingItems = teaching.map((item: any) => (
-    <div key={item.id} className='border-b grid grid-cols-5 p-5'>
+    <div key={item.id} className='border-b grid grid-cols-6 p-2'>
       <div>{item.year_started}</div>
       <div>{item.division_name}</div>
+      <div>{item.semester}</div>
       <div>{item.course_name}</div>
       <div>{item.name_prefix} {item.name_first} {item.name_sur}</div>
       <div>
@@ -22,9 +23,10 @@ export default async function TeachingList({ teaching }) {
 
   return (
     <div className='mt-8'>
-      <div className='border rounded-md grid grid-cols-5 p-1'>
+      <div className='bg-gray-200 border rounded-md sticky top-0 p-1 grid grid-cols-6'>
         <span>Batch</span>
         <span>Division</span>
+        <span>Semester</span>
         <span>Course</span>
         <span>Professor</span>
         <span>Delete</span>

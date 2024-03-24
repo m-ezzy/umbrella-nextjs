@@ -9,7 +9,7 @@ const font = Silkscreen({
 
 export default function MinecraftPage() {
   return (
-    <div className={`p-2 flex flex-col gap-2 items-center ${font.className}`}>
+    <div className={`h-full p-2 flex flex-col gap-2 items-center ${font.className} overflow-auto`}>
       <h1>The Home of Minecraft under the Umbrella!</h1>
       <p className="text-xl">Here everyone - creeper, skeleton, enderman are invited!</p>
 

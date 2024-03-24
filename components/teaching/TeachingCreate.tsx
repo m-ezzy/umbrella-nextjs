@@ -125,7 +125,7 @@ export default function TeachingCreate({ division_courses, professorsAll, teachi
     }
   });
 
-  professorItems = p.map(({ professor_id, name_prefix, name_first, name_sur, disabled }: any) => {
+  professorItems = p.map(({ user_id: professor_id, name_prefix, name_first, name_sur, disabled }: any) => {
     return <option key={professor_id} value={professor_id} disabled={disabled}>{name_prefix} {name_first} {name_sur}</option>
   });
 
@@ -139,7 +139,7 @@ export default function TeachingCreate({ division_courses, professorsAll, teachi
   const handleChangeProfessor = (e) => setProfessorId(prev => e.target.value);
 
   return (
-    <form action={createTeaching} className="form border rounded-md p-2 grid grid-cols-4 gap-2">
+    <form action={createTeaching} className="bg-white form border rounded-md p-2 grid grid-cols-4 gap-2 sticky top-0">
       {/* <select name="department_id" required>
         <option value="">Select Department</option>
       </select> */}
@@ -147,27 +147,27 @@ export default function TeachingCreate({ division_courses, professorsAll, teachi
         <option value="">Select Degree</option>
         {degreeItems}
       </select> */}
-      <select name="syllabus_id" required onChange={handleChangeSyllabus} >
+      <select name="syllabus_id" value={syllabus_id} required onChange={handleChangeSyllabus} >
         <option value="">Select Syllabus</option>
         {syllabusItems}
       </select>
-      <select name="batch_id" required onChange={handleChangeBatch}>
+      <select name="batch_id" value={batch_id} required onChange={handleChangeBatch}>
         <option value="">Select Batch</option>
         {batchItems}
       </select>
-      <select name="division_id" required onChange={handleChangeDivision}>
+      <select name="division_id" value={division_id} required onChange={handleChangeDivision}>
         <option value="">Select Division</option>
         {divisionItems}
       </select>
-      <select name="semester" required onChange={handleChangeSemester}>
+      <select name="semester" value={semester} required onChange={handleChangeSemester}>
         <option value="">Select Semester</option>
         {semesterItems}
       </select>
-      <select name="course_id" required onChange={handleChangeCourse}>
+      <select name="course_id" value={course_id} required onChange={handleChangeCourse}>
         <option value="">Select Course</option>
         {courseItems}
       </select>
-      <select name="professor_id" required onChange={handleChangeProfessor}>
+      <select name="professor_id" value={professor_id} required onChange={handleChangeProfessor}>
         <option value="">Select Professor</option>
         {professorItems}
       </select>

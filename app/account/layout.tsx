@@ -8,10 +8,12 @@ export default async function Layout({ children }: { children: ReactNode }) {
 
   return (
     <main className="h-full flex">
-      <div className="border-r">
+      <div className="bg-violet-100 border-r overflow-auto">
         <MenuList menus={menus} pathSegment="/account/" />
       </div>
-      {children}
+      <div className="w-full overflow-auto">
+        {children}
+      </div>
     </main>
   );
 }

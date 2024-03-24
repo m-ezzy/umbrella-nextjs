@@ -3,12 +3,38 @@ import { useEffect, useRef, useState } from "react";
 import TimetableFilter1 from "./TimetableFilter1";
 import TimetableFilter2 from "./TimetableFilter2";
 import TimetableFilter3 from "./TimetableFilter3";
-import TimetableView from "./TimetableView";
+import TimetableView from "./TimetableViewSimple";
 import { actionTimetable } from "@/actions/timetable";
-import e from "cors";
 
-export default function TimetableUltimate({ timetableData, teachingData, roomData }: any) {
+// type TeachingData = {
+//   teaching_id: number;
+//   syllabus_id: number | null;
+//   batch_id: number | null;
+//   division_id: number | null;
+//   semester: number | null;
+//   course_id: number | null;
+//   professor_id: number | null;
+// };
+// type TimetableData = {
+//   timetable_id: number;
+//   teaching_id: number;
+//   weekday: string;
+//   time_start: string;
+//   time_end: string;
+//   room_id: number;
+// };
+type TimetableUltimateProps = {
+  timetableData: any,
+  teachingData: any,
+  // timetableData: TimetableData[],
+  // teachingData: TeachingData[],
+  roomData: any[],
+};
+
+export default function TimetableUltimate({ timetableData, teachingData, roomData }: TimetableUltimateProps) {
   // console.log(timetableData, teachingData, roomData);
+
+  let initialTeaching: any = teachingData[0] ? teachingData[0] : { teaching_id: "", syllabus_id: "", batch_id: "", division_id: "", semester: "", course_id: "", professor_id: "" };
 
   // let timetableDataFiltered: any = timetableData;
   // let timetableDataFiltered: any = useRef(timetableData);
@@ -28,9 +54,9 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
   const [weekdays, setWeekdays] = useState([]);
   const [rooms, setRooms] = useState([]);
 
-  const [batch_id, setBatchId] = useState(teachingData[0].batch_id);
-  const [division_id, setDivisionId] = useState(teachingData[0].division_id);
-  const [semester, setSemester] = useState(teachingData[0].semester);
+  const [batch_id, setBatchId] = useState(initialTeaching.batch_id);
+  const [division_id, setDivisionId] = useState(initialTeaching.division_id);
+  const [semester, setSemester] = useState(initialTeaching.semester);
   const [course_id, setCourseId] = useState("");
   const [professor_id, setProfessorId] = useState("");
   const [teaching_id, setTeachingId] = useState("");
@@ -78,20 +104,18 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
 
       filtered = filtered.filter((item: any) => item.division_id == division_id && item.semester == semester);
 
-      // course_id or professor_id fiters timetableData
-      if(course_id) {
-        filtered = filtered.filter((item: any) => item.course_id == course_id);
-      }
-      if(professor_id) {
-        filtered = filtered.filter((item: any) => item.professor_id == professor_id);
-      }
+      // highlight the appropriate cells with color | course_id or professor_id fiters timetableData
+      filtered = filtered.map((tt: any) => {
+        tt["highlight"] = false;
+        if(course_id && professor_id) tt["highlight"] = tt.course_id == course_id && tt.professor_id == professor_id;
+        else if(course_id) tt["highlight"] = tt.course_id == course_id;
+        else if(professor_id) tt["highlight"] = tt.professor_id == professor_id;
 
-      if(weekday) {
-        filtered = filtered.filter((item: any) => item.weekday == weekday);
-      }
-      if(time_start) {
-        filtered = filtered.filter((item: any) => item.time_start.slice(0,5) == time_start);
-      }
+        // fix the bug here
+        if(weekday && tt.highlight) tt["highlight"] = tt.weekday == weekday;
+        // if(time_start && time_end) tt["highlight"] = tt.time_start >= time_start && tt.time_end <= time_end;
+        return tt;
+      });
       setTimetableDataFiltered(prev => filtered);
 
       // if(course_id) {
@@ -112,12 +136,16 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
       teachingDataFiltered = teachingData.filter((item: any) => {
         return item.division_id == division_id && item.course_id == course_id && item.professor_id == professor_id;
       });
-    }
-    
-    if(teachingDataFiltered.length) {
-      setTeachingId(teachingDataFiltered[0].teaching_id);
+
+      if(teachingDataFiltered.length) {
+        setMessage("Teaching ID found for the selected division, course, and professor");
+        setTeachingId(teachingDataFiltered[0].teaching_id);
+      } else {
+        setMessage("No teaching ID found for the selected division, course, and professor");
+        setTeachingId("");
+      }
     } else {
-      setTeachingId("");
+      setMessage("");
     }
   }, [teachingData, division_id, course_id, professor_id]);
 
@@ -129,22 +157,33 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
         return item.teaching_id == teaching_id && item.weekday == weekday && item.time_start.slice(0,5) == time_start && item.time_end.slice(0,5) == time_end// && item.room_id == room_id
       });
 
-      console.log(timetableExists);
       if(timetableExists) {
-        setTimetableId(timetableExists.timetable_id);
+        if(timetable_id != timetableExists.timetable_id) setTimetableId(timetableExists.timetable_id);
         setMessage("Timetable can be updated or deleted");
         setCreateButtonState(false);
         setUpdateButtonState(true);
         setDeleteButtonState(true);
       } else {
-        //check if division is available. they might be teaching another class at the same time
         //check if professor is available. they might be teaching another class at the same in ANOTHER DEGREE PROGRAM (division_id)
         //check if room is available
         
-        setMessage("New timetable can be created");
-        setCreateButtonState(true);
-        setUpdateButtonState(false);
-        setDeleteButtonState(false);
+        //check if division is available. they might be attending another class at the same time
+        let divisionIsBusy: any = timetableData.find((item: any) => {
+          let timeClash =  time_start == item.time_start.slice(0,5) && time_end == item.time_end.slice(0,5);
+          return item.division_id == division_id && item.semester == semester && item.weekday == weekday && item.time_start.slice(0,5) <= time_start && item.time_end.slice(0,5) >= time_end;
+        });
+
+        if(divisionIsBusy) {
+          setMessage("Division is not available at the selected time - " + JSON.stringify(divisionIsBusy));
+          setCreateButtonState(false);
+          setUpdateButtonState(false);
+          setDeleteButtonState(false);
+        } else {
+          setMessage("New timetable can be created");
+          setCreateButtonState(true);
+          setUpdateButtonState(false);
+          setDeleteButtonState(false);
+        }
       }
     } else {
       // setCreateButtonState(false);
@@ -152,7 +191,7 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
       // setDeleteButtonState(false);
     }
   }, [teaching_id, weekday, time_start, time_end, room_id]);
-
+  
   batchItems = teachingData.map((item: any) => {
     if(uniqueBatch.has(item.batch_id)) {
       uniqueBatch.delete(item.batch_id);
@@ -187,33 +226,43 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
     return <option key={item.room_id} value={item.room_id}>{item.building_name} {item.floor_number}0{item.room_number}</option>;
   });
 
-
-
-  // batchItems = uniqueBatch.map((item: any) => {
-  //   return <option key={item} value={item}>{item}</option>;
-  // });
-  // divisionItems = uniqueDivision.map((item: any) => {
-  //   return <option key={item} value={item}>{item}</option>;
-  // });
-  // semesterItems = uniqueSemester.map((item: any) => {
-  //   return <option key={item} value={item}>{item}</option>;
-  // });
-  // courseItems = uniqueCourse.map((item: any) => {
-  //   return <option key={item} value={item}>{item}</option>;
-  // });
-  // professorItems = uniqueProfessor.map((item: any) => {
-  //   return <option key={item} value={item}>{item}</option>;
-  // });
-  // roomItems = roomData.map((item: any) => {
-  //   return <option key={item.room_id} value={item.room_id}>{item.building_name} {item.floor_number}0{item.room_number}</option>;
-  // });
+  function handleClickCell(timetable_id: number) {
+    let timetable: any = timetableDataFiltered.find((item: any) => item.timetable_id == timetable_id);
+    setCourseId(timetable.course_id);
+    setProfessorId(timetable.professor_id);
+    // setTeachingId(timetable.teaching_id);
+    setWeekday(timetable.weekday);
+    setTimeStart(timetable.time_start);
+    setTimeEnd(timetable.time_end);
+    setRoomId(timetable.room_id);
+    // setTimetableId(timetable.timetable_id);
+  }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="px-2 flex flex-col gap-6">
       {/* <TimetableFilter1 teachingData={teachingData} batch_id={batch_id} division_id={division_id} semester={semester} setBatchId={setBatchId} setDivisionId={setDivisionId} setSemester={setSemester} /> */}
+      {/* <TimetableFilter2 teachingData={teachingData} course_id={course_id} professor_id={professor_id} setCourseId={setCourseId} setProfessorId={setProfessorId} /> */}
+      {/* <TimetableFilter3 teachingData={teachingData} weekday={weekday} time_start={time_start} time_end={time_end} room_id={room_id} setWeekday={setWeekday} setTimeStart={setTimeStart} setTimeEnd={setTimeEnd} setRoomId={setRoomId} /> */}
 
-      <form action={actionTimetable} className="form grid gap-2">
-        <div className="border rounded-md p-2 grid grid-cols-8 gap-2 items-center">
+      <form action={actionTimetable} className="bg-white form sticky top-0 grid gap-2">
+
+        {/* <div className="grid grid-cols-3 gap-2">
+          <h4>Select Mode</h4>
+          <button type="submit" name="action" value="create" className={`ms-aut`} disabled={!createButtonState}>
+            <span className="material-symbols-outlined">add</span>
+            New Timetable
+          </button>
+          <button type="submit" name="action" value="update" className={`ms-aut`} disabled={!updateButtonState}>
+            <span className="material-symbols-outlined">edit</span>
+            Update Timetable
+          </button>
+          <button type="submit" name="action" value="delete" className={`ms-aut`} disabled={!deleteButtonState}>
+            <span className="material-symbols-outlined">delete</span>
+            Delete Timetable
+          </button>
+        </div> */}
+
+        <div className="bg-gray-100 border rounded-md mt-2 p-2 grid grid-cols-8 gap-2 items-center">
           <label htmlFor="batch_id">Batch</label>
           <select name="batch_id" value={batch_id} required onChange={handleChangeBatch}>
             {batchItems}
@@ -228,22 +277,25 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
           </select>
         </div>
 
-        <div className="border rounded-md p-2 grid grid-cols-8 gap-2 items-center">
+        <div className="bg-gray-100 border rounded-md p-2 grid grid-cols-8 gap-2 items-center">
           <label htmlFor="course_id">Course</label>
           <select name="course_id" value={course_id} required onChange={handleChangeCourse}>
+            <option value=""></option>
             {courseItems}
           </select>
           <label htmlFor="professor_id">Professor</label>
           <select name="professor_id" value={professor_id} required onChange={handleChangeProfessor}>
+            <option value=""></option>
             {professorItems}
           </select>
           
           <input type="hidden" name="teaching_id" value={teaching_id} />
         </div>
 
-        <div className="border rounded-md p-2 grid grid-cols-8 gap-2 items-center">
+        <div className="bg-gray-100 border rounded-md p-2 grid grid-cols-8 gap-2 items-center">
           <label htmlFor="weekday">Weekday</label>
-          <select name="weekday" value={weekday} required onChange={handleChangeWeekday}>
+          <select name="weekday" value={weekday} required onChange={handleChangeWeekday}> {/* multiple={true} */}
+            <option value=""></option>
             <option value="Monday">Monday</option>
             <option value="Tuesday">Tuesday</option>
             <option value="Wednesday">Wednesday</option>
@@ -267,9 +319,7 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
           <input type="hidden" name="timetable_id" value={timetable_id} />
         </div>
 
-        {/* <div className="bg-gray-200 rounded-md p-2">{message}</div> */}
-
-        <div className="grid grid-cols-3 gap-2">
+        <div className="mt-4 grid grid-cols-3 gap-2">
           <button type="submit" name="action" value="create" className={`ms-aut`} disabled={!createButtonState}>
             <span className="material-symbols-outlined">add</span>
             New Timetable
@@ -283,11 +333,14 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
             Delete Timetable
           </button>
         </div>
+
+        {/* <div className="bg-gray-200 rounded-md p-2">{message}</div> */}
+
       </form>
 
       {/* <TimetableOperations teaching_id time_start time_end weekday room_id teachingData /> */}
       
-      <TimetableView timetableDataFiltered={timetableDataFiltered} />
+      <TimetableView timetableDataFiltered={timetableDataFiltered} handleClickCell={handleClickCell} />
 
     </div>
   );

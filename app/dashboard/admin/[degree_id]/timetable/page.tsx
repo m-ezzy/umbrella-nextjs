@@ -9,8 +9,8 @@ export default async function Page({ params }: {params: { degree_id: string }}) 
   const timetableData = await selectByDegree(params.degree_id);
 
   return (
-    <div className='w-full p-2 overflow-auto'>
-      <TimetableUltimate timetableData={timetableData} teachingData={teachingData} roomData={roomData} />
+    <div className='w-full overflow-auto'>
+      <TimetableUltimate roomData={roomData} teachingData={teachingData} timetableData={timetableData} />
     </div>
   );
 }

@@ -87,5 +87,8 @@ body {
   'opsz' 24
 }
 
+.grid-row-1441 {
+  grid-template-rows: repeat(1441, minmax(0, 1fr));
+}
 
 

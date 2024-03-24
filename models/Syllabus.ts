@@ -13,7 +13,7 @@ async function update(syllabus_id: number, year_effective: number) {
   return await queryDatabase("UPDATE syllabus SET year_effective = ? WHERE id = ?", [year_effective, syllabus_id]);
 }
 async function deleteById(syllabus_id: number) { //remove
-  return await queryDatabase("DELETE FROM syllabus WHERE id=?", [syllabus_id]);
+  return await queryDatabase("DELETE FROM syllabus WHERE id = ?", [syllabus_id]);
 }
 
 export { select, selectByDegreeId, insert, update, deleteById };
