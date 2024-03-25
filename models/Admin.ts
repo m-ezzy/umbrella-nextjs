@@ -27,4 +27,5 @@ async function deleteByDegreeId(degree_id: number) {
 async function deleteByUserId(user_id: number) {
   return await queryDatabase('DELETE FROM admin WHERE user_id=?', [user_id]);
 }
+
 export { select, selectByDepartmentId, selectByDegreeId, selectByUserId, insert, update, deleteByAdminId, deleteByDegreeId, deleteByUserId };

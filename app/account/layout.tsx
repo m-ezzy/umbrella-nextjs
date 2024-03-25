@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { auth } from "@/auth";
-import MenuList from "@/components/MenuList";
+import MenuList from "@/components/UI/MenuList";
 
 export default async function Layout({ children }: { children: ReactNode }) {
   const session:any = await auth();

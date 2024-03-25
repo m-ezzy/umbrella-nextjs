@@ -34,7 +34,7 @@ const CredentialsProviderOptions: any = {
       return null;
     }
     const user: any = await queryDatabase(
-      "SELECT * FROM user WHERE (id = ? OR username = ? OR primary_email = ? OR contact_no = ?) AND password = ?", 
+      "SELECT * FROM user WHERE (user_id = ? OR username = ? OR primary_email = ? OR contact_no = ?) AND password = ?", 
       [credentials.uniqueIdentifier, credentials.uniqueIdentifier, credentials.uniqueIdentifier, credentials.uniqueIdentifier, credentials.password]
     )
     .catch((err: any) => {

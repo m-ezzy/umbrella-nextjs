@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import MenuList from '@/components/MenuList';
+import MenuList from '@/components/UI/MenuList';
 
 export default function Layout({ children, params }: { children: ReactNode, params: any }) {
   const nav = ['courses', 'resourses', 'schedule', 'timetable', 'lectures', 'attendance', 'assignments', 'exams', 'grades', 'salary'];

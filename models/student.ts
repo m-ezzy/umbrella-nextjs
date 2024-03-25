@@ -2,15 +2,6 @@
 import { auth, update } from '@/auth';
 import { queryDatabase } from '@/lib/database';
 
-async function getEnrollments() {
-  const session:any = await auth();
-  const studentEnrollments:any[] = await queryDatabase('SELECT batch_user.enrollment_id,batch.id as batch_id,division.id as division_id,division.name as division_name,batch.year_started,degree.degree_id,degree.degree_name,degree.degree_name_acronym FROM batch_user INNER JOIN batch ON batch.id=batch_user.batch_id INNER JOIN division ON batch_user.division_id INNER JOIN syllabus ON batch.syllabus_id=syllabus.id INNER JOIN degree on degree.degree_id=syllabus.degree_id WHERE batch_user.user_id=? AND batch_user.division_id=division.id', [ session.user.id ]);
-
-  //add this data to session
-  // update({ ...session, studentEnrollments: studentEnrollments });
-
-  return studentEnrollments;
-}
 async function getCourses(syllabus_id: number) {
   const courses:any[] = await queryDatabase('SELECT course.id,course.name_acronym,course.name FROM syllabus_course INNER JOIN syllabus ON syllabus.id=syllabus_course.syllabus_id INNER JOIN course ON course.id=syllabus_course.course_id WHERE syllabus.id=?', [syllabus_id]);
   return courses;
@@ -30,4 +21,4 @@ async function getAttendance() {
   return attendance;
 }
 
-export { getEnrollments, getCourses, getLectures, getAttendance }
+export { getCourses, getLectures, getAttendance }

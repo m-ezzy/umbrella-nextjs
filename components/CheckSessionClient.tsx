@@ -16,7 +16,7 @@ export default function CheckSession({ children }: { children: ReactNode }) {
   } else if (status === 'unauthenticated' && nextRoute !== 'login') {
     redirect('/login')
   } else if (status === 'authenticated' && nextRoute === 'login') {
-    redirect('/dashboards')
+    redirect('/dashboard')
   } else {
     return children
   }

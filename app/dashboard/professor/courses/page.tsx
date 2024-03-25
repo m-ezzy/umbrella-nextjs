@@ -1,6 +1,6 @@
 import { auth } from '@/auth';
 import { getCourses } from '@/models/Professor';
-import MenuList from '@/components/MenuList';
+import MenuList from '@/components/UI/MenuList';
 
 export default async function Page() {
   const session:any = await auth();

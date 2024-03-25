@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { redirect } from 'next/navigation'
 import { SessionProvider, useSession } from 'next-auth/react'
-import { CredentialsLoginForm, GoogleLoginForm, GithubLoginForm } from '@/components/LoginForms'
+import { CredentialsLoginForm, GoogleLoginForm, GithubLoginForm } from '@/components/auth/LoginForms'
 
 export default function Login() {
   const [loading, setLoading] = useState(false)

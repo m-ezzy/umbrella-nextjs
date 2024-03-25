@@ -1,0 +1,688 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model admin {
+  admin_id  Int    @id @default(autoincrement())
+  degree_id Int
+  user_id   Int
+  degree    degree @relation(fields: [degree_id], references: [degree_id], onDelete: NoAction, onUpdate: NoAction, map: "admin_ibfk_1")
+  user      user   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "admin_ibfk_2")
+
+  @@index([degree_id], map: "admin_degree_idx")
+  @@index([user_id], map: "admin_user_idx")
+  @@unique([degree_id, user_id], map: "admin_degree_user_UNIQUE")
+}
+
+model admission {
+  admission_id       Int                           @id @default(autoincrement())
+  admission_date     String?                       @db.VarChar(45)
+  admission_type     admission_admission_type?
+  admission_category admission_admission_category?
+  admission_quota    String?                       @db.VarChar(45)
+  admission_status   admission_admission_status?
+  degree_id          Int
+  user_id            Int
+  degree             degree                        @relation(fields: [degree_id], references: [degree_id], onDelete: NoAction, onUpdate: NoAction, map: "admission_idfk_1")
+  user               user                          @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "admission_idfk_2")
+
+  @@index([degree_id], map: "admission_idfk_1_idx")
+  @@index([user_id], map: "admission_idfk_2_idx")
+}
+
+model assignment {
+  assignment_id            Int                         @id @default(autoincrement())
+  assignment_title         String                      @db.VarChar(50)
+  assignment_description   String                      @db.VarChar(255)
+  assignment_deadline      DateTime?                   @db.DateTime(0)
+  assignment_type          assignment_assignment_type?
+  assignment_maximum_marks Int?
+  assignment_graded        Int?                        @db.TinyInt
+  assignment_weightage     Int?
+  teaching_id              Int
+  teaching                 teaching                    @relation(fields: [teaching_id], references: [teaching_id], onUpdate: NoAction, map: "assignment_ibfk_1")
+  submissions              assignment_submission[]
+
+  @@index([teaching_id], map: "assignment_ibfk_1_idx")
+}
+
+model assignment_submission {
+  submission_id   Int        @id @default(autoincrement())
+  submission_data String     @db.VarChar(255)
+  submission_date DateTime   @db.Date
+  obtained_marks  Int?
+  assignment_id   Int
+  user_id         Int
+  assignment      assignment @relation(fields: [assignment_id], references: [assignment_id], onDelete: NoAction, onUpdate: NoAction, map: "assignment_submission_ibfk_1")
+  user            user       @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "assignment_submission_ibfk_2")
+
+  @@unique([assignment_id, user_id], map: "assignment_user_UNIQUE")
+  @@index([assignment_id], map: "assignment_submission_ibfk_1_idx")
+  @@index([user_id], map: "assignment_submission_ibfk_2_idx")
+}
+
+model author {
+  author_id   Int           @id @default(autoincrement())
+  author_name String        @db.VarChar(30)
+  author_book author_book[]
+}
+
+model author_book {
+  book_id   Int
+  author_id Int
+  book      book   @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "author_book_ibfk_1")
+  author    author @relation(fields: [author_id], references: [author_id], onDelete: NoAction, onUpdate: NoAction, map: "author_book_ibfk_2")
+
+  @@id([book_id, author_id])
+  @@unique([book_id, author_id], map: "book_author_UNIQUE")
+  @@index([author_id], map: "author_id")
+  @@index([book_id], map: "book_id_idx")
+}
+
+model batch {
+  batch_id         Int          @id @default(autoincrement())
+  year_started     Int
+  year_ended       Int
+  current_semester Int
+  syllabus_id      Int
+  syllabus         syllabus     @relation(fields: [syllabus_id], references: [syllabus_id], onDelete: NoAction, onUpdate: NoAction, map: "batch_ibfk_1")
+  division         division[]
+  enrollment       enrollment[]
+
+  @@index([syllabus_id], map: "batch_syllabus_idx")
+  @@unique([year_started, syllabus_id], map: "batch_year_syllabus_UNIQUE")
+}
+
+model book {
+  id                Int                 @id
+  name              String              @db.VarChar(30)
+  author_name       String?             @db.VarChar(30)
+  book_brn_id       Int?
+  book_price        Int?
+  ISBN              String?             @db.VarChar(30)
+  publisher         String?             @db.VarChar(30)
+  published_date    DateTime?           @db.Date
+  edition           Int?
+  language          String?             @db.VarChar(30)
+  copies            Int?
+  author_book       author_book[]
+  book_course       book_course[]
+  book_issue_return book_issue_return[]
+  library_book      library_book[]
+}
+
+model book_course {
+  book_id   Int
+  course_id Int
+  book      book   @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "book_course_ibfk_1")
+  course    course @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "book_course_ibfk_2")
+
+  @@id([book_id, course_id])
+  @@index([course_id], map: "course_id")
+}
+
+model book_issue_return {
+  id                   Int       @id
+  user_id              Int?
+  book_id              Int?
+  issue_date           DateTime? @db.Date
+  supposed_return_date DateTime? @db.Date
+  actual_return_date   DateTime? @db.Date
+  fine                 Int?
+  user                 user?     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "book_issue_return_ibfk_1")
+  book                 book?     @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "book_issue_return_ibfk_2")
+
+  @@index([book_id], map: "book_id")
+  @@index([user_id], map: "user_id")
+}
+
+model building {
+  building_id   Int          @id @default(autoincrement())
+  building_name String       @db.VarChar(255) @unique(map: "building_name_UNIQUE")
+  // floor_count   Int?
+  campus_id     Int
+  campus        campus       @relation(fields: [campus_id], references: [campus_id], onDelete: NoAction, onUpdate: NoAction, map: "building_ibfk_1")
+  // department    department[]
+  floor         floor[]
+  library       library[]
+
+  @@index([campus_id], map: "building_campus_idx")
+}
+
+model campus {
+  campus_id         Int        @id @default(autoincrement())
+  campus_name       String     @db.VarChar(100) @unique(map: "campus_name_UNIQUE")
+  campus_address    String     @db.VarChar(255)
+  campus_city       String     @db.VarChar(100)
+  campus_state      String     @db.VarChar(100)
+  campus_country    String     @db.VarChar(100)
+  campus_pincode    String     @db.VarChar(10)
+  campus_gate_count Int?       @default(1)
+  building          building[]
+}
+
+model chapter {
+  chapter_id          Int     @id @default(autoincrement())
+  chapter_number      Int
+  chapter_title       String? @db.VarChar(50)
+  chapter_description String? @db.VarChar(255)
+  chapter_weightage   Int?
+  course_id           Int
+  course              course  @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "chapter_course_idfk_1")
+
+  @@index([course_id], map: "chapter_course_idfk_1_idx")
+}
+
+// subject course
+model course {
+  course_id           Int                @id @default(autoincrement())
+  course_code         String?            @db.VarChar(50) @unique(map: "course_code_UNIQUE")
+  course_name         String             @db.VarChar(100)
+  course_name_acronym String             @db.VarChar(20)
+  course_type         course_type
+  year_created        Int
+  chapter             chapter[]
+  book_course         book_course[]
+  syllabus_course     syllabus_course[]
+  teaching            teaching[]
+  exam                exam[]
+  result              result[]
+
+  @@index([course_code], map: "course_code_idx")
+}
+
+model course_user_elective {
+  id Int @id @default(autoincrement())
+}
+
+// degree_category --- regular,distance,open,part-time,full-time,sponsored,management,NRI,foreign
+// branch
+// stream --- Arts,Business,Commerce,Engineering,Science,IT,Medical,Law,Management,Education
+model degree {
+  degree_id           Int                @id @default(autoincrement())
+  degree_name         String             @db.VarChar(100) @unique(map: "degree_name_UNIQUE")
+  degree_name_acronym String             @db.VarChar(20) @unique(map: "degree_name_acronym_UNIQUE")
+  degree_type         degree_type     // Diploma, UG, PG, PhD
+  // duration_years      Int
+  // duration_semesters  Int
+  department_id       Int
+  department          department         @relation(fields: [department_id], references: [department_id], onDelete: NoAction, onUpdate: NoAction, map: "degree_ibfk_1")
+  admin               admin[]
+  admission           admission[]
+  syllabus            syllabus[]
+
+  @@index([department_id], map: "degree_department_idx")
+}
+
+model department {
+  department_id           Int       @id
+  department_name         String    @db.VarChar(100) @unique(map: "department_name_UNIQUE")
+  department_name_acronym String    @db.VarChar(50) @unique(map: "department_name_acronym_UNIQUE")
+  // building_id             Int?
+  // building                building? @relation(fields: [building_id], references: [building_id], onDelete: NoAction, onUpdate: NoAction, map: "department_ibfk_1")
+  degree                  degree[]
+  faculty                 faculty[]
+  library                 library[]
+
+  // @@index([building_id], map: "department_ibfk_1_idx")
+}
+
+model division {
+  division_id   Int          @id @default(autoincrement())
+  division_name String       @db.VarChar(20)
+  batch_id      Int
+  batch         batch        @relation(fields: [batch_id], references: [batch_id], onDelete: Restrict, onUpdate: NoAction, map: "division_ibfk_1")
+  teaching      teaching[]
+  enrollment    enrollment[]
+  exam          exam[]
+
+  @@index([batch_id], map: "division_batch_idx")
+  @@unique([division_name, batch_id], map: "division_name_batch_UNIQUE")
+}
+
+// batch_user division_user enrollment student
+model enrollment {
+  enrollment_id     Int      @id @default(autoincrement())
+  enrollment_number BigInt?  @unique(map: "enrollment_number_UNIQUE")
+  roll_number       String?  @db.VarChar(5) @unique(map: "roll_number_UNIQUE")
+  batch_id          Int
+  division_id       Int
+  user_id           Int
+  batch             batch    @relation(fields: [batch_id], references: [batch_id], onDelete: NoAction, onUpdate: NoAction, map: "enrollment_ibfk_1")
+  division          division @relation(fields: [division_id], references: [division_id], onDelete: NoAction, onUpdate: NoAction, map: "enrollment_ibfk_2")
+  user              user     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "enrollment_ibfk_3")
+  result            result[]
+
+  @@index([batch_id], map: "enrollment_batch_idx")
+  @@index([user_id], map: "enrollment_user_idx")
+  @@index([division_id], map: "enrollment_division_idx")
+  @@unique([batch_id, user_id], map: "batch_user_UNIQUE")
+}
+
+model event {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique(map: "name") @db.VarChar(255)
+  description String   @db.Text
+  start_date  DateTime @db.Date
+  end_date    DateTime @db.Date
+  start_time  DateTime @db.Time(0)
+  end_time    DateTime @db.Time(0)
+  venue       String   @db.VarChar(255)
+  organizer   String   @db.VarChar(255)
+}
+
+model exam {
+  exam_id          Int            @id @default(autoincrement())
+  exam_title       String         @db.VarChar(50)
+  exam_description String         @db.VarChar(255)
+  exam_date        DateTime       @db.Date
+  exam_time        DateTime       @db.Time(0)
+  exam_duration    DateTime       @db.Time(0)
+  maximum_marks    Int
+  course_id        Int
+  division_id      Int
+  course           course         @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "exam_ibfk_1")
+  division         division       @relation(fields: [division_id], references: [division_id], onDelete: NoAction, onUpdate: NoAction, map: "exam_ibfk_2")
+  exam_student     exam_student[]
+  grade            grade[]
+
+  @@index([course_id], map: "course_id")
+  @@index([division_id], map: "division_id")
+}
+
+model exam_student {
+  exam_id             Int
+  user_id             Int
+  answer_paper_number String @db.VarChar(255)
+  marks               Int
+  exam                exam   @relation(fields: [exam_id], references: [exam_id], onDelete: NoAction, onUpdate: NoAction, map: "exam_student_ibfk_1")
+  user                user   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "exam_student_ibfk_2")
+
+  @@id([exam_id, user_id])
+  @@index([exam_id], map: "exam_student_ibfk_1_idx")
+  @@index([user_id], map: "exam_student_ibfk_2_idx")
+}
+
+/// department_user, faculty
+model faculty {
+  faculty_id        Int                 @id @default(autoincrement())
+  designation       faculty_designation
+  date_join         DateTime?           @db.Date
+  date_leave        DateTime?           @db.Date
+  qualification     String?             @db.VarChar(50)
+  experience_years  Int?
+  specialization    String?             @db.VarChar(50)
+  research_interest String?             @db.VarChar(50)
+  department_id     Int
+  user_id           Int
+  department        department          @relation(fields: [department_id], references: [department_id], onDelete: NoAction, onUpdate: NoAction, map: "faculty_ibfk_1")
+  user              user                @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "faculty_ibfk_2")
+
+  @@index([department_id], map: "faculty_department_idx")
+  @@index([user_id], map: "faculty_user_idx")
+}
+
+model floor {
+  floor_id     Int      @id @default(autoincrement())
+  floor_number Int
+  // room_count   Int?
+  building_id  Int
+  building     building @relation(fields: [building_id], references: [building_id], onDelete: NoAction, onUpdate: NoAction, map: "floor_ibfk_1")
+  room         room[]
+
+  @@index([building_id], map: "floor_building_idx")
+}
+
+/// grade mark
+model grade {
+  grade_id      Int               @id @default(autoincrement())
+  grade_name    grade_grade_name?
+  grade_type_id Int
+  grades        Int
+  exam_id       Int
+  user_id       Int
+  user          user              @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "grade_ibfk_1")
+  exam          exam              @relation(fields: [exam_id], references: [exam_id], onDelete: NoAction, onUpdate: NoAction, map: "grade_ibfk_2")
+
+  @@index([exam_id], map: "exam_id")
+  @@index([user_id], map: "user_id")
+}
+
+model lecture {
+  lecture_id         Int                  @id @default(autoincrement())
+  lecture_date       DateTime             @db.Date
+  lecture_time_start DateTime             @db.Time(0)
+  lecture_time_end   DateTime             @db.Time(0)
+  // lecture_duration   DateTime?            @db.Time(0)
+  teaching_id        Int
+  room_id            Int
+  teaching           teaching             @relation(fields: [teaching_id], references: [teaching_id], onDelete: NoAction, onUpdate: NoAction, map: "lecture_ibfk_1")
+  room               room                 @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction, map: "lecture_ibfk_2")
+  lecture_attendance lecture_attendance[]
+
+  @@index([teaching_id], map: "lecture_teaching_idx")
+  @@index([room_id], map: "lecture_room_idx")
+}
+
+model lecture_attendance {
+  lecture_attendance_id Int     @id @default(autoincrement())
+  lecture_id            Int
+  user_id               Int
+  lecture               lecture @relation(fields: [lecture_id], references: [lecture_id], onDelete: NoAction, onUpdate: NoAction, map: "lecture_attendance_ibfk_1")
+  user                  user    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "lecture_attendance_ibfk_2")
+
+  @@unique([lecture_id, user_id], map: "lecture_user_UNIQUE")
+  @@index([lecture_id], map: "lecture_attendance_ibfk_1_idx")
+  @@index([user_id], map: "lecture_attendance_ibfk_2_idx")
+}
+
+/// level roles permissions role_permissions user_role
+model level {
+  id Int @id
+}
+
+model library {
+  id            Int            @id @unique(map: "id_UNIQUE") @default(autoincrement())
+  name          String?        @unique(map: "name_UNIQUE") @db.VarChar(45)
+  department_id Int
+  building_id   Int?
+  department    department     @relation(fields: [department_id], references: [department_id], onDelete: NoAction, onUpdate: NoAction, map: "library_ibfk_1")
+  building      building?      @relation(fields: [building_id], references: [building_id], onDelete: NoAction, onUpdate: NoAction, map: "library_ibfk_2")
+  library_book  library_book[]
+
+  @@index([building_id], map: "FK_library_building_idx")
+  @@index([department_id], map: "FK_library_department_idx")
+}
+
+model library_book {
+  id         Int       @id @unique(map: "id_UNIQUE") @default(autoincrement())
+  library_id Int
+  book_id    Int
+  copies     Int?      @default(0)
+  date_added DateTime? @db.Date
+  library    library   @relation(fields: [library_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "library_book_ibfk_1")
+  book       book      @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "library_book_ibfk_2")
+
+  @@unique([library_id, book_id], map: "UK_library_book")
+  @@index([book_id], map: "FK_book_idx")
+}
+
+model result {
+  id            Int        @id @default(autoincrement())
+  enrollment_id Int
+  course_id     Int
+  grade         String     @db.VarChar(50)
+  marks         Int
+  weightage     Int?
+  enrollment    enrollment @relation(fields: [enrollment_id], references: [enrollment_id], onDelete: NoAction, onUpdate: NoAction, map: "result_ibfk_1")
+  course        course     @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "result_ibfk_2")
+
+  @@index([enrollment_id], map: "result_ibfk_1_idx")
+  @@index([course_id], map: "result_ibfk_2_idx")
+}
+
+/// classroom, lab, office, conference, washroom, store, library, canteen, auditorium, utility
+model room {
+  room_id           Int             @id @default(autoincrement())
+  room_number       Int
+  room_type         room_room_type?
+  room_capacity     Int?
+  room_row_count    Int?
+  room_column_count Int?
+  floor_id          Int
+  floor             floor           @relation(fields: [floor_id], references: [floor_id], onDelete: NoAction, onUpdate: NoAction, map: "room_ibfk_1")
+  lecture           lecture[]
+  timetable         timetable[]
+
+  @@index([floor_id], map: "room_floor_idx")
+}
+
+model room_type {
+  room_type_id   Int    @id
+  room_type_name String @db.VarChar(50)
+}
+
+model salary {
+  salary_id Int @id @default(autoincrement())
+}
+
+model session {
+  session_id    Int    @id
+  session_value String @db.VarChar(255)
+}
+
+model staff {
+  user_id Int
+  role    String @db.VarChar(45)
+  salary  Int
+  id      Int    @id
+}
+
+/// program revision edition version variation iteration curriculum syllabus
+model syllabus {
+  syllabus_id        Int               @id @default(autoincrement())
+  syllabus_code      String?           @db.VarChar(50) @unique(map: "syllabus_code_UNIQUE")
+  year_effective     Int
+  year_retired       Int?
+  duration_years     Int
+  duration_semesters Int
+  degree_id          Int
+  degree             degree            @relation(fields: [degree_id], references: [degree_id], onDelete: NoAction, onUpdate: NoAction, map: "syllabus_ibfk_1")
+  syllabus_course    syllabus_course[]
+  batch              batch[]
+
+  @@index([degree_id], map: "syllabus_degree_idx")
+  @@unique([syllabus_code, year_effective], map: "syllabus_code_year_UNIQUE")
+}
+
+model syllabus_course {
+  syllabus_id     Int
+  course_id       Int
+  course_credits  Int
+  course_category course_category?
+  course_semester Int
+  syllabus        syllabus         @relation(fields: [syllabus_id], references: [syllabus_id], onDelete: NoAction, onUpdate: NoAction, map: "syllabus_course_ibfk_1")
+  course          course           @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "syllabus_course_ibfk_2")
+
+  @@unique([syllabus_id, course_id], map: "syllabus_course_UNIQUE")
+  @@index([syllabus_id], map: "sc_syllabus_idx")
+  @@index([course_id], map: "sc_course_idx")
+}
+
+/// assigned_teaching division_course_professor instructor
+model teaching {
+  teaching_id  Int          @id @default(autoincrement())
+  course_id    Int
+  division_id  Int
+  professor_id Int
+  course       course       @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "teaching_ibfk_1")
+  division     division     @relation(fields: [division_id], references: [division_id], onDelete: NoAction, onUpdate: NoAction, map: "teaching_ibfk_2")
+  professor    user         @relation(fields: [professor_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "teaching_ibfk_3")
+  assignment   assignment[]
+  timetable    timetable[]
+  lecture      lecture[]
+
+  @@unique([division_id, course_id, professor_id], map: "teaching_UNIQUE")
+  @@index([course_id], map: "teaching_course_idx")
+  @@index([division_id], map: "teaching_division_idx")
+  @@index([professor_id], map: "teaching_user_idx")
+}
+
+model timetable {
+  timetable_id Int               @id @default(autoincrement())
+  time_start   DateTime          @db.Time(0)
+  time_end     DateTime          @db.Time(0)
+  weekday      timetable_weekday
+  teaching_id  Int
+  room_id      Int
+  teaching     teaching          @relation(fields: [teaching_id], references: [teaching_id], onDelete: NoAction, onUpdate: NoAction, map: "timetable_ibfk_1")
+  room         room              @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction, map: "timetable_ibfk_2")
+
+  @@index([teaching_id], map: "timetable_teaching_idx")
+  @@index([room_id], map: "timetable_room_idx")
+  @@unique([weekday, time_start, time_end, teaching_id], map: "timetable_UNIQUE")
+}
+
+/// salary fees
+model transaction {
+  transaction_id Int @id @default(autoincrement())
+}
+
+model university_manager {
+  manager_id Int  @id @default(autoincrement())
+  user_id    Int
+  user       user @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "manager_idfk_1")
+
+  @@index([user_id], map: "manager_idfk_1_idx")
+}
+
+model university_user {
+  user_id Int    @unique(map: "user_id_UNIQUE")
+  role    String @db.VarChar(45)
+  salary  Int?
+  user    user   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "uu_user_ibfk_1")
+}
+
+model user {
+  user_id               Int                     @id @default(autoincrement())
+  username              String?                 @unique(map: "username_UNIQUE") @db.VarChar(50)
+  password              String                  @db.VarChar(50)
+  contact_no            String?                 @unique(map: "contact_no_UNIQUE") @db.VarChar(20)
+  primary_email         String?                 @unique(map: "primary_email_UNIQUE") @db.VarChar(50)
+  google_email          String?                 @unique(map: "google_email_UNIQUE") @db.VarChar(50)
+  github_username       String?                 @unique(map: "github_username_UNIQUE") @db.VarChar(50)
+  name_prefix           String?                 @db.VarChar(50)
+  name_first            String                  @db.VarChar(50)
+  name_middle           String?                 @db.VarChar(50)
+  name_sur              String?                 @db.VarChar(50)
+  name_suffix           String?                 @db.VarChar(50)
+  gender                user_gender?
+  date_of_birth         DateTime?               @db.Date
+  profile_picture_url   String?                 @db.VarChar(255)
+
+  admin                 admin[]
+  admission             admission[]
+  assignment_submission assignment_submission[]
+  book_issue_return     book_issue_return[]
+  enrollment            enrollment[]
+  exam_student          exam_student[]
+  faculty               faculty[]
+  grade                 grade[]
+  lecture_attendance    lecture_attendance[]
+  teaching              teaching[]
+  university_manager    university_manager[]
+  university_user       university_user?
+}
+
+/// lecturer, professor, assistant_professor, associate_professor, dean, director, principal, vice_chancellor, chancellor, librarian
+enum faculty_designation {
+  dean
+  head
+  assistant_professor @map("assistant professor")
+  associate_professor @map("associate professor")
+  librarian
+  clerk
+}
+
+enum grade_grade_name {
+  cec
+  attendance
+  internal_exam
+  external_exam
+  assignment
+  project
+  practical
+}
+
+enum admission_admission_type {
+  regular
+  lateral
+  direct
+  transfer
+  distance
+  open
+  part_time  @map("part-time")
+  full_time  @map("full-time")
+  sponsored
+  management
+  NRI
+  foreign
+}
+
+enum room_room_type {
+  classroom
+  computer
+  art
+  law
+  office
+  library
+  reading
+  meeting
+  admin
+}
+
+enum admission_admission_category {
+  general
+  SC
+  ST
+  OBC
+  EWS     @map(" EWS")
+  PWD
+  TFW
+}
+
+enum degree_type {
+  Diploma
+  Bachelor
+  Master
+  Doctorate
+  Integrated
+}
+
+enum course_category {
+  core
+  elective
+  project
+  MOOC
+  foundation
+}
+
+enum timetable_weekday {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
+enum assignment_assignment_type {
+  individual
+  group
+  written
+  quiz
+  project
+  practical
+}
+
+enum course_type {
+  theory
+  practical
+}
+
+enum admission_admission_status {
+  pending
+  rejected
+  enrolled
+}
+
+enum user_gender {
+  M
+  F
+}

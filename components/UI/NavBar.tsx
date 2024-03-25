@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { auth } from "@/auth";
+import data from "@/data/data.json";
 
 export default async function NavBar() {
   const session: any = await auth();
@@ -10,7 +11,7 @@ export default async function NavBar() {
     <nav className="bg-violet-300 sticky top-0 left-0 right-0 p-2 flex justify-between items-center">
       <Link href="/" className="flex gap-2 items-center"> {/* active:scale-125 active:transition-all */}
         <Image src="/assets/images/black-umbrella-png-9.png" alt="Umbrella" width={40} height={40} className="" />
-        <span>| {process.env.UNIVERSITY_NAME}</span>
+        <span>| {data.university.name}</span>
       </Link>
       <div className="flex gap-2 items-center">
         <form>
@@ -23,10 +24,17 @@ export default async function NavBar() {
           </button>
         </form>
       </div>
-      <span className="flex items-center gap-2">
-        <span className="material-symbols-outlined">notifications</span>
-        {session?.user ? <Link href={"/account"}>Account</Link> : <Link href={"/login"}>Login</Link>}
-      </span>
+      {session?.user ? (
+        <span className="flex items-center gap-2">
+          <span className="material-symbols-outlined">notifications</span>
+          <Link href={"/dashboard"} className="flex items-center">
+            <span className="material-symbols-outlined">dashboard</span>
+          </Link>
+          <Link href={"/account"}>Account</Link>
+        </span>
+      ) : (
+        <Link href={"/login"}>Login</Link>
+      )}
     </nav>
   );
 }

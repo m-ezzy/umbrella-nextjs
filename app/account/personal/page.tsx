@@ -8,7 +8,7 @@ export default async function Page() {
   return(
     <form className="p-2 block *:block">
       <label htmlFor="id">User ID</label>
-      <input type="text" placeholder="User ID" name="user_id" value={user.id} />
+      <input type="text" placeholder="User ID" name="user_id" value={user.user_id} />
 
       <label htmlFor="username">Username</label>
       <input type="text" placeholder="Username" name="username" value={user.username} />

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 export default function Page() {
-  redirect('/professor/courses');
+  redirect('/dashboard/professor/courses');
   return (
     <div>
     </div>

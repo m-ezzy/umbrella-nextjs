@@ -7,7 +7,7 @@ async function selectAllByDepartment(degree_id: number) {
   return await queryDatabase("SELECT user.id AS user_id,user.name_prefix,user.name_first,user.name_sur FROM user INNER JOIN department_user ON user.id=department_user.user_id WHERE department_user.department_id=?", [department_id]);
 }
 async function getEmployments(user_id: number) {
-  return await queryDatabase("SELECT department.name AS department_name FROM department_user INNER JOIN department ON department_user.department_id=department.id WHERE department_user.user_id=?", [user_id]);
+  return await queryDatabase("SELECT department.department_name FROM faculty INNER JOIN department ON faculty.department_id=department.department_id WHERE faculty.user_id=?", [user_id]);
 }
 async function getDegrees() {
 }

@@ -7,6 +7,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema umbrella
 -- -----------------------------------------------------
+DROP SCHEMA IF EXISTS `umbrella` ;
 
 -- -----------------------------------------------------
 -- Schema umbrella
@@ -15,52 +16,21 @@ CREATE SCHEMA IF NOT EXISTS `umbrella` DEFAULT CHARACTER SET utf8mb4 COLLATE utf
 USE `umbrella` ;
 
 -- -----------------------------------------------------
--- Table `umbrella`.`user`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `umbrella`.`user` ;
-
-CREATE TABLE IF NOT EXISTS `umbrella`.`user` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `username` VARCHAR(50) NULL,
-  `password` VARCHAR(50) NOT NULL,
-  `contact_no` VARCHAR(20) NULL,
-  `primary_email` VARCHAR(50) NULL,
-  `google_email` VARCHAR(50) NULL,
-  `github_username` VARCHAR(50) NULL,
-  `name_prefix` VARCHAR(50) NULL,
-  `name_first` VARCHAR(50) NOT NULL,
-  `name_middle` VARCHAR(50) NULL,
-  `name_sur` VARCHAR(50) NULL,
-  `name_suffix` VARCHAR(50) NULL,
-  `gender` ENUM('M', 'F') NULL,
-  `date_of_birth` DATE NULL,
-  `profile_picture_url` VARCHAR(255) NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `primary_email_UNIQUE` (`primary_email` ASC) VISIBLE,
-  UNIQUE INDEX `contact_no_UNIQUE` (`contact_no` ASC) VISIBLE,
-  UNIQUE INDEX `google_email_UNIQUE` (`google_email` ASC) VISIBLE,
-  UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
-  UNIQUE INDEX `github_username_UNIQUE` (`github_username` ASC) VISIBLE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
-
-
--- -----------------------------------------------------
 -- Table `umbrella`.`campus`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `umbrella`.`campus` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`campus` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(100) NOT NULL,
-  `address` VARCHAR(255) NOT NULL,
-  `city` VARCHAR(100) NOT NULL,
-  `state` VARCHAR(100) NOT NULL,
-  `country` VARCHAR(100) NOT NULL,
-  `pincode` VARCHAR(10) NOT NULL,
-  `gate_count` INT NULL DEFAULT 1,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `name` (`name` ASC) VISIBLE)
+  `campus_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `campus_name` VARCHAR(100) NOT NULL,
+  `campus_address` VARCHAR(255) NOT NULL,
+  `campus_city` VARCHAR(100) NOT NULL,
+  `campus_state` VARCHAR(100) NOT NULL,
+  `campus_country` VARCHAR(100) NOT NULL,
+  `campus_pincode` VARCHAR(10) NOT NULL,
+  `campus_gate_count` INT NULL DEFAULT 1,
+  PRIMARY KEY (`campus_id`),
+  UNIQUE INDEX `name` (`campus_name` ASC) VISIBLE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -71,15 +41,15 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`building` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`building` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
-  `campus_id` INT(11) NOT NULL,
+  `building_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `building_name` VARCHAR(255) NOT NULL,
   `floor_count` INT NULL,
-  PRIMARY KEY (`id`),
+  `campus_id` INT(11) NOT NULL,
+  PRIMARY KEY (`building_id`),
   INDEX `campus_id` (`campus_id` ASC) VISIBLE,
   CONSTRAINT `building_ibfk_1`
     FOREIGN KEY (`campus_id`)
-    REFERENCES `umbrella`.`campus` (`id`))
+    REFERENCES `umbrella`.`campus` (`campus_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -90,17 +60,19 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`department` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`department` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
-  `name_acronym` VARCHAR(255) NOT NULL,
+  `department_id` INT(11) NOT NULL,
+  `department_name` VARCHAR(100) NOT NULL,
+  `department_name_acronym` VARCHAR(50) NOT NULL,
   `building_id` INT(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `name` (`name` ASC) VISIBLE,
-  UNIQUE INDEX `name_acronym` (`name_acronym` ASC) VISIBLE,
-  INDEX `building_id` (`building_id` ASC) VISIBLE,
+  PRIMARY KEY (`department_id`),
+  INDEX `department_ibfk_1_idx` (`building_id` ASC) VISIBLE,
+  UNIQUE INDEX `department_name_UNIQUE` (`department_name` ASC) VISIBLE,
+  UNIQUE INDEX `department_name_acronym_UNIQUE` (`department_name_acronym` ASC) VISIBLE,
   CONSTRAINT `department_ibfk_1`
     FOREIGN KEY (`building_id`)
-    REFERENCES `umbrella`.`building` (`id`))
+    REFERENCES `umbrella`.`building` (`building_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -115,7 +87,8 @@ CREATE TABLE IF NOT EXISTS `umbrella`.`degree` (
   `degree_name` VARCHAR(100) NOT NULL,
   `degree_name_acronym` VARCHAR(20) NOT NULL,
   `degree_type` ENUM('Diploma', 'Bachelor', 'Master', 'Doctorate', 'Integrated') NOT NULL COMMENT 'Diploma, UG, PG, PhD\n',
-  `years` INT(4) NOT NULL,
+  `duration_years` INT(4) NOT NULL,
+  `duration_semesters` INT NOT NULL,
   `department_id` INT(11) NOT NULL,
   PRIMARY KEY (`degree_id`),
   UNIQUE INDEX `name` (`degree_name` ASC) VISIBLE,
@@ -123,7 +96,38 @@ CREATE TABLE IF NOT EXISTS `umbrella`.`degree` (
   INDEX `degree_ibfk_1_idx` (`department_id` ASC) VISIBLE,
   CONSTRAINT `degree_ibfk_1`
     FOREIGN KEY (`department_id`)
-    REFERENCES `umbrella`.`department` (`id`))
+    REFERENCES `umbrella`.`department` (`department_id`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+
+-- -----------------------------------------------------
+-- Table `umbrella`.`user`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `umbrella`.`user` ;
+
+CREATE TABLE IF NOT EXISTS `umbrella`.`user` (
+  `user_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(50) NULL,
+  `password` VARCHAR(50) NOT NULL,
+  `contact_no` VARCHAR(20) NULL,
+  `primary_email` VARCHAR(50) NULL,
+  `google_email` VARCHAR(50) NULL,
+  `github_username` VARCHAR(50) NULL,
+  `name_prefix` VARCHAR(50) NULL,
+  `name_first` VARCHAR(50) NOT NULL,
+  `name_middle` VARCHAR(50) NULL,
+  `name_sur` VARCHAR(50) NULL,
+  `name_suffix` VARCHAR(50) NULL,
+  `gender` ENUM('M', 'F') NULL,
+  `date_of_birth` DATE NULL,
+  `profile_picture_url` VARCHAR(255) NULL,
+  PRIMARY KEY (`user_id`),
+  UNIQUE INDEX `primary_email_UNIQUE` (`primary_email` ASC) VISIBLE,
+  UNIQUE INDEX `contact_no_UNIQUE` (`contact_no` ASC) VISIBLE,
+  UNIQUE INDEX `google_email_UNIQUE` (`google_email` ASC) VISIBLE,
+  UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
+  UNIQUE INDEX `github_username_UNIQUE` (`github_username` ASC) VISIBLE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -134,23 +138,27 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`admission` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`admission` (
-  `id` INT NOT NULL AUTO_INCREMENT COMMENT 'admission_type ----- regular, lateral, direct, transfer, distance, open, part-time, full-time, sponsored, management, NRI, foreign\n\nadmission_category ----- general, SC, ST, OBC, EWS, PWD, ESM, TFW, NCC, NSS, Sports, Cultural, Defence, Freedom Fighter, Single\n\nadmission_quota ----- merit, management, NRI, foreign, sponsored, government, private, minority, linguistic, religious, caste, community, region, state, district, rural, urban, poor, rich, orphan, single\n\nadmission_status ----- applied, approved, rejected, waitlisted, confirmed, cancelled, withdrawn, transferred, migrated, promoted, graduated, passed, failed, detained, expelled, suspended, rusticated, debarred, barred, blacklisted, banned, disbarred, disqualified\n',
-  `admission_date` DATE NOT NULL,
+  `admission_id` INT NOT NULL AUTO_INCREMENT COMMENT 'admission_type ----- regular, lateral, direct, transfer, distance, open, part-time, full-time, sponsored, management, NRI, foreign\n\nadmission_category ----- general, SC, ST, OBC, EWS, PWD, ESM, TFW, NCC, NSS, Sports, Cultural, Defence, Freedom Fighter, Single\n\nadmission_quota ----- merit, management, NRI, foreign, sponsored, government, private, minority, linguistic, religious, caste, community, region, state, district, rural, urban, poor, rich, orphan, single\n\nadmission_status ----- applied, approved, rejected, waitlisted, confirmed, cancelled, withdrawn, transferred, migrated, promoted, graduated, passed, failed, detained, expelled, suspended, rusticated, debarred, barred, blacklisted, banned, disbarred, disqualified\n',
+  `admission_date` DATETIME NOT NULL,
   `admission_type` VARCHAR(255) NOT NULL,
   `admission_category` VARCHAR(255) NOT NULL,
   `admission_quota` VARCHAR(255) NOT NULL,
-  `admission_status` VARCHAR(255) NOT NULL,
-  `user_id` INT NOT NULL,
+  `admission_status` ENUM('pending', 'rejected', 'enrolled') NOT NULL,
   `degree_id` INT NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `user_id` (`user_id` ASC) VISIBLE,
-  INDEX `degree_id` (`degree_id` ASC) VISIBLE,
+  `user_id` INT NOT NULL,
+  PRIMARY KEY (`admission_id`),
+  INDEX `admission_ibfk_1_idx` (`degree_id` ASC) VISIBLE,
+  INDEX `admission_ibfk_2_idx` (`user_id` ASC) VISIBLE,
   CONSTRAINT `admission_ibfk_1`
-    FOREIGN KEY (`user_id`)
-    REFERENCES `umbrella`.`user` (`id`),
-  CONSTRAINT `admission_ibfk_2`
     FOREIGN KEY (`degree_id`)
-    REFERENCES `umbrella`.`degree` (`degree_id`))
+    REFERENCES `umbrella`.`degree` (`degree_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `admission_ibfk_2`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `umbrella`.`user` (`user_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -161,17 +169,19 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`syllabus` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`syllabus` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT COMMENT '-- program -- revision -- edition -- version -- variation -- iteration',
+  `syllabus_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT '-- program -- revision -- edition -- version -- variation -- iteration',
   `year_effective` INT(4) NOT NULL,
-  `year_retired` INT(4) NULL DEFAULT NULL,
-  `number_of_years` INT(2) NOT NULL,
-  `number_of_semesters` INT(2) NOT NULL,
+  `year_retired` INT(4) NULL,
+  `duration_years` INT(2) NOT NULL,
+  `duration_semesters` INT(2) NOT NULL,
   `degree_id` INT(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `syllabus_ibfk_1_idx` (`degree_id` ASC) VISIBLE,
+  PRIMARY KEY (`syllabus_id`),
+  INDEX `syllabus_ibfk_1_idx` (`degree_id` ASC) INVISIBLE,
   CONSTRAINT `syllabus_ibfk_1`
     FOREIGN KEY (`degree_id`)
-    REFERENCES `umbrella`.`degree` (`degree_id`))
+    REFERENCES `umbrella`.`degree` (`degree_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -182,16 +192,16 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`batch` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`batch` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `batch_id` INT(11) NOT NULL AUTO_INCREMENT,
   `year_started` INT(4) NOT NULL,
   `year_ended` INT(4) NOT NULL,
   `current_semester` INT(2) NOT NULL,
   `syllabus_id` INT(11) NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`batch_id`),
   INDEX `syllabus_id` (`syllabus_id` ASC) VISIBLE,
   CONSTRAINT `batch_ibfk_1`
     FOREIGN KEY (`syllabus_id`)
-    REFERENCES `umbrella`.`syllabus` (`id`))
+    REFERENCES `umbrella`.`syllabus` (`syllabus_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -202,14 +212,14 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`division` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`division` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
+  `division_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `division_name` VARCHAR(255) NOT NULL,
   `batch_id` INT(11) NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`division_id`),
   INDEX `batch_id` (`batch_id` ASC) VISIBLE,
   CONSTRAINT `division_ibfk_1`
     FOREIGN KEY (`batch_id`)
-    REFERENCES `umbrella`.`batch` (`id`))
+    REFERENCES `umbrella`.`batch` (`batch_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -220,14 +230,14 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`course` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`course` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'subject',
-  `code` VARCHAR(255) NULL,
-  `name` VARCHAR(255) NOT NULL,
-  `name_acronym` VARCHAR(45) NOT NULL,
-  `type` ENUM('theory', 'practical') NOT NULL,
+  `course_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'subject',
+  `course_code` VARCHAR(50) NULL,
+  `course_name` VARCHAR(50) NOT NULL,
+  `course_name_acronym` VARCHAR(20) NOT NULL,
+  `course_type` ENUM('theory', 'practical') NOT NULL,
   `year_created` INT NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `UK_code` (`code` ASC) VISIBLE)
+  PRIMARY KEY (`course_id`),
+  UNIQUE INDEX `UK_code` (`course_code` ASC) VISIBLE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -238,28 +248,28 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`teaching` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`teaching` (
-  `id` INT NOT NULL COMMENT 'assigned_teaching division_course_professor instructor',
-  `division_id` INT NOT NULL,
+  `teaching_id` INT NOT NULL AUTO_INCREMENT COMMENT 'assigned_teaching division_course_professor instructor',
   `course_id` INT NOT NULL,
+  `division_id` INT NOT NULL,
   `professor_id` INT NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`teaching_id`),
   INDEX `teaching_ibfk_1_idx` (`division_id` ASC) VISIBLE,
   INDEX `teaching_ibfk_2_idx` (`course_id` ASC) VISIBLE,
   INDEX `teaching_ibfk_3_idx` (`professor_id` ASC) VISIBLE,
   UNIQUE INDEX `teaching_UNIQUE` (`division_id` ASC, `course_id` ASC, `professor_id` ASC) VISIBLE,
   CONSTRAINT `teaching_ibfk_1`
     FOREIGN KEY (`division_id`)
-    REFERENCES `umbrella`.`division` (`id`)
+    REFERENCES `umbrella`.`division` (`division_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `teaching_ibfk_2`
     FOREIGN KEY (`course_id`)
-    REFERENCES `umbrella`.`course` (`id`)
+    REFERENCES `umbrella`.`course` (`course_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `teaching_ibfk_3`
     FOREIGN KEY (`professor_id`)
-    REFERENCES `umbrella`.`user` (`id`)
+    REFERENCES `umbrella`.`user` (`user_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -271,19 +281,20 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `umbrella`.`assignment` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`assignment` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `title` VARCHAR(255) NOT NULL,
-  `description` VARCHAR(255) NOT NULL,
-  `deadline` DATETIME NOT NULL,
-  `type` VARCHAR(255) NOT NULL COMMENT 'individual, group, written, quiz, project, practical',
-  `maximum_marks` INT(11) NOT NULL,
-  `weightage` INT(11) NOT NULL,
+  `assignment_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `assignment_title` VARCHAR(255) NOT NULL,
+  `assignment_description` VARCHAR(255) NOT NULL,
+  `assignment_deadline` DATETIME NOT NULL,
+  `assignment_type` VARCHAR(255) NOT NULL COMMENT 'individual, group, written, quiz, project, practical',
+  `assignment_maximum_marks` INT(11) NOT NULL,
+  `assignment_graded` TINYINT NULL,
+  `assignment_weightage` INT(11) NOT NULL,
   `teaching_id` INT(11) NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`assignment_id`),
   INDEX `assignment_ibfk_1_idx` (`teaching_id` ASC) VISIBLE,
   CONSTRAINT `assignment_ibfk_1`
     FOREIGN KEY (`teaching_id`)
-    REFERENCES `umbrella`.`teaching` (`id`)
+    REFERENCES `umbrella`.`teaching` (`teaching_id`)
     ON DELETE RESTRICT
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -296,22 +307,22 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`assignment_submission` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`assignment_submission` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `submission_id` INT(11) NOT NULL AUTO_INCREMENT,
   `submission_data` VARCHAR(255) NOT NULL,
   `submission_date` DATE NOT NULL,
   `obtained_marks` INT(11) NULL DEFAULT NULL,
   `assignment_id` INT(11) NOT NULL,
   `user_id` INT(11) NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`submission_id`),
   INDEX `assignment_submission_ibfk_1_idx` (`assignment_id` ASC) VISIBLE,
   UNIQUE INDEX `assignment_user_UNIQUE` (`assignment_id` ASC, `user_id` ASC) VISIBLE,
   INDEX `assignment_submission_ibfk_2_idx` (`user_id` ASC) VISIBLE,
   CONSTRAINT `assignment_submission_ibfk_1`
     FOREIGN KEY (`assignment_id`)
-    REFERENCES `umbrella`.`assignment` (`id`),
+    REFERENCES `umbrella`.`assignment` (`assignment_id`),
   CONSTRAINT `assignment_submission_ibfk_2`
     FOREIGN KEY (`user_id`)
-    REFERENCES `umbrella`.`user` (`id`))
+    REFERENCES `umbrella`.`user` (`user_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -322,9 +333,9 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`author` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`author` (
-  `id` INT(11) NOT NULL,
-  `name` VARCHAR(30) NULL DEFAULT NULL,
-  PRIMARY KEY (`id`))
+  `author_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `author_name` VARCHAR(30) NOT NULL,
+  PRIMARY KEY (`author_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -361,28 +372,30 @@ CREATE TABLE IF NOT EXISTS `umbrella`.`author_book` (
   `author_id` INT(11) NOT NULL,
   PRIMARY KEY (`book_id`, `author_id`),
   INDEX `author_id` (`author_id` ASC) VISIBLE,
+  INDEX `book_id_idx` (`book_id` ASC) INVISIBLE,
+  UNIQUE INDEX `book_author_UNIQUE` (`book_id` ASC, `author_id` ASC) VISIBLE,
   CONSTRAINT `author_book_ibfk_1`
     FOREIGN KEY (`book_id`)
     REFERENCES `umbrella`.`book` (`id`),
   CONSTRAINT `author_book_ibfk_2`
     FOREIGN KEY (`author_id`)
-    REFERENCES `umbrella`.`author` (`id`))
+    REFERENCES `umbrella`.`author` (`author_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
--- Table `umbrella`.`batch_user`
+-- Table `umbrella`.`enrollment`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `umbrella`.`batch_user` ;
+DROP TABLE IF EXISTS `umbrella`.`enrollment` ;
 
-CREATE TABLE IF NOT EXISTS `umbrella`.`batch_user` (
+CREATE TABLE IF NOT EXISTS `umbrella`.`enrollment` (
   `enrollment_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'division_user\nenrollment\nstudent',
-  `user_id` INT(11) NOT NULL,
-  `batch_id` INT(11) NOT NULL,
-  `division_id` INT(11) NOT NULL,
   `enrollment_number` BIGINT NULL,
   `roll_number` VARCHAR(5) NULL,
+  `batch_id` INT(11) NOT NULL,
+  `division_id` INT(11) NOT NULL,
+  `user_id` INT(11) NOT NULL,
   PRIMARY KEY (`enrollment_id`),
   INDEX `batch_id` (`batch_id` ASC) VISIBLE,
   INDEX `division_id` (`division_id` ASC) INVISIBLE,
@@ -392,13 +405,13 @@ CREATE TABLE IF NOT EXISTS `umbrella`.`batch_user` (
   UNIQUE INDEX `roll_number_UNIQUE` (`roll_number` ASC) VISIBLE,
   CONSTRAINT `batch_user_ibfk_2`
     FOREIGN KEY (`batch_id`)
-    REFERENCES `umbrella`.`batch` (`id`),
+    REFERENCES `umbrella`.`batch` (`batch_id`),
   CONSTRAINT `batch_user_ibfk_3`
     FOREIGN KEY (`division_id`)
-    REFERENCES `umbrella`.`division` (`id`),
+    REFERENCES `umbrella`.`division` (`division_id`),
   CONSTRAINT `batch_user_ibfk_1`
     FOREIGN KEY (`user_id`)
-    REFERENCES `umbrella`.`user` (`id`)
+    REFERENCES `umbrella`.`user` (`user_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -420,7 +433,7 @@ CREATE TABLE IF NOT EXISTS `umbrella`.`book_course` (
     REFERENCES `umbrella`.`book` (`id`),
   CONSTRAINT `book_course_ibfk_2`
     FOREIGN KEY (`course_id`)
-    REFERENCES `umbrella`.`course` (`id`))
+    REFERENCES `umbrella`.`course` (`course_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -443,7 +456,7 @@ CREATE TABLE IF NOT EXISTS `umbrella`.`book_issue_return` (
   INDEX `book_id` (`book_id` ASC) VISIBLE,
   CONSTRAINT `book_issue_return_ibfk_1`
     FOREIGN KEY (`user_id`)
-    REFERENCES `umbrella`.`user` (`id`),
+    REFERENCES `umbrella`.`user` (`user_id`),
   CONSTRAINT `book_issue_return_ibfk_2`
     FOREIGN KEY (`book_id`)
     REFERENCES `umbrella`.`book` (`id`))
@@ -452,14 +465,12 @@ DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
--- Table `umbrella`.`department_user`
+-- Table `umbrella`.`faculty`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `umbrella`.`department_user` ;
+DROP TABLE IF EXISTS `umbrella`.`faculty` ;
 
-CREATE TABLE IF NOT EXISTS `umbrella`.`department_user` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'table names - department_usrer, faculty',
-  `department_id` INT(11) NOT NULL,
-  `user_id` INT(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `umbrella`.`faculty` (
+  `faculty_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'table names - department_usrer, faculty',
   `designation` ENUM('dean', 'head', 'assistant professor', 'associate professor', 'librarian', 'clerk') NOT NULL COMMENT 'lecturer, professor, assistant_professor, associate_professor, professor, dean, director, principal, vice_chancellor, chancellor, librarian',
   `date_join` DATE NULL,
   `date_leave` DATE NULL,
@@ -467,15 +478,17 @@ CREATE TABLE IF NOT EXISTS `umbrella`.`department_user` (
   `experience` INT(11) NULL,
   `specialization` VARCHAR(255) NULL,
   `research_interest` VARCHAR(255) NULL,
-  PRIMARY KEY (`id`),
+  `department_id` INT(11) NOT NULL,
+  `user_id` INT(11) NOT NULL,
+  PRIMARY KEY (`faculty_id`),
   INDEX `user_id` (`user_id` ASC) VISIBLE,
   INDEX `department_id` (`department_id` ASC) VISIBLE,
   CONSTRAINT `department_user_ibfk_1`
     FOREIGN KEY (`user_id`)
-    REFERENCES `umbrella`.`user` (`id`),
+    REFERENCES `umbrella`.`user` (`user_id`),
   CONSTRAINT `department_user_ibfk_2`
     FOREIGN KEY (`department_id`)
-    REFERENCES `umbrella`.`department` (`id`))
+    REFERENCES `umbrella`.`department` (`department_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -507,24 +520,24 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`exam` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`exam` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `title` VARCHAR(255) NOT NULL,
-  `description` VARCHAR(255) NOT NULL,
+  `exam_id` INT NOT NULL AUTO_INCREMENT,
+  `exam_title` VARCHAR(50) NOT NULL,
+  `exam_description` VARCHAR(255) NOT NULL,
   `exam_date` DATE NOT NULL,
   `exam_time` TIME NOT NULL,
-  `duration` TIME NOT NULL,
+  `exam_duration` TIME NOT NULL,
   `maximum_marks` INT(11) NOT NULL,
   `course_id` INT(11) NOT NULL,
   `division_id` INT(11) NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`exam_id`),
   INDEX `course_id` (`course_id` ASC) VISIBLE,
   INDEX `division_id` (`division_id` ASC) VISIBLE,
   CONSTRAINT `exam_ibfk_1`
     FOREIGN KEY (`course_id`)
-    REFERENCES `umbrella`.`course` (`id`),
+    REFERENCES `umbrella`.`course` (`course_id`),
   CONSTRAINT `exam_ibfk_2`
     FOREIGN KEY (`division_id`)
-    REFERENCES `umbrella`.`division` (`id`))
+    REFERENCES `umbrella`.`division` (`division_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -544,10 +557,10 @@ CREATE TABLE IF NOT EXISTS `umbrella`.`exam_student` (
   PRIMARY KEY (`exam_id`, `user_id`),
   CONSTRAINT `exam_student_ibfk_1`
     FOREIGN KEY (`exam_id`)
-    REFERENCES `umbrella`.`exam` (`id`),
+    REFERENCES `umbrella`.`exam` (`exam_id`),
   CONSTRAINT `exam_student_ibfk_2`
     FOREIGN KEY (`user_id`)
-    REFERENCES `umbrella`.`user` (`id`))
+    REFERENCES `umbrella`.`user` (`user_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -558,15 +571,15 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`floor` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`floor` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `number` INT NOT NULL,
-  `building_id` INT NOT NULL,
+  `floor_id` INT NOT NULL AUTO_INCREMENT,
+  `floor_number` INT NOT NULL,
   `room_count` INT NULL,
-  PRIMARY KEY (`id`),
+  `building_id` INT NOT NULL,
+  PRIMARY KEY (`floor_id`),
   INDEX `building_id` (`building_id` ASC) VISIBLE,
   CONSTRAINT `floor_ibfk_1`
     FOREIGN KEY (`building_id`)
-    REFERENCES `umbrella`.`building` (`id`))
+    REFERENCES `umbrella`.`building` (`building_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -577,18 +590,18 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`room` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`room` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `number` INT(11) NOT NULL,
+  `room_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `room_number` INT(11) NOT NULL,
+  `room_type` ENUM('classroom', 'computer', 'art', 'law', 'office', 'library', 'reading', 'meeting', 'admin') NULL COMMENT 'classroom, lab, office, conference, washroom, store, library, canteen, auditorium, utility',
+  `room_capacity` INT(11) NULL DEFAULT NULL,
+  `room_row_count` INT NULL,
+  `room_column_count` INT NULL,
   `floor_id` INT(11) NOT NULL,
-  `type` ENUM('classroom', 'computer', 'art', 'law', 'office', 'library', 'reading', 'meeting', 'admin') NULL COMMENT 'classroom, lab, office, conference, washroom, store, library, canteen, auditorium, utility',
-  `capacity` INT(11) NULL DEFAULT NULL,
-  `row_count` INT NULL,
-  `column_count` INT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`room_id`),
   INDEX `floor_id` (`floor_id` ASC) VISIBLE,
   CONSTRAINT `room_ibfk_1`
     FOREIGN KEY (`floor_id`)
-    REFERENCES `umbrella`.`floor` (`id`))
+    REFERENCES `umbrella`.`floor` (`floor_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -599,24 +612,24 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`lecture` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`lecture` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `date` DATE NOT NULL,
-  `start_time` TIME NOT NULL,
-  `end_time` TIME NOT NULL,
-  `duration` TIME NULL,
-  `room_id` INT NOT NULL,
+  `lecture_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `lecture_date` DATE NOT NULL,
+  `lecture_start_time` TIME NOT NULL,
+  `lecture_end_time` TIME NOT NULL,
+  `lecture_duration` TIME NULL,
   `teaching_id` INT(11) NOT NULL,
-  PRIMARY KEY (`id`),
+  `room_id` INT NOT NULL,
+  PRIMARY KEY (`lecture_id`),
   INDEX `lecture_ibfk_2_idx` (`room_id` ASC) VISIBLE,
   INDEX `lecture_ibfk_2_idx1` (`teaching_id` ASC) VISIBLE,
   CONSTRAINT `lecture_ibfk_1`
     FOREIGN KEY (`room_id`)
-    REFERENCES `umbrella`.`room` (`id`)
+    REFERENCES `umbrella`.`room` (`room_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `lecture_ibfk_2`
     FOREIGN KEY (`teaching_id`)
-    REFERENCES `umbrella`.`teaching` (`id`)
+    REFERENCES `umbrella`.`teaching` (`teaching_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -629,21 +642,19 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`lecture_attendance` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`lecture_attendance` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `attendance` VARCHAR(255) NOT NULL,
-  `status` VARCHAR(255) NOT NULL,
+  `lecture_attendance_id` INT(11) NOT NULL AUTO_INCREMENT,
   `lecture_id` INT(11) NOT NULL,
   `user_id` INT(11) NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`lecture_attendance_id`),
   INDEX `lecture_attendance_ibfk_1_idx` (`lecture_id` ASC) VISIBLE,
   INDEX `lecture_attendance_ibfk_2_idx` (`user_id` ASC) VISIBLE,
   UNIQUE INDEX `lecture_user_UNIQUE` (`lecture_id` ASC, `user_id` ASC) VISIBLE,
   CONSTRAINT `lecture_attendance_ibfk_1`
     FOREIGN KEY (`lecture_id`)
-    REFERENCES `umbrella`.`lecture` (`id`),
+    REFERENCES `umbrella`.`lecture` (`lecture_id`),
   CONSTRAINT `lecture_attendance_ibfk_2`
     FOREIGN KEY (`user_id`)
-    REFERENCES `umbrella`.`user` (`id`))
+    REFERENCES `umbrella`.`user` (`user_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -654,21 +665,21 @@ DEFAULT CHARACTER SET = utf8mb4;
 DROP TABLE IF EXISTS `umbrella`.`grade` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`grade` (
-  `id` INT NOT NULL AUTO_INCREMENT COMMENT 'mark',
-  `grades` INT(11) NOT NULL,
-  `user_id` INT(11) NOT NULL,
-  `exam_id` INT(11) NOT NULL,
-  `name` ENUM('cec', 'attendance', 'internal_exam', 'external_exam', 'assignment', 'project', 'practical') NULL DEFAULT NULL,
+  `grade_id` INT NOT NULL AUTO_INCREMENT COMMENT 'mark',
+  `grade_name` ENUM('cec', 'attendance', 'internal_exam', 'external_exam', 'assignment', 'project', 'practical') NULL DEFAULT NULL,
   `grade_type_id` INT(11) NOT NULL,
-  PRIMARY KEY (`id`),
+  `grades` INT(11) NOT NULL,
+  `exam_id` INT(11) NOT NULL,
+  `user_id` INT(11) NOT NULL,
+  PRIMARY KEY (`grade_id`),
   INDEX `user_id` (`user_id` ASC) VISIBLE,
   INDEX `exam_id` (`exam_id` ASC) VISIBLE,
   CONSTRAINT `grade_ibfk_1`
     FOREIGN KEY (`user_id`)
-    REFERENCES `umbrella`.`user` (`id`),
+    REFERENCES `umbrella`.`user` (`user_id`),
   CONSTRAINT `grade_ibfk_2`
     FOREIGN KEY (`exam_id`)
-    REFERENCES `umbrella`.`exam` (`id`))
+    REFERENCES `umbrella`.`exam` (`exam_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -681,19 +692,20 @@ DROP TABLE IF EXISTS `umbrella`.`syllabus_course` ;
 CREATE TABLE IF NOT EXISTS `umbrella`.`syllabus_course` (
   `syllabus_id` INT(11) NOT NULL,
   `course_id` INT(11) NOT NULL,
-  `credits` INT(11) NOT NULL,
-  `category` ENUM('core', 'elective', 'project', 'MOOC', 'foundation') NULL DEFAULT NULL,
-  `semester_number` INT(11) NOT NULL,
-  INDEX `FK_course_idx` (`course_id` ASC) VISIBLE,
-  PRIMARY KEY (`syllabus_id`, `course_id`),
+  `sc_credits` INT(11) NOT NULL,
+  `sc_category` ENUM('core', 'elective', 'project', 'MOOC', 'foundation') NULL DEFAULT NULL,
+  `sc_semester` INT(11) NOT NULL,
+  UNIQUE INDEX `syllabus_course_UNIQUE` (`syllabus_id` ASC, `course_id` ASC) VISIBLE,
+  INDEX `syllabus_course_ibfk_1_idx` (`course_id` ASC) INVISIBLE,
+  INDEX `syllabus_course_ibfk_2_idx` (`syllabus_id` ASC) VISIBLE,
   CONSTRAINT `syllabus_course_ibfk_1`
-    FOREIGN KEY (`course_id`)
-    REFERENCES `umbrella`.`course` (`id`)
+    FOREIGN KEY (`syllabus_id`)
+    REFERENCES `umbrella`.`syllabus` (`syllabus_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `syllabus_course_ibfk_2`
-    FOREIGN KEY (`syllabus_id`)
-    REFERENCES `umbrella`.`syllabus` (`id`)
+    FOREIGN KEY (`course_id`)
+    REFERENCES `umbrella`.`course` (`course_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -717,12 +729,12 @@ CREATE TABLE IF NOT EXISTS `umbrella`.`library` (
   INDEX `FK_library_building_idx` (`building_id` ASC) VISIBLE,
   CONSTRAINT `library_ibfk_1`
     FOREIGN KEY (`department_id`)
-    REFERENCES `umbrella`.`department` (`id`)
+    REFERENCES `umbrella`.`department` (`department_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `library_ibfk_2`
     FOREIGN KEY (`building_id`)
-    REFERENCES `umbrella`.`building` (`id`)
+    REFERENCES `umbrella`.`building` (`building_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -771,13 +783,20 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `umbrella`.`university_managers`
+-- Table `umbrella`.`university_manager`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `umbrella`.`university_managers` ;
+DROP TABLE IF EXISTS `umbrella`.`university_manager` ;
 
-CREATE TABLE IF NOT EXISTS `umbrella`.`university_managers` (
+CREATE TABLE IF NOT EXISTS `umbrella`.`university_manager` (
+  `manager_id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
-  `role` VARCHAR(45) NOT NULL)
+  PRIMARY KEY (`manager_id`),
+  INDEX `manager_idfk_1_idx` (`user_id` ASC) VISIBLE,
+  CONSTRAINT `manager_idfk_1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `umbrella`.`user` (`user_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -793,7 +812,7 @@ CREATE TABLE IF NOT EXISTS `umbrella`.`university_user` (
   UNIQUE INDEX `user_id_UNIQUE` (`user_id` ASC),
   CONSTRAINT `uu_user_ibfk_1`
     FOREIGN KEY (`user_id`)
-    REFERENCES `umbrella`.`user` (`id`)
+    REFERENCES `umbrella`.`user` (`user_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -816,12 +835,12 @@ CREATE TABLE IF NOT EXISTS `umbrella`.`result` (
   INDEX `result_ibfk_2_idx` (`course_id` ASC) VISIBLE,
   CONSTRAINT `result_ibfk_1`
     FOREIGN KEY (`enrollment_id`)
-    REFERENCES `umbrella`.`batch_user` (`enrollment_id`)
+    REFERENCES `umbrella`.`enrollment` (`enrollment_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `result_ibfk_2`
     FOREIGN KEY (`course_id`)
-    REFERENCES `umbrella`.`course` (`id`)
+    REFERENCES `umbrella`.`course` (`course_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -844,19 +863,19 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `umbrella`.`salary` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`salary` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`))
+  `salary_id` INT NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`salary_id`))
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `umbrella`.`fees`
+-- Table `umbrella`.`transaction`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `umbrella`.`fees` ;
+DROP TABLE IF EXISTS `umbrella`.`transaction` ;
 
-CREATE TABLE IF NOT EXISTS `umbrella`.`fees` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`))
+CREATE TABLE IF NOT EXISTS `umbrella`.`transaction` (
+  `transaction_id` INT NOT NULL AUTO_INCREMENT COMMENT 'salary\nfees\n',
+  PRIMARY KEY (`transaction_id`))
 ENGINE = InnoDB;
 
 
@@ -866,12 +885,13 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `umbrella`.`admin` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`admin` (
-  `id` INT NOT NULL AUTO_INCREMENT,
+  `admin_id` INT NOT NULL AUTO_INCREMENT,
   `degree_id` INT NOT NULL,
   `user_id` INT NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `admin_ibfk_2_idx` (`user_id` ASC) VISIBLE,
+  PRIMARY KEY (`admin_id`),
   INDEX `admin_ibfk_1_idx` (`degree_id` ASC) VISIBLE,
+  INDEX `admin_ibfk_2_idx` (`user_id` ASC) VISIBLE,
+  UNIQUE INDEX `admin_degree_user_UNIQUE` (`degree_id` ASC, `user_id` ASC) VISIBLE,
   CONSTRAINT `admin_ibfk_1`
     FOREIGN KEY (`degree_id`)
     REFERENCES `umbrella`.`degree` (`degree_id`)
@@ -879,7 +899,7 @@ CREATE TABLE IF NOT EXISTS `umbrella`.`admin` (
     ON UPDATE NO ACTION,
   CONSTRAINT `admin_ibfk_2`
     FOREIGN KEY (`user_id`)
-    REFERENCES `umbrella`.`user` (`id`)
+    REFERENCES `umbrella`.`user` (`user_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -891,9 +911,9 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `umbrella`.`session` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`session` (
-  `id` INT NOT NULL,
-  `value` VARCHAR(255) NULL,
-  PRIMARY KEY (`id`))
+  `session_id` INT NOT NULL,
+  `session_value` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`session_id`))
 ENGINE = InnoDB;
 
 
@@ -903,9 +923,9 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `umbrella`.`room_type` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`room_type` (
-  `id` INT NOT NULL,
-  `name` VARCHAR(50) NOT NULL,
-  PRIMARY KEY (`id`))
+  `room_type_id` INT NOT NULL,
+  `room_type_name` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`room_type_id`))
 ENGINE = InnoDB;
 
 
@@ -927,9 +947,9 @@ DROP TABLE IF EXISTS `umbrella`.`timetable` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`timetable` (
   `timetable_id` INT NOT NULL AUTO_INCREMENT,
-  `time_start` TIME NOT NULL,
-  `time_end` TIME NOT NULL,
-  `weekday` INT NOT NULL,
+  `timetable_time_start` TIME NOT NULL,
+  `timetable_time_end` TIME NOT NULL,
+  `timetable_weekday` ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
   `teaching_id` INT NOT NULL,
   `room_id` INT NOT NULL,
   PRIMARY KEY (`timetable_id`),
@@ -937,26 +957,14 @@ CREATE TABLE IF NOT EXISTS `umbrella`.`timetable` (
   INDEX `timetable_ibfk_2_idx` (`room_id` ASC) VISIBLE,
   CONSTRAINT `timetable_ibfk_1`
     FOREIGN KEY (`teaching_id`)
-    REFERENCES `umbrella`.`teaching` (`id`)
+    REFERENCES `umbrella`.`teaching` (`teaching_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `timetable_ibfk_2`
     FOREIGN KEY (`room_id`)
-    REFERENCES `umbrella`.`room` (`id`)
+    REFERENCES `umbrella`.`room` (`room_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `umbrella`.`user_course_elective`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `umbrella`.`user_course_elective` ;
-
-CREATE TABLE IF NOT EXISTS `umbrella`.`user_course_elective` (
-  `syllabus_id` INT NOT NULL,
-  `user_id` INT NOT NULL,
-  `course_id` INT NOT NULL)
 ENGINE = InnoDB;
 
 
@@ -967,16 +975,13 @@ DROP TABLE IF EXISTS `umbrella`.`chapters` ;
 
 CREATE TABLE IF NOT EXISTS `umbrella`.`chapters` (
   `chapter_number` INT NOT NULL,
-  `course_id` INT NOT NULL,
   `chapter_title` VARCHAR(50) NULL,
   `chapter_description` VARCHAR(255) NULL,
-  `chapter_weightage` INT NULL)
+  `chapter_weightage` INT NULL,
+  `course_id` INT NOT NULL)
 ENGINE = InnoDB;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
-
-COMMIT;
-

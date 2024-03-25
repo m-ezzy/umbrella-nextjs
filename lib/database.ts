@@ -1,6 +1,6 @@
 import fs, { createReadStream } from 'fs';
 import { Pool } from 'mysql2';
-// import * as csv from 'csv';
+import * as csv from 'csv';
 // import mysql from 'mysql';
 // import { Connection } from 'mysql2';
 import mysql, { QueryError, Connection, ConnectionOptions } from 'mysql2/promise';
@@ -14,152 +14,144 @@ const connectionOptions: ConnectionOptions = {
   // waitForConnections: true,
 };
 
-// let connection:any = mysql.createConnection(connectionOptions);
+const pool: any = mysql.createPool(connectionOptions)
 
-const path = `../Data/${process.env.UNIVERSITY_NAME}/csv/`;
+let csvFilesPath = `../Data/${process.env.UNIVERSITY_NAME}/csv/`;
+csvFilesPath = `C:/ProgramData/MySQL/MySQL Server 8.0/Uploads`;
+
 let tableNames:any = [
   'user',
   'campus',
   'building',
+  'floor',
+  'room',
   'department',
+  'faculty',
   'degree',
+  'admin',
   'syllabus',
   'course',
   'syllabus_course',
   'batch',
   'division',
-  'batch_user'
+  'enrollment',
+  'teaching',
+  'timetable',
+  'lecture',
+  'lecture_attendance',
 ];
 
-async function createConnection() {
-  const conn: any = await mysql.createConnection(connectionOptions)
-  .catch((error: any) => {
-    console.log(error);
-  });
-  connection = conn;
-}
-async function deleteDatabase() {
-  const conn = await mysql.createConnection(connectionOptions);
-  await conn.query(`DROP DATABASE ${process.env.DATABASE_NAME}`)
-  .then((result) => {
-    console.log(`Database dropped successfully`.bgGreen);
-  })
-  .catch((error: any) => {
-    console.error(error);
-  });
-  conn.end();
-}
-async function createDatabase() {
-  // Read SQL queries from the .sql file
-  const queriesString = fs.readFileSync("database.sql", 'utf-8');
+// async function createConnection() {
+//   const conn: any = await mysql.createConnection(connectionOptions)
+//   .catch((error: any) => {
+//     console.log(error);
+//   });
+//   connection = conn;
+// }
+// async function deleteDatabase() {
+//   const conn = await mysql.createConnection(connectionOptions);
+//   await conn.query(`DROP DATABASE ${process.env.DATABASE_NAME}`)
+//   .then((result) => {
+//     console.log(`Database dropped successfully`.bgGreen);
+//   })
+//   .catch((error: any) => {
+//     console.error(error);
+//   });
+//   conn.end();
+// }
+// async function createDatabase() {
+//   // Read SQL queries from the .sql file
+//   const queriesString = fs.readFileSync("database.sql", 'utf-8');
 
-  // Split queries by semicolon, ignore lines starting with --, ignore empty lines, ignore everything after -- in a line
-  const queryList = queriesString
-  .split(';')
-  .map((query: string) => {
-    return query
-      .split('\r\n')
-      .map((line: string) => line.split('--')[0].trim())
-      .join('');
-  })
-  .filter((query: string) => query.trim() !== '')
-  .map((query: string) => query.trim() + ';');
+//   // Split queries by semicolon, ignore lines starting with --, ignore empty lines, ignore everything after -- in a line
+//   const queryList = queriesString
+//   .split(';')
+//   .map((query: string) => {
+//     return query
+//       .split('\r\n')
+//       .map((line: string) => line.split('--')[0].trim())
+//       .join('');
+//   })
+//   .filter((query: string) => query.trim() !== '')
+//   .map((query: string) => query.trim() + ';');
 
-  // console.log(queryList);
+//   // console.log(queryList);
 
-  // Create a connection pool
-  const pool = mysql.createPool(connectionOptions);
+//   // Create a connection pool
+//   const pool = mysql.createPool(connectionOptions);
 
-  // const conn = await pool.getConnection();
+//   // const conn = await pool.getConnection();
 
-  // Execute each query in the queryList
-  for (const query of queryList) {
-    await pool.query(query)
-    .then((result) => {
-      console.log(`Query executed successfully`.bgGreen);
-    })
-    .catch((error: any) => {
-      console.error(error);
-    });
-  };
-  // Close the pool after all queries are executed
-  pool.end();
-}
-async function emptyTables() {
-  let connection: any = await mysql.createConnection(connectionOptions)
-  .catch((error: any) => {
-    console.error(error);
-    throw error;
-  });
+//   // Execute each query in the queryList
+//   for (const query of queryList) {
+//     await pool.query(query)
+//     .then((result) => {
+//       console.log(`Query executed successfully`.bgGreen);
+//     })
+//     .catch((error: any) => {
+//       console.error(error);
+//     });
+//   };
+//   // Close the pool after all queries are executed
+//   pool.end();
+// }
 
-  // Empty all tables
-  let tableNamesReverse = tableNames;
-  await tableNamesReverse.reverse();
-  
-  for (const tableName of tableNamesReverse) {
-    await connection.execute(`DELETE FROM ${tableName}`)
-    // let result:any = await connection.execute(`TRUNCATE TABLE ${tableName}`)
-    .then((result: any) => {
-      console.log(`Table ${tableName} emptied`.bgGreen);
-    })
-    .catch((error: any) => {
-      console.error(error);
-      throw error;
-    });
-  }
+// async function truncateTable(tableName: string) {
+//   // return new Promise((resolve, reject) => {
+//     const result = await pool.query(`DELETE FROM ${tableName}`)
+//     .catch((error) => {
+//       console.log(`Error truncating table ${tableName}: ${error}`.bgRed);
+//     });
+//     console.log(`Table ${tableName} truncated`.bgGreen);
+//     // resolve(true);
+//     return result;
+//   // });
+// }
+// async function truncateTables() {
+//   for(const tableName of tableNames.reverse()) {
+//     try {
+//       await truncateTable(tableName);
+//     } catch (error) {
+//     }
+//   }
+//   console.log("All tables truncated successfully".bgGreen);
+// }
 
-  connection.end();
-}
+// // Function to read data from CSV and insert into MySQL
+// const seedTableFromCSV = async (tableName: string) => {
+//   return new Promise((resolve, reject) => {
+//     const sql = `
+//       LOAD DATA INFILE ? 
+//       INTO TABLE ${tableName} 
+//       FIELDS TERMINATED BY ',' 
+//       -- ENCLOSED BY '"' 
+//       LINES TERMINATED BY '\\n' 
+//       IGNORE 1 LINES`;
+
+//     pool.query(sql, [tableName], (error, results, fields) => {
+//       if (error) {
+//         reject(`Error seeding table ${tableName}: ${error}`);
+//       } else {
+//         console.log(`Table ${tableName} seeded.`);
+//         resolve(true);
+//       }
+//     });
+//   });
+// };
 async function seedDatabase() { //seeder
-  // Fetch all tables
-  // const tables = await queryDatabase(`SHOW TABLES in ${process.env.DATABASE_NAME};`);
-  // console.log(tables);
+  // SELECT @@global.local_infile
+  // SET GLOBAL local_infile=1
+  // SET GLOBAL secure_file_priv="D:/Programming/Projects/Umbrella/Data/GLS University/csv"
 
-  const connection: any = await mysql.createConnection(connectionOptions);
-
-  // read csv files and insert data into MySQL tables
   for (const tableName of tableNames) {
-    const filePath = path + tableName + '.csv';
-    let headers:string[] = [];
-    let rows:any[] = [];
-    const buffer: any = fs.readFileSync(filePath);
-
-    csv.parse(buffer, async (error: any, data: any) => {
-      if (error) {
-        console.error(error);
-        return;
-      }
-      // console.log(data);
-      headers = data[0];
-      console.log(headers);
-      data.shift();
-      rows = data;
-
-      const valuesString = rows.map((row: any) => {
-        return row
-          .map((value: any) => {
-            return `'${value}'`;
-          })
-          .join(',');
-      }).join('), (');
-      // console.log(valuesString);
-
-      const insertQuery = `INSERT INTO ${tableName} (${headers.join(', ')}) VALUES (${valuesString});`;
-      const fields: FieldInfo = await connection.execute(insertQuery)
-      .then((result: any) => {
-        console.log(`Table ${tableName} seeded`.bgGreen);
-      })
-      .catch((error: QueryError) => {
-        console.error(error);
-        throw error;
-      });
-    });
+    try {
+      await seedTableFromCSV(tableName);
+    } catch (error) {
+      console.error(error);
+    }
   }
-  // Close MySQL connection after processing the CSV file
-  // connection.end();
+  console.log('All tables seeded'.bgGreen);
 }
-
-const pool: any = mysql.createPool(connectionOptions)
 
 async function queryDatabase(query: string, values?: any[]) {
   console.log("database queried".bgYellow);
@@ -177,4 +169,4 @@ async function queryDatabase(query: string, values?: any[]) {
 	return JSON.parse(JSON.stringify(rows));
 }
 
-export { emptyTables, createDatabase, seedDatabase, queryDatabase };
+export { seedDatabase, queryDatabase };

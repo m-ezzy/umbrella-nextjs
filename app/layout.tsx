@@ -8,7 +8,7 @@ import Link from "next/link";
 import { SessionProvider, useSession } from "next-auth/react";
 import initialScripts from "@/lib/initial-scripts";
 import { auth } from "@/auth";
-import NavBar from "@/components/NavBar";
+import NavBar from "@/components/UI/NavBar";
 import CheckSession from "@/components/CheckSessionClient";
 
 export const metadata: Metadata = {
@@ -43,9 +43,9 @@ export default async function RootLayout({
       </head>
       <body>
         <div className={`${font.className} h-svh overflow-hidden`}>
-          {session?.user ? <NavBar /> : <></>}
           <SessionProvider session={session}>
             <CheckSession>
+              <NavBar />
               {children}
             </CheckSession>
           </SessionProvider>

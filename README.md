@@ -1,6 +1,6 @@
 # Definition
-Umbrella /n
-A University Management System /n
+Umbrella  
+A University Management System  
 The most Sophisticated, Integrated, Comprehensive, and User-Friendly University Management System ever developed.
 
 # Technologies

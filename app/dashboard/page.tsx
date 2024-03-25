@@ -1,6 +1,5 @@
-import DashboardSelector from '@/components/DashboardSelector'
-import Home from '@/components/Home'
+import DashboardSelector from "@/components/DashboardSelector"
 
-export default async function IndexPage() {
+export default async function Page() {
   return <DashboardSelector />
 }

@@ -2,7 +2,7 @@ import { queryDatabase } from "@/lib/database"
 import { redirect } from "next/navigation"
 
 export default async function Page({ params }: { params: {enrollment_id: string} }) {
-  redirect(`/student/${params.enrollment_id}/schedule`);
+  redirect(`/dashboard/student/${params.enrollment_id}/schedule`);
 
   console.log(params.enrollment_id)
   // if(Number(params.enrollment) satisfies number) {

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function Page({ params }:any) {
-  redirect(`/admin/${params.degree_id}/teaching`);
+  redirect(`${params.degree_id}/batchs`);
 }

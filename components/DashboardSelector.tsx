@@ -1,14 +1,13 @@
-// "use server"
 import Link from "next/link";
 import { auth, update } from "@/auth";
-import { queryDatabase } from "@/lib/database";
-import { getEnrollments } from "@/models/Student";
+import { selectByUserId as getEnrollments } from "@/models/Enrollment";
 import { getEmployments } from "@/models/Professor";
-import { select } from "@/models/Admin";
+import { selectByUserId } from "@/models/Admin";
+import { prisma } from "@/lib/db";
+// import { selectByUserIdWhereHead } from "@/models/Faculty";
+// import { selectByUserId } from "@/models/Director";
 
 export default async function DashboardSelector() {
-  "use server";
-
   const session:any = await auth();
 
   // for professor
@@ -23,38 +22,59 @@ export default async function DashboardSelector() {
   //   i++;
   // }
 
-  const studentEnrollments: any[] = await getEnrollments();
+  // const studentEnrollments: any[] = await getEnrollments(session.user.user_id);
   // console.log(studentEnrollments);
+  const studentEnrollments: any[] = await prisma.enrollment.findMany({
+    select: {
+      enrollment_id: true,
+      batch_id: true,
+      batch: {
+        select: {
+          year_started: true,
+          syllabus: {
+            select: {
+              degree: { select: { degree_id: true, degree_name: true, degree_name_acronym: true } }
+            }
+          }
+        }
+      },
+      division: { select: { division_name: true } }
+    },
+    where: {
+      user_id: session.user.user_id,
+    },
+  });
+  // console.log(studentEnrollments[0]?.batch);
 
   const studentEnrollmentsList = studentEnrollments.map((item: any) => (
     <li key={item.batch_id} className="border p-2 min-w-44">
-      <Link href={`student/${item.enrollment_id}/`}>
-        <p>Degree: {item.degree_name} ({item.degree_name_acronym})</p>
-        <p>Batch: {item.year_started}</p>
-        <p>Division: {item.division_name}</p>
+      <Link href={`/dashboard/student/${item.enrollment_id}/`}>
+        <p>Degree: {item.batch.syllabus.degree.degree_name} ({item.batch.syllabus.degree.degree_name_acronym})</p>
+        <p>Batch: {item.batch.year_started}</p>
+        <p>Division: {item.division.division_name}</p>
       </Link>
     </li>
   ));
 
   // for professor
-  const professorEmployeed: any[] = await getEmployments(session.user.id);
-  // console.log(professorEmployeed);
+  const professorEmployeed: any[] = await getEmployments(session.user.user_id);
+  console.log(professorEmployeed);
 
   const professorEmployeedList = professorEmployeed.map((item: any) => (
     <li key={item.department_id} className="border p-2 min-w-44">
-      <Link href={`/professor`}>
+      <Link href={`/dashboard/professor`}>
       {/* <Link href={`professor/${item.department_id}/`}> */}
         <p>Department: {item.department_name}</p>
       </Link>
     </li>
   ));
   
-  const adminDegrees: any[] = await select(session.user.id);
-  // console.log(adminDegrees);
+  const adminDegrees: any[] = await selectByUserId(session.user.user_id);
+  console.log(adminDegrees);
 
   const adminDegreesList = adminDegrees.map((item: any) => (
     <li key={item.degree_id} className="border p-2 min-w-44">
-      <Link href={`admin/${item.degree_id}/`}>
+      <Link href={`/dashboard/admin/${item.degree_id}/`}>
         <p>Degree: {item.degree_name}</p>
       </Link>
     </li>

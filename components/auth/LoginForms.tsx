@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 // import { signIn } from '@/auth';
 // import { signIn, signOut, getProviders, SessionProvider, useSession, SignInResponse } from 'next-auth/react'
-import { authenticateWithCredentials, authenticateWithGoogle } from '@/lib/authThings'
+import { authenticateWithCredentials, authenticateWithGoogle } from '@/actions/auth'
 
 function CredentialsLoginForm({ setError }: any) {
   const uniqueIdentifierRef = useRef<HTMLInputElement>(null)
@@ -33,15 +33,15 @@ function CredentialsLoginForm({ setError }: any) {
     // const res: any = await signIn('credentials', { redirect: true, 'uniqueIdentifier' : uniqueIdentifier, 'password' : password })
     // const res: any = await auth('login', { uniqueIdentifier, password })
 
-    console.log(res)
+    console.log(res);
     if (res.error) {
       setError(res.error)
     } else if(res.success) {
-      redirect(res.url || '/dashboards')
+      redirect(res.url || '/dashboard')
     }
   }
-  return(
-    <form className='form border border-black rounded-lg flex flex-col p-2 gap-2'>
+  return (
+    <form action={authenticateWithCredentials} className='form border border-black rounded-lg flex flex-col p-2 gap-2'>
       <div className="form-outline w-full">
         <input type="text" name="uniqueIdentifier" className="form-control rounded w-full" placeholder="UserID, Username, Email, Mobile" ref={uniqueIdentifierRef} />
       </div>
@@ -49,7 +49,7 @@ function CredentialsLoginForm({ setError }: any) {
         <input type="password" name="password" className="form-control rounded w-full" placeholder="Password" ref={passwordRef} />
       </div>
       <div className="form-outline">
-        <button type="submit" className="form-control w-full text-black border border-black rounded-lg p-2 text-md font-semibold" onClick={handleClick}>Login with Credentials</button>
+        <button type="submit" className="form-control w-full text-black border border-black rounded-lg p-2 text-md font-semibold">Login with Credentials</button>
       </div>
     </form>
   );
@@ -62,10 +62,12 @@ function GoogleLoginForm({ setError }: any) { //GoogleLoginButton
     }
   }
   return (
-    <button className="w-full bg-transparent border border-black rounded-lg p-0 hover:bg-violet-200" onClick={handleClick}>
-      <img src="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png" alt="Google Logo" className='w-12 h-12' />
-      <span className="text-black text-md font-semibold">Login with Google</span>
-    </button>
+    <form action={authenticateWithGoogle} className='form border border-black rounded-lg flex flex-col p-2 gap-2'>
+      <button className="w-full bg-transparent border border-black rounded-lg p-0 hover:bg-violet-200" onClick={handleClick}>
+        <img src="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png" alt="Google Logo" className='w-12 h-12' />
+        <span className="text-black text-md font-semibold">Login with Google</span>
+      </button>
+    </form>
   )
 }
 function GithubLoginForm({ setError }: any) {

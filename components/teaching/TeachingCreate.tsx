@@ -4,8 +4,8 @@ import { getDegrees, getLectures } from "@/models/Professor"
 import { createTeaching } from "@/actions/teaching"
 
 export default function TeachingCreate({ division_courses, professorsAll, teaching }: any) {
-  console.log(division_courses);
-  console.log(teaching);
+  // console.log(division_courses);
+  // console.log(teaching);
 
   // syllabus ---> batch, division, semester, course
   // batch ---> syllabus, division
@@ -28,12 +28,12 @@ export default function TeachingCreate({ division_courses, professorsAll, teachi
 
   // const [department_id, setDepartmentId] = useState(null);
   // const [degree_id, setDegreeId] = useState(null);
-  const [syllabus_id, setSyllabusId] = useState(null);
-  const [batch_id, setBatchId] = useState(null);
-  const [division_id, setDivisionId] = useState(null);
-  const [semester, setSemester] = useState(null);
-  const [course_id, setCourseId] = useState(null);
-  const [professor_id, setProfessorId] = useState(null);
+  const [syllabus_id, setSyllabusId] = useState("");
+  const [batch_id, setBatchId] = useState("");
+  const [division_id, setDivisionId] = useState("");
+  const [semester, setSemester] = useState("");
+  const [course_id, setCourseId] = useState("");
+  const [professor_id, setProfessorId] = useState("");
 
   // let daprtmentIems:any = [];
   // let degreeItems:any = [];

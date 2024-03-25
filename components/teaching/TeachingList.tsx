@@ -22,8 +22,8 @@ export default async function TeachingList({ teaching }) {
   ));
 
   return (
-    <div className='mt-8'>
-      <div className='bg-gray-200 border rounded-md sticky top-0 p-1 grid grid-cols-6'>
+    <div className='mt-4'>
+      <div className='bg-gray-200 rounded-md p-2 grid grid-cols-6'>
         <span>Batch</span>
         <span>Division</span>
         <span>Semester</span>

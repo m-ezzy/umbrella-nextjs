@@ -1,15 +1,65 @@
 import Link from "next/link";
-import { queryDatabase } from "@/lib/database";
+import BatchCreate from "@/components/batch/BatchCreate";
+import DivisionCreate from "@/components/division/DivisionCreate";
+import BatchList from "@/components/batch/BatchList";
+import { prisma } from "@/lib/db";
 
 export default async function Page({ params }: {params: { degree_id: number }}) {
-  const batchs = await queryDatabase("SELECT * FROM batch WHERE degree_id = $1", [params.degree_id]);
+  const batchs = await prisma.batch.findMany({
+    select: {
+      _count: {
+        select: {
+          enrollment: true
+        }
+      },
+      batch_id: true,
+      year_started: true,
+      year_ended: true,
+      syllabus: {
+        select: {
+          syllabus_id: true,
+          duration_years: true,
+          duration_semesters: true,
+          year_effective: true,
+          year_retired: true,
+          degree_id: true,
+        }
+      },
+      division: {
+        select: {
+          division_id: true,
+          division_name: true,
+        }
+      },
+    },
+    where: {
+      syllabus: {
+        degree_id: Number(params.degree_id),
+      }
+    },
+    orderBy: {
+      year_started: 'asc'
+    }
+  });
 
+  const syllabus = await prisma.syllabus.findMany({
+    select: {
+      syllabus_id: true,
+      duration_years: true,
+      duration_semesters: true,
+      year_effective: true,
+      year_retired: true,
+      degree_id: true,
+    },
+    where: {
+      degree_id: Number(params.degree_id),
+    }
+  });
   return (
-    <div className="w-full p-2">
-      <h1 className="text-2xl font-bold">Batchs</h1>
-      <ul className="mt-2">
-        {/* dispaly in card style. both batchs and division. show the number of studensts enrolled in batch and division and link to  show them on new page */}
-      </ul>
+    <div className="w-full h-full p-2 overflow-auto">
+      <BatchCreate syllabus={syllabus} degree_id={params.degree_id} />
+      <DivisionCreate batchs={batchs} />
+      <BatchList batchs={batchs} syllabus={syllabus} />
     </div>
   );
 }

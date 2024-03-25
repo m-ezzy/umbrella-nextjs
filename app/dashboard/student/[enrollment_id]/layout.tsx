@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { selectById } from '@/models/Degree';
-import MenuList from '@/components/MenuList';
+import MenuList from '@/components/UI/MenuList';
 
 export default async function Layout({ children, params }: { children: ReactNode, params: { degree_id: number } }) {
   const degree = await selectById(params.degree_id);
