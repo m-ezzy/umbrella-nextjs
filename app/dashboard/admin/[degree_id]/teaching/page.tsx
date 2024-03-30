@@ -76,6 +76,11 @@ export default async function Page({ params }: {params: { degree_id: string }}) 
         select: {
           course_id: true,
           course_name: true,
+          syllabus_course: {
+            select: {
+              course_semester: true,
+            },
+          },
         },
       },
       division: {
@@ -109,10 +114,10 @@ export default async function Page({ params }: {params: { degree_id: string }}) 
       },
     },
   });
-  console.log(teaching);
+  console.log(teaching[0].course);
 
   return (
-    <div className='w-full p-2 overflow-auto'>
+    <div className='w-full p-2 overflow-auto relative'>
       <TeachingCreate division_courses={division_courses} professorsAll={professors} teaching={teaching} />
       <TeachingList teaching={teaching} />
     </div>

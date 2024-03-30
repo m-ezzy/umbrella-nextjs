@@ -6,14 +6,14 @@ const nextConfig = {
       allowedOrigins: ["lfxslwbc-3000.inc1.devtunnels.ms", "localhost:3000"],
     },
   },
-  async rewrites() {
-    return [
-      {
-        source: "/",
-        destination: "http://localhost:3000/",
-      },
-    ];
-  }
+  // async rewrites() {
+  //   return [
+  //     {
+  //       source: "/",
+  //       destination: "http://localhost:3000/",
+  //     },
+  //   ];
+  // }
 };
 
 export default nextConfig;

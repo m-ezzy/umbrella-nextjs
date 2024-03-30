@@ -27,6 +27,11 @@ export default async function Page({ params }: {params: { degree_id: number }}) 
       },
       division: {
         select: {
+          _count: {
+            select: {
+              enrollment: true
+            }
+          },
           division_id: true,
           division_name: true,
         }
@@ -56,10 +61,10 @@ export default async function Page({ params }: {params: { degree_id: number }}) 
     }
   });
   return (
-    <div className="w-full h-full p-2 overflow-auto">
+    <div className="w-full h-full p-2 space-y-2 overflow-auto">
       <BatchCreate syllabus={syllabus} degree_id={params.degree_id} />
       <DivisionCreate batchs={batchs} />
-      <BatchList batchs={batchs} syllabus={syllabus} />
+      <BatchList degree_id={params.degree_id} batchs={batchs} syllabus={syllabus} />
     </div>
   );
 }

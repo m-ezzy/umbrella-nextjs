@@ -28,10 +28,10 @@
     @apply bg-gray-400;
   }
   input[type], select {
-    @apply border-violet-400 rounded-md focus:border-violet-600 focus:bg-violet-100;
+    @apply border-violet-400 rounded-md focus:ring-violet-600 focus:border-violet-600;
   }
   .border, .border-t, .border-b, .border-r, .border-l {
-    @apply border-black;
+    @apply border-black border-violet-400;
   }
 }
 

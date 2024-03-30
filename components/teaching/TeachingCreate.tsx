@@ -139,7 +139,7 @@ export default function TeachingCreate({ division_courses, professorsAll, teachi
   const handleChangeProfessor = (e) => setProfessorId(prev => e.target.value);
 
   return (
-    <form action={createTeaching} className="bg-white form border rounded-md p-2 grid grid-cols-4 gap-2 sticky top-0">
+    <form action={createTeaching} className="bg-white form border rounded-md p-2 grid grid-cols-4 gap-2 stick top-">
       {/* <select name="department_id" required>
         <option value="">Select Department</option>
       </select> */}

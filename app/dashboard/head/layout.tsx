@@ -5,7 +5,7 @@ import MenuList from '@/components/UI/MenuList';
 export default async function Layout({ children, params }: { children: ReactNode, params: { department_id: number } }) {
   const department = await selectById(params.department_id);
 
-  const nav = ['degrees', 'faculties', 'admin', 'activities'];
+  const nav = ['infrastructure', 'degrees', 'faculties', 'admin', 'activities'];
 
   return (
     <div className="h-full overflow-hidden flex">

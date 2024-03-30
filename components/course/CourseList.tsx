@@ -12,7 +12,7 @@ export default async function CourseList({ courses }: { courses: any }) {
 
       <div>
         <form action={updateCourse}>
-          <input type="hidden" name="batch_id" value={item.batch_id} hidden />
+          <input type="hidden" name="course_id" value={item.course_id} hidden />
           <button type="submit">
             <span className="material-symbols-outlined">edit</span>
           </button>
@@ -20,7 +20,7 @@ export default async function CourseList({ courses }: { courses: any }) {
       </div>
       <div>
         <form action={deleteCourse}>
-          <input type="hidden" name="batch_id" value={item.batch_id} hidden />
+          <input type="hidden" name="course_id" value={item.course_id} hidden />
           <button type="submit">
             <span className="material-symbols-outlined">delete</span>
           </button>
@@ -29,7 +29,7 @@ export default async function CourseList({ courses }: { courses: any }) {
     </li>
   ));
   return (
-    <div className="h-full mt-4 overflow-auto relative">
+    <div className="overflow-auto relative">
       <div className="bg-gray-200 rounded p-2 grid grid-cols-7 sticky top-0">
         <div>Code</div>
         <div>Name</div>

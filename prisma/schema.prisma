@@ -376,9 +376,9 @@ model lecture_attendance {
   lecture               lecture @relation(fields: [lecture_id], references: [lecture_id], onDelete: NoAction, onUpdate: NoAction, map: "lecture_attendance_ibfk_1")
   user                  user    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "lecture_attendance_ibfk_2")
 
-  @@unique([lecture_id, user_id], map: "lecture_user_UNIQUE")
-  @@index([lecture_id], map: "lecture_attendance_ibfk_1_idx")
-  @@index([user_id], map: "lecture_attendance_ibfk_2_idx")
+  @@unique([lecture_id, user_id], map: "attendance_lecture_user_UNIQUE")
+  @@index([lecture_id], map: "lecture_attendance_lecture_idx")
+  @@index([user_id], map: "lecture_attendance_user_idx")
 }
 
 /// level roles permissions role_permissions user_role
@@ -408,8 +408,8 @@ model library_book {
   library    library   @relation(fields: [library_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "library_book_ibfk_1")
   book       book      @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "library_book_ibfk_2")
 
-  @@unique([library_id, book_id], map: "UK_library_book")
-  @@index([book_id], map: "FK_book_idx")
+  @@unique([library_id, book_id], map: "library_book_UNIQUE")
+  @@index([book_id], map: "library_book_idx")
 }
 
 model result {

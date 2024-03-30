@@ -1,7 +1,7 @@
 // import { useFormStatus } from "react-dom";
 import { redirect } from "next/navigation";
 import { auth, signOut } from "@/auth";
-import { userLogout } from "@/actions/user";
+import { userLogout } from "@/actions/auth";
 
 export default function Page() {
   const session:any = auth();
@@ -23,12 +23,12 @@ export default function Page() {
   ));
 
   return (
-    <div>
+    <div className="p-2">
       <ul>
         {activeSessions}
       </ul>
       <form action={userLogout}>
-        <button type="submit" className="mt-2">Logout</button>
+        <button type="submit">Logout</button>
       </form>
     </div>
   );

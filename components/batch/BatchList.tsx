@@ -4,7 +4,7 @@ import { updateBatch, deleteBatch } from "@/actions/batch";
 
 export default async function BatchList({ degree_id, syllabus, batchs }: { degree_id: number, syllabus: any, batchs: any }) {
   const batchItems = batchs.map((item: any) => (
-    <li key={item.batch_id} className="bg-violet-100 min-w-60 min-h-60 border rounded-md p-2 space-y-4">
+    <li key={item.batch_id} className="bg-gray-200 min-w-60 min-h-60 border rounded-md p-2 space-y-4">
       <div className="flex justify-end gap-1">
         <form action={updateBatch}>
           <input type="hidden" name="batch_id" value={item.batch_id} hidden />
@@ -28,5 +28,9 @@ export default async function BatchList({ degree_id, syllabus, batchs }: { degre
       <DivisionList batch_id={item.batch_id} divisions={item.division} />
     </li>
   ));
-  return <ul className="mt-2 grid grid-cols-2 flex-wrap gap-2">{batchItems}</ul>
+  return (
+    <ul className="grid grid-cols-1 gap-2 md:grid-cols-3">
+      {batchItems}
+    </ul>
+  );
 }

@@ -2,7 +2,7 @@ import SyllabusCreate from "@/components/syllabus/SyllabusCreate"
 import SyllabusList from "@/components/syllabus/SyllabusList"
 import { prisma } from "@/lib/db"
 
-export default async function Page({ params }: {params: { degree_id: number }}) {
+export default async function Page({ params }: {params: { degree_id: string }}) {
   const syllabus = await prisma.syllabus.findMany({
     select: {
       syllabus_id: true,
@@ -14,8 +14,8 @@ export default async function Page({ params }: {params: { degree_id: number }}) 
   });
   return (
     <div className="w-full p-2">
-      <SyllabusCreate degree_id={params.degree_id} />
-      <SyllabusList syllabus={syllabus} />
+      <SyllabusCreate degree_id={parseInt(params.degree_id)} />
+      <SyllabusList degree_id={parseInt(params.degree_id)} syllabus={syllabus} />
     </div>
   );
 }

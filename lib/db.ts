@@ -29,6 +29,24 @@ let tableNames:any = [
 
 const prisma = new PrismaClient();
 
+// prisma.$connect()
+//   .then(() => {
+//     console.log('Connected to the database'.bgGreen);
+//   })
+//   .catch((error: any) => {
+//     console.error('Error connecting to the database:'.bgRed, error);
+//   });
+
+// prisma.$disconnect()
+//   .then(() => {
+//     console.log('Disconnected from the database'.bgGreen);
+//   })
+//   .catch((error: any) => {
+//     console.error('Error disconnecting from the database:'.bgRed, error);
+//   });
+
+
+
 async function truncateTable(modelName: string) {
   await prisma[modelName].deleteMany()
   .then(() => {

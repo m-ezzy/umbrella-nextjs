@@ -3,8 +3,6 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 
 async function createBatch(formData: FormData) {
-  console.log(formData);
-
   const result = await prisma.batch.create({
     data: {
       year_started: Number(formData.get("year_started")),
@@ -30,8 +28,6 @@ async function updateBatch(formData: FormData) {
   revalidatePath("/dashboard/admin");
 }
 async function deleteBatch(formData: FormData) {
-  console.log(formData);
-
   const result = await prisma.batch.delete({
     where: {
       batch_id: Number(formData.get("batch_id"))

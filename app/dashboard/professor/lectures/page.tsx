@@ -5,18 +5,18 @@ import { createLecture } from "@/actions/lecture";
 import Image from "next/image";
 import CreateLecture from "@/components/lecture/LectureCreate"
 
-type Lecture = {
-  id: number;
-  course_id: number;
-  course_name_acronym: string;
-  degree_id: number;
-  division_id: number;
-  date: string;
-  start_time: string;
-  end_time: string;
-  floor_number: number;
-  room_number: number;
-}
+// type Lecture = {
+//   id: number;
+//   course_id: number;
+//   course_name_acronym: string;
+//   degree_id: number;
+//   division_id: number;
+//   date: string;
+//   start_time: string;
+//   end_time: string;
+//   floor_number: number;
+//   room_number: number;
+// }
 
 export default async function Page() {
   const session:any = await auth();

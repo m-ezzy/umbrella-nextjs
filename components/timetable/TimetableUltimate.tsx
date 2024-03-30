@@ -56,7 +56,7 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
 
   const [batch_id, setBatchId] = useState(initialTeaching.batch_id);
   const [division_id, setDivisionId] = useState(initialTeaching.division_id);
-  const [semester, setSemester] = useState(initialTeaching.semester);
+  const [semester, setSemester] = useState(initialTeaching.course_semester);
   const [course_id, setCourseId] = useState("");
   const [professor_id, setProfessorId] = useState("");
   const [teaching_id, setTeachingId] = useState("");
@@ -68,7 +68,7 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
 
   let uniqueBatch = new Set(teachingData.map((item: any) => item.batch_id));
   let uniqueDivision = new Set(teachingData.map((item: any) => item.division_id));
-  let uniqueSemester = new Set(teachingData.map((item: any) => item.semester));
+  let uniqueSemester = new Set(teachingData.map((item: any) => item.course_semester));
   let uniqueCourse = new Set(teachingData.map((item: any) => item.course_id));
   let uniqueProfessor = new Set(teachingData.map((item: any) => item.professor_id));
   // let uniqueRoom = Array.from(new Set(teachingData.map((item: any) => item.room_id)));
@@ -102,7 +102,7 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
     if(division_id && semester) {
       let filtered: any = timetableData;
 
-      filtered = filtered.filter((item: any) => item.division_id == division_id && item.semester == semester);
+      filtered = filtered.filter((item: any) => item.division_id == division_id && item.course_semester == semester);
 
       // highlight the appropriate cells with color | course_id or professor_id fiters timetableData
       filtered = filtered.map((tt: any) => {
@@ -170,7 +170,7 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
         //check if division is available. they might be attending another class at the same time
         let divisionIsBusy: any = timetableData.find((item: any) => {
           let timeClash =  time_start == item.time_start.slice(0,5) && time_end == item.time_end.slice(0,5);
-          return item.division_id == division_id && item.semester == semester && item.weekday == weekday && item.time_start.slice(0,5) <= time_start && item.time_end.slice(0,5) >= time_end;
+          return item.division_id == division_id && item.course_semester == semester && item.weekday == weekday && item.time_start.slice(0,5) <= time_start && item.time_end.slice(0,5) >= time_end;
         });
 
         if(divisionIsBusy) {
@@ -205,9 +205,9 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
     }
   });
   semesterItems = teachingData.map((item: any) => {
-    if(uniqueSemester.has(item.semester)) {
-      uniqueSemester.delete(item.semester);
-      return <option key={item.semester} value={item.semester}>{item.semester}</option>;
+    if(uniqueSemester.has(item.course_semester)) {
+      uniqueSemester.delete(item.course_semester);
+      return <option key={item.course_semester} value={item.course_semester}>{item.course_semester}</option>;
     }
   });
   courseItems = teachingData.map((item: any) => {

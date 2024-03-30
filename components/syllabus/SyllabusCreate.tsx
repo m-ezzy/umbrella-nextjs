@@ -4,8 +4,8 @@ export default async function SyllabusCreate({ degree_id }: { degree_id: number 
 
   return (
     <div>
-      <form action={createSyllabus} className="w-full border rounded-md p-2 grid grid-cols-5 gap-2 items-center">
-        <input type="text" name="degree_id" value={degree_id} hidden />
+      <form action={createSyllabus} className="bg-gray-200 w-full rounded-md p-2 grid grid-cols-2 gap-2 items-center lg:grid-cols-5">
+        <input type="text" name="degree_id" defaultValue={degree_id} hidden />
 
         {/* <label htmlFor="year_effective">Year Effective</label> */}
         <input type="text" name="year_effective" placeholder="Year Effective" required />

@@ -10,7 +10,7 @@ export default async function CourseCreate({ degree_id }: { degree_id: number })
 
   return (
     <div>
-      <form action={createCourse} className="w-full border rounded-md p-2 grid grid-cols-6 gap-x-8 gap-y-2 items-center">
+      <form action={createCourse} className="bg-gray-200 w-full border rounded-md p-2 grid grid-cols-6 gap-x-8 gap-y-2 items-center">
         <label htmlFor="course_code">Course Code</label>
         <input type="text" name="course_code" placeholder="Course Code" />
   

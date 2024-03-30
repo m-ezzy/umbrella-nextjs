@@ -23,7 +23,11 @@ export default function BatchCreate({ syllabus, degree_id }: any) {
       return <option key={semester} value={semester}>{semester}</option>
     });
 
-  const handleChangeSyllabus = (e) => setSyllabusId(e.target.value);
+  const handleChangeSyllabus = (e: any) => setSyllabusId(e.target.value);
+
+  // async function createBatch(e: any) {
+  //   "use server";
+  // }
 
   return (
     <form action={createBatch} className="form border rounded-md p-2 grid grid-cols-2 gap-2 items-center lg:grid-cols-10">

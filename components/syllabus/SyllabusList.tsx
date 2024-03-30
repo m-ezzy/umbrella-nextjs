@@ -1,7 +1,18 @@
 import Link from "next/link";
 import { updateSyllabus, deleteSyllabus } from "@/actions/syllabus";
+import { prisma } from "@/lib/db";
 
-export default async function SyllabusList({ syllabus }: { syllabus: any }) {
+export default async function SyllabusList({ degree_id, syllabus }: { degree_id: number, syllabus: any }) {
+  // const syllabus = await prisma.syllabus.findMany({
+  //   select: {
+  //     syllabus_id: true,
+  //     year_effective: true,
+  //   },
+  //   where: {
+  //     degree_id: degree_id,
+  //   },
+  // });
+
   const items = syllabus.map((item: any) => (
     <li key={item.syllabus_id} className="border-b p-2 grid grid-cols-7">
       <div>{item.year_effective}</div>
@@ -24,7 +35,7 @@ export default async function SyllabusList({ syllabus }: { syllabus: any }) {
     </li>
   ));
   return (
-    <div className="h-full mt-4 overflow-auto relative">
+    <div className="mt-4 overflow-auto relative">
       <div className="bg-gray-200 rounded p-2 grid grid-cols-7 sticky top-0">
         <div>Year</div>
         <div>Edit</div>
