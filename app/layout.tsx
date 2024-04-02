@@ -3,13 +3,13 @@ import "../styles/globals.css";
 
 import type { Metadata } from "next";
 import Image from "next/image";
-import { useRouter, redirect, usePathname } from 'next/navigation'
 import Link from "next/link";
+import { useRouter, redirect, usePathname } from 'next/navigation'
 import { SessionProvider, useSession } from "next-auth/react";
+import CheckSession from "@/components/CheckSessionClient";
+import NavBar from "@/components/UI/Navbar";
 import initialScripts from "@/lib/initial-scripts";
 import { auth } from "@/auth";
-import NavBar from "@/components/UI/NavBar";
-import CheckSession from "@/components/CheckSessionClient";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -39,10 +39,10 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional" />
       </head>
       <body>
-        <div className={`${font.className} h-svh overflow-hidden`}> {/* bg-black text-white */}
+        <div className={`${font.className} h-svh overflow-hidde`}> {/* bg-black text-white */}
           <SessionProvider session={session}>
             <CheckSession>
               <NavBar />

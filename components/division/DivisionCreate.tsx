@@ -5,9 +5,10 @@ export default function DivisionCreate({ batchs }: any) {
     return <option key={batch_id} value={batch_id}>{year_started}</option>
   });
   return (
-    <form action={createDivision} className="form border rounded-md p-2 grid grid-cols-2 gap-2 items-center lg:grid-cols-10">
+    <form action={createDivision} className="bg-gray-200 form rounded-md p-2 grid grid-cols-2 gap-2 items-center lg:grid-cols-10">
       <label htmlFor="batch_id">Batch</label>
       <select name="batch_id" required>{batchItems}</select>
+
       <label htmlFor="current_semester">Division Name</label>
       <input type="text" name="division_name" placeholder="Division Name" required />
 

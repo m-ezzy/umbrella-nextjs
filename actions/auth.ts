@@ -9,16 +9,16 @@ async function authenticateWithCredentials(formData: FormData) {
   const password = formData.get('password');
 
   const result: any = await signIn('credentials', { uniqueIdentifier: uniqueIdentifier, password: password, redirect: true, redirectTo: '/dashboard'})
-  return result;
-  // .catch((error: AuthError) => {
-  //   switch (error.type) {
-  //     case 'CredentialsSignin':
-  //       return { error: 'Invalid credentials' }
-  //     default:
-  //       return { error: 'Something went wrong' }
-  //   }
-  // });
-  // return { success: result };
+  .catch((error: AuthError) => {
+    switch (error.type) {
+      case 'CredentialsSignin':
+        return { error: 'Invalid credentials' }
+      default:
+        return { error: 'Something went wrong' }
+    }
+  });
+  redirect("/dashboard");
+  // return { result }
 }
 async function authenticateWithGoogle(formData: FormData) {
   const res = await signIn('google') //('google', { callbackUrl: '/api/auth/google/callback' })

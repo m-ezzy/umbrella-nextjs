@@ -20,35 +20,35 @@ model admin {
 }
 
 model admission {
-  admission_id       Int                           @id @default(autoincrement())
-  admission_date     String?                       @db.VarChar(45)
-  admission_type     admission_admission_type?
-  admission_category admission_admission_category?
-  admission_quota    String?                       @db.VarChar(45)
-  admission_status   admission_admission_status?
+  admission_id       Int                 @id @default(autoincrement())
+  admission_date     String?             @db.VarChar(45)
+  admission_type     admission_type?
+  admission_category admission_category?
+  admission_quota    String?             @db.VarChar(45)
+  admission_status   admission_status?
   degree_id          Int
   user_id            Int
-  degree             degree                        @relation(fields: [degree_id], references: [degree_id], onDelete: NoAction, onUpdate: NoAction, map: "admission_idfk_1")
-  user               user                          @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "admission_idfk_2")
+  degree             degree              @relation(fields: [degree_id], references: [degree_id], onDelete: NoAction, onUpdate: NoAction, map: "admission_idfk_1")
+  user               user                @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "admission_idfk_2")
 
   @@index([degree_id], map: "admission_idfk_1_idx")
   @@index([user_id], map: "admission_idfk_2_idx")
 }
 
 model assignment {
-  assignment_id            Int                         @id @default(autoincrement())
-  assignment_title         String                      @db.VarChar(50)
-  assignment_description   String                      @db.VarChar(255)
-  assignment_deadline      DateTime?                   @db.DateTime(0)
-  assignment_type          assignment_assignment_type?
+  assignment_id            Int                     @id @default(autoincrement())
+  assignment_title         String                  @db.VarChar(50)
+  assignment_description   String                  @db.VarChar(255)
+  assignment_deadline      DateTime?               @db.DateTime(0)
+  assignment_type          assignment_type?
   assignment_maximum_marks Int?
-  assignment_graded        Int?                        @db.TinyInt
+  assignment_graded        Boolean?                @db.TinyInt
   assignment_weightage     Int?
   teaching_id              Int
-  teaching                 teaching                    @relation(fields: [teaching_id], references: [teaching_id], onUpdate: NoAction, map: "assignment_ibfk_1")
+  teaching                 teaching                @relation(fields: [teaching_id], references: [teaching_id], onUpdate: NoAction, map: "assignment_ibfk_1")
   submissions              assignment_submission[]
 
-  @@index([teaching_id], map: "assignment_ibfk_1_idx")
+  @@index([teaching_id], map: "assignment_teaching_idx")
 }
 
 model assignment_submission {
@@ -64,6 +64,11 @@ model assignment_submission {
   @@unique([assignment_id, user_id], map: "assignment_user_UNIQUE")
   @@index([assignment_id], map: "assignment_submission_ibfk_1_idx")
   @@index([user_id], map: "assignment_submission_ibfk_2_idx")
+}
+
+model auth_session { // user_session
+  session_id    Int    @id
+  session_value String @db.VarChar(255)
 }
 
 model author {
@@ -90,9 +95,9 @@ model batch {
   year_ended       Int
   current_semester Int
   syllabus_id      Int
-  syllabus         syllabus     @relation(fields: [syllabus_id], references: [syllabus_id], onDelete: NoAction, onUpdate: NoAction, map: "batch_ibfk_1")
-  division         division[]
-  enrollment       enrollment[]
+  syllabus         syllabus     @relation(fields: [syllabus_id], references: [syllabus_id], onDelete: Restrict, onUpdate: NoAction, map: "batch_ibfk_1")
+  divisions        division[]
+  enrollments      enrollment[]
 
   @@index([syllabus_id], map: "batch_syllabus_idx")
   @@unique([year_started, syllabus_id], map: "batch_year_syllabus_UNIQUE")
@@ -148,8 +153,8 @@ model building {
   campus_id     Int
   campus        campus       @relation(fields: [campus_id], references: [campus_id], onDelete: NoAction, onUpdate: NoAction, map: "building_ibfk_1")
   // department    department[]
-  floor         floor[]
-  library       library[]
+  floors        floor[]
+  libraries     library[]
 
   @@index([campus_id], map: "building_campus_idx")
 }
@@ -163,30 +168,34 @@ model campus {
   campus_country    String     @db.VarChar(100)
   campus_pincode    String     @db.VarChar(10)
   campus_gate_count Int?       @default(1)
-  building          building[]
+  buildings         building[]
 }
 
 model chapter {
-  chapter_id          Int     @id @default(autoincrement())
-  chapter_number      Int
-  chapter_title       String? @db.VarChar(50)
-  chapter_description String? @db.VarChar(255)
-  chapter_weightage   Int?
-  course_id           Int
-  course              course  @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "chapter_course_idfk_1")
+  chapter_id  Int     @id @default(autoincrement())
+  number      Int
+  title       String? @db.VarChar(50)
+  description String? @db.VarChar(100)
+  topics      String? @db.VarChar(255)   // overview and listout of topics covered in this chapter of the course
+  weightage   Int?
+  course_id   Int
+  course      course  @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "chapter_course_idfk_1")
+  // courses     course[]
 
-  @@index([course_id], map: "chapter_course_idfk_1_idx")
+  @@index([course_id], map: "chapter_course_idx")
 }
 
 // subject course
 model course {
   course_id           Int                @id @default(autoincrement())
-  course_code         String?            @db.VarChar(50) @unique(map: "course_code_UNIQUE")
+  course_code         String?            @db.VarChar(20) @unique(map: "course_code_UNIQUE")
   course_name         String             @db.VarChar(100)
   course_name_acronym String             @db.VarChar(20)
   course_type         course_type
   year_created        Int
-  chapter             chapter[]
+  department_id       Int
+  department          department         @relation(fields: [department_id], references: [department_id], onDelete: Restrict, onUpdate: NoAction, map: "course_ibfk_1")
+  chapters            chapter[]
   book_course         book_course[]
   syllabus_course     syllabus_course[]
   teaching            teaching[]
@@ -194,6 +203,7 @@ model course {
   result              result[]
 
   @@index([course_code], map: "course_code_idx")
+  @@index([department_id], map: "course_department_idx")
 }
 
 model course_user_elective {
@@ -226,6 +236,7 @@ model department {
   // building_id             Int?
   // building                building? @relation(fields: [building_id], references: [building_id], onDelete: NoAction, onUpdate: NoAction, map: "department_ibfk_1")
   degree                  degree[]
+  courses                 course[]
   faculty                 faculty[]
   library                 library[]
 
@@ -238,7 +249,7 @@ model division {
   batch_id      Int
   batch         batch        @relation(fields: [batch_id], references: [batch_id], onDelete: Restrict, onUpdate: NoAction, map: "division_ibfk_1")
   teaching      teaching[]
-  enrollment    enrollment[]
+  enrollments   enrollment[]
   exam          exam[]
 
   @@index([batch_id], map: "division_batch_idx")
@@ -249,7 +260,7 @@ model division {
 model enrollment {
   enrollment_id     Int      @id @default(autoincrement())
   enrollment_number BigInt?  @unique(map: "enrollment_number_UNIQUE")
-  roll_number       String?  @db.VarChar(5) @unique(map: "roll_number_UNIQUE")
+  roll_number       String?  @db.VarChar(5) // @unique(map: "roll_number_UNIQUE")
   batch_id          Int
   division_id       Int
   user_id           Int
@@ -261,7 +272,8 @@ model enrollment {
   @@index([batch_id], map: "enrollment_batch_idx")
   @@index([user_id], map: "enrollment_user_idx")
   @@index([division_id], map: "enrollment_division_idx")
-  @@unique([batch_id, user_id], map: "batch_user_UNIQUE")
+  @@unique([batch_id, user_id], map: "enrollment_batch_user_UNIQUE")
+  @@unique([division_id, user_id], map: "enrollment_division_user_UNIQUE")
 }
 
 model event {
@@ -353,34 +365,6 @@ model grade {
   @@index([user_id], map: "user_id")
 }
 
-model lecture {
-  lecture_id         Int                  @id @default(autoincrement())
-  lecture_date       DateTime             @db.Date
-  lecture_time_start DateTime             @db.Time(0)
-  lecture_time_end   DateTime             @db.Time(0)
-  // lecture_duration   DateTime?            @db.Time(0)
-  teaching_id        Int
-  room_id            Int
-  teaching           teaching             @relation(fields: [teaching_id], references: [teaching_id], onDelete: NoAction, onUpdate: NoAction, map: "lecture_ibfk_1")
-  room               room                 @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction, map: "lecture_ibfk_2")
-  lecture_attendance lecture_attendance[]
-
-  @@index([teaching_id], map: "lecture_teaching_idx")
-  @@index([room_id], map: "lecture_room_idx")
-}
-
-model lecture_attendance {
-  lecture_attendance_id Int     @id @default(autoincrement())
-  lecture_id            Int
-  user_id               Int
-  lecture               lecture @relation(fields: [lecture_id], references: [lecture_id], onDelete: NoAction, onUpdate: NoAction, map: "lecture_attendance_ibfk_1")
-  user                  user    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "lecture_attendance_ibfk_2")
-
-  @@unique([lecture_id, user_id], map: "attendance_lecture_user_UNIQUE")
-  @@index([lecture_id], map: "lecture_attendance_lecture_idx")
-  @@index([user_id], map: "lecture_attendance_user_idx")
-}
-
 /// level roles permissions role_permissions user_role
 model level {
   id Int @id
@@ -436,8 +420,8 @@ model room {
   room_column_count Int?
   floor_id          Int
   floor             floor           @relation(fields: [floor_id], references: [floor_id], onDelete: NoAction, onUpdate: NoAction, map: "room_ibfk_1")
-  lecture           lecture[]
-  timetable         timetable[]
+  sessions          session[]
+  timetables        timetable[]
 
   @@index([floor_id], map: "room_floor_idx")
 }
@@ -451,9 +435,39 @@ model salary {
   salary_id Int @id @default(autoincrement())
 }
 
+// lecture
 model session {
-  session_id    Int    @id
-  session_value String @db.VarChar(255)
+  session_id          Int                  @id @default(autoincrement())
+  open_for_attendance Boolean              @db.TinyInt() @default(false)
+  type                session_type         @default(lecture)
+  date                DateTime             @db.Date
+  time_start          DateTime             @db.Time(0)
+  time_end            DateTime             @db.Time(0)
+  // lecture_duration   DateTime?            @db.Time(0)
+  teaching_id         Int
+  room_id             Int
+  teaching            teaching             @relation(fields: [teaching_id], references: [teaching_id], onDelete: NoAction, onUpdate: NoAction, map: "session_ibfk_1")
+  room                room                 @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction, map: "session_ibfk_2")
+  attendances         session_attendance[]
+
+  @@index([teaching_id], map: "session_teaching_idx")
+  @@index([room_id], map: "session_room_idx")
+}
+
+model session_attendance {
+  session_attendance_id Int               @id @default(autoincrement())
+  session_id            Int
+  user_id               Int
+  status                attendance_status @default(absent)
+  // verified              Boolean           @db.TinyInt() @default(false) //approved
+  position_row          Int?
+  position_column       Int?
+  session               session           @relation(fields: [session_id], references: [session_id], onDelete: NoAction, onUpdate: NoAction, map: "session_attendance_ibfk_1")
+  user                  user              @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "session_attendance_ibfk_2")
+
+  @@unique([session_id, user_id], map: "session_attendance_session_user_UNIQUE")
+  @@index([session_id], map: "session_attendance_session_idx")
+  @@index([user_id], map: "session_attendance_user_idx")
 }
 
 model staff {
@@ -466,13 +480,13 @@ model staff {
 /// program revision edition version variation iteration curriculum syllabus
 model syllabus {
   syllabus_id        Int               @id @default(autoincrement())
-  syllabus_code      String?           @db.VarChar(50) @unique(map: "syllabus_code_UNIQUE")
+  syllabus_code      String?           @db.VarChar(20) @unique(map: "syllabus_code_UNIQUE")
   year_effective     Int
   year_retired       Int?
-  duration_years     Int
+  // duration_years     Int
   duration_semesters Int
   degree_id          Int
-  degree             degree            @relation(fields: [degree_id], references: [degree_id], onDelete: NoAction, onUpdate: NoAction, map: "syllabus_ibfk_1")
+  degree             degree            @relation(fields: [degree_id], references: [degree_id], onDelete: Restrict, onUpdate: NoAction, map: "syllabus_ibfk_1")
   syllabus_course    syllabus_course[]
   batch              batch[]
 
@@ -481,13 +495,14 @@ model syllabus {
 }
 
 model syllabus_course {
+  code            String?          @db.VarChar(20) // different then the syllabus_code and course_code
   syllabus_id     Int
   course_id       Int
-  course_credits  Int
   course_category course_category?
+  course_credits  Int
   course_semester Int
-  syllabus        syllabus         @relation(fields: [syllabus_id], references: [syllabus_id], onDelete: NoAction, onUpdate: NoAction, map: "syllabus_course_ibfk_1")
-  course          course           @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "syllabus_course_ibfk_2")
+  syllabus        syllabus         @relation(fields: [syllabus_id], references: [syllabus_id], onDelete: Restrict, onUpdate: NoAction, map: "syllabus_course_ibfk_1")
+  course          course           @relation(fields: [course_id], references: [course_id], onDelete: Restrict, onUpdate: NoAction, map: "syllabus_course_ibfk_2")
 
   @@unique([syllabus_id, course_id], map: "syllabus_course_UNIQUE")
   @@index([syllabus_id], map: "sc_syllabus_idx")
@@ -503,9 +518,9 @@ model teaching {
   course       course       @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "teaching_ibfk_1")
   division     division     @relation(fields: [division_id], references: [division_id], onDelete: NoAction, onUpdate: NoAction, map: "teaching_ibfk_2")
   professor    user         @relation(fields: [professor_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "teaching_ibfk_3")
-  assignment   assignment[]
-  timetable    timetable[]
-  lecture      lecture[]
+  assignments  assignment[]
+  timetables   timetable[]
+  sessions     session[]
 
   @@unique([division_id, course_id, professor_id], map: "teaching_UNIQUE")
   @@index([course_id], map: "teaching_course_idx")
@@ -549,34 +564,106 @@ model university_user {
 }
 
 model user {
-  user_id               Int                     @id @default(autoincrement())
-  username              String?                 @unique(map: "username_UNIQUE") @db.VarChar(50)
-  password              String                  @db.VarChar(50)
-  contact_no            String?                 @unique(map: "contact_no_UNIQUE") @db.VarChar(20)
-  primary_email         String?                 @unique(map: "primary_email_UNIQUE") @db.VarChar(50)
-  google_email          String?                 @unique(map: "google_email_UNIQUE") @db.VarChar(50)
-  github_username       String?                 @unique(map: "github_username_UNIQUE") @db.VarChar(50)
-  name_prefix           String?                 @db.VarChar(50)
-  name_first            String                  @db.VarChar(50)
-  name_middle           String?                 @db.VarChar(50)
-  name_sur              String?                 @db.VarChar(50)
-  name_suffix           String?                 @db.VarChar(50)
-  gender                user_gender?
-  date_of_birth         DateTime?               @db.Date
-  profile_picture_url   String?                 @db.VarChar(255)
+  user_id                Int                     @id @default(autoincrement())
+  username               String?                 @unique(map: "username_UNIQUE") @db.VarChar(50)
+  password               String                  @db.VarChar(50)
+  contact_no             String?                 @unique(map: "contact_no_UNIQUE") @db.VarChar(20)
+  primary_email          String?                 @unique(map: "primary_email_UNIQUE") @db.VarChar(50)
+  google_email           String?                 @unique(map: "google_email_UNIQUE") @db.VarChar(50)
+  github_username        String?                 @unique(map: "github_username_UNIQUE") @db.VarChar(50)
+  name_prefix            String?                 @db.VarChar(50)
+  name_first             String                  @db.VarChar(50)
+  name_middle            String?                 @db.VarChar(50)
+  name_sur               String?                 @db.VarChar(50)
+  name_suffix            String?                 @db.VarChar(50)
+  gender                 user_gender?
+  date_of_birth          DateTime?               @db.Date
+  profile_picture_url    String?                 @db.VarChar(255)
 
-  admin                 admin[]
-  admission             admission[]
-  assignment_submission assignment_submission[]
-  book_issue_return     book_issue_return[]
-  enrollment            enrollment[]
-  exam_student          exam_student[]
-  faculty               faculty[]
-  grade                 grade[]
-  lecture_attendance    lecture_attendance[]
-  teaching              teaching[]
-  university_manager    university_manager[]
-  university_user       university_user?
+  admins                 admin[]
+  admissions             admission[]
+  assignment_submissions assignment_submission[]
+  book_issue_return      book_issue_return[]
+  enrollments            enrollment[]
+  exam_student           exam_student[]
+  faculty                faculty[]
+  grade                  grade[]
+  session_attendance     session_attendance[]
+  teaching               teaching[]
+  university_manager     university_manager[]
+  university_user        university_user?
+}
+
+enum admission_category {
+  general
+  SC
+  ST
+  OBC
+  EWS
+  PWD
+  TFW
+}
+
+enum admission_status {
+  pending
+  rejected
+  enrolled
+}
+
+enum admission_type {
+  regular
+  lateral
+  direct
+  transfer
+  distance
+  open
+  part_time  @map("part-time")
+  full_time  @map("full-time")
+  sponsored
+  management
+  NRI
+  foreign
+}
+
+enum assignment_type {
+  individual
+  group
+  written
+  quiz
+  project
+  practical
+  presentation
+}
+
+enum attendance_status {
+  present
+  absent
+  late //tardy
+  leave
+  // holiday
+  // excused absence
+  // unexcused absence
+}
+
+enum course_category {
+  core
+  elective
+  project
+  MOOC
+  foundation
+}
+
+enum course_type {
+  theory
+  practical
+}
+
+enum degree_type {
+  Diploma
+  Bachelor
+  Master
+  Doctorate
+  Integrated
 }
 
 /// lecturer, professor, assistant_professor, associate_professor, dean, director, principal, vice_chancellor, chancellor, librarian
@@ -599,21 +686,6 @@ enum grade_grade_name {
   practical
 }
 
-enum admission_admission_type {
-  regular
-  lateral
-  direct
-  transfer
-  distance
-  open
-  part_time  @map("part-time")
-  full_time  @map("full-time")
-  sponsored
-  management
-  NRI
-  foreign
-}
-
 enum room_room_type {
   classroom
   computer
@@ -626,30 +698,14 @@ enum room_room_type {
   admin
 }
 
-enum admission_admission_category {
-  general
-  SC
-  ST
-  OBC
-  EWS     @map(" EWS")
-  PWD
-  TFW
-}
-
-enum degree_type {
-  Diploma
-  Bachelor
-  Master
-  Doctorate
-  Integrated
-}
-
-enum course_category {
-  core
-  elective
-  project
-  MOOC
-  foundation
+enum session_type {
+  lecture
+  lab
+  tutorial
+  practical
+  seminar
+  workshop
+  conference
 }
 
 enum timetable_weekday {
@@ -662,27 +718,8 @@ enum timetable_weekday {
   Sunday
 }
 
-enum assignment_assignment_type {
-  individual
-  group
-  written
-  quiz
-  project
-  practical
-}
-
-enum course_type {
-  theory
-  practical
-}
-
-enum admission_admission_status {
-  pending
-  rejected
-  enrolled
-}
-
 enum user_gender {
   M
   F
+  O
 }

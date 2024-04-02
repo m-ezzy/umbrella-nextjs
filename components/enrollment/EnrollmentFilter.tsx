@@ -22,7 +22,7 @@ export default function EnrollmentFilter({ enrollments, degree_id }: any) {
   ));
 
   return (
-    <form className="form border rounded-md p-2 pt-6 grid grid-cols-4 gap-6 items-center">
+    <form className="bg-gray-200 form rounded-md p-2 pt-6 grid grid-cols-4 gap-6 items-center">
       <div className="relative">
         <label htmlFor="batch_id" className="bg-violet-100 absolute left-2 -top-4 text-sm border border-violet-400 rounded-md p-1">Batch Year</label>
         <select name="batch_id" required className="w-full h-14" onChange={handleChangeBatch}>{batchItems}</select>

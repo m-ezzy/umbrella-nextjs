@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
-import { auth } from "@/auth";
+import Sidebar from "@/components/UI/Sidebar";
 import MenuList from "@/components/UI/MenuList";
+import { auth } from "@/auth";
 
 export default async function Layout({ children }: { children: ReactNode }) {
   const session:any = await auth();
@@ -8,9 +9,9 @@ export default async function Layout({ children }: { children: ReactNode }) {
 
   return (
     <main className="h-full flex">
-      <div className="bg-violet-100 border-r overflow-auto">
+      <Sidebar>
         <MenuList menus={menus} pathSegment="/account/" />
-      </div>
+      </Sidebar>
       <div className="w-full overflow-auto">
         {children}
       </div>

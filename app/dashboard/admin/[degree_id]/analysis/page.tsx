@@ -1,9 +1,9 @@
 // import { useRef } from "react";
 import Link from "next/link";
-import { prisma } from "@/lib/db";
 import { Chart } from "chart.js";
-import ChartComponent from "./chart";
 import { Doughnut } from "react-chartjs-2";
+import Charts from "./charts";
+import { prisma } from "@/lib/db";
 
 export default async function Page({ params }: {params: { degree_id: string }}) {
   // const canvasRef: any = useRef<HTMLCanvasElement>(null);
@@ -12,7 +12,7 @@ export default async function Page({ params }: {params: { degree_id: string }}) 
     select: {
       _count: {
         select: {
-          enrollment: true
+          enrollments: true
         }
       },
       batch_id: true,
@@ -28,8 +28,8 @@ export default async function Page({ params }: {params: { degree_id: string }}) 
     select: {
       _count: {
         select: {
-          lecture: true,
-          timetable: true,
+          sessions: true,
+          timetables: true,
         }
       },
       teaching_id: true,
@@ -46,7 +46,7 @@ export default async function Page({ params }: {params: { degree_id: string }}) 
   });
   return (
     <div className="w-full p-2 overflow-auto">
-      <ChartComponent batchs={batchs} teaching={teaching} />
+      <Charts batchs={batchs} teaching={teaching} />
     </div>
   );
 }

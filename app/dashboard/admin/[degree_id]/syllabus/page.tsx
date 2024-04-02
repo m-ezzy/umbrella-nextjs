@@ -4,16 +4,19 @@ import { prisma } from "@/lib/db"
 
 export default async function Page({ params }: {params: { degree_id: string }}) {
   const syllabus = await prisma.syllabus.findMany({
-    select: {
-      syllabus_id: true,
-      year_effective: true,
+    include: {
+      _count: {
+        select: {
+          syllabus_course: true,
+        },
+      },
     },
     where: {
       degree_id: parseInt(params.degree_id),
     },
   });
   return (
-    <div className="w-full p-2">
+    <div className="w-full p-2 space-y-2">
       <SyllabusCreate degree_id={parseInt(params.degree_id)} />
       <SyllabusList degree_id={parseInt(params.degree_id)} syllabus={syllabus} />
     </div>

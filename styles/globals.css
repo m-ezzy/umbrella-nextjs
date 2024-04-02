@@ -33,6 +33,25 @@
   .border, .border-t, .border-b, .border-r, .border-l {
     @apply border-black border-violet-400;
   }
+  /* input:required {
+    @apply border-red-500;
+  } */
+
+  input[required], select[required] {
+    /* position: relative; */
+  }
+  input[required]::before, select[required]::before {
+    /* content: "*";
+    color: rgb(255, 95, 95);
+    position: absolute;
+    right: 0.2rem;
+    top: 0rem; */
+
+    /* background-image: radial-gradient(#F00 16%, transparent 16%), radial-gradient(#F00 16%, transparent 16%);
+    background-size: 1em 1em;
+    background-position: right top;
+    background-repeat: no-repeat; */
+  }
 }
 
 /*

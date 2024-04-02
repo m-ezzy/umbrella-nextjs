@@ -9,14 +9,14 @@ export default async function CourseList({ courses }: { courses: any }) {
       <div>{item.course_name_acronym}</div>
       <div>{item.course_type}</div>
       <div>{item.year_created}</div>
-
+      
       <div>
-        <form action={updateCourse}>
+        {/* <form action={updateCourse}>
           <input type="hidden" name="course_id" value={item.course_id} hidden />
           <button type="submit">
             <span className="material-symbols-outlined">edit</span>
           </button>
-        </form>
+        </form> */}
       </div>
       <div>
         <form action={deleteCourse}>
@@ -33,9 +33,9 @@ export default async function CourseList({ courses }: { courses: any }) {
       <div className="bg-gray-200 rounded p-2 grid grid-cols-7 sticky top-0">
         <div>Code</div>
         <div>Name</div>
-        <div>Acronym</div>
+        <div>Name Acronym</div>
         <div>Type</div>
-        <div>Year</div>
+        <div>Year Created</div>
         <div>Edit</div>
         <div>Delete</div>
       </div>

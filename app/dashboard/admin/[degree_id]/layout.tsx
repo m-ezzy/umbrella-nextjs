@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
+import Sidebar from '@/components/UI/Sidebar';
 import MenuList from '@/components/UI/MenuList';
 import { prisma } from '@/lib/db';
 
@@ -8,14 +9,16 @@ export default async function Layout({ children, params }: { children: ReactNode
   .catch(() => {
     redirect('/dashboard');
   });
-  const nav = ['analysis', 'syllabus', 'courses', 'batchs', 'enrollment', 'teaching', 'timetable', 'lectures', 'attendance', 'exams', 'grades', 'result', 'activities', 'placements'];
+
+  const nav = ['analysis', 'courses', 'syllabus', 'batchs', 'enrollment', 'teaching', 'timetable', 'exams', 'grades', 'result', 'activities', 'placements'];
+  // 'chapters', 'sessions', 'attendance'
 
   return (
     <div className="h-full overflow-auto md:flex md:overflow-hidde">
-      <div className='h-full min-h-full border-r'>
-        <div className='bg-violet-100 font-bold border-b flex justify-center p-2'>{degree.degree_name_acronym}</div>
-        <MenuList menus={nav} pathSegment='' />
-      </div>
+      <Sidebar>
+        <div className='bg-violet-100 font-bold border-b p-2 flex justify-center'>{degree.degree_name_acronym}</div>
+        <MenuList menus={nav} pathSegment={`/dashboard/admin/${params.degree_id}`} />
+      </Sidebar>
       {children}
     </div>
   );

@@ -1,5 +1,5 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { prisma } from "@/lib/db";
 
 async function createSyllabus(formData: FormData) {
@@ -7,7 +7,6 @@ async function createSyllabus(formData: FormData) {
     data: {
       degree_id: Number(formData.get("degree_id")),
       syllabus_code: String(formData.get("syllabus_code")),
-      duration_years: Number(formData.get("duration_years")),
       duration_semesters: Number(formData.get("duration_semesters")),
       year_effective: Number(formData.get("year_effective")),
     }
@@ -35,6 +34,7 @@ async function deleteSyllabus(formData: FormData) {
     console.error("Error deleting syllabus", error);
   });
   revalidatePath("/dashboard/admin");
+  // revalidateTag("syllabus");
 }
 
 export { createSyllabus, updateSyllabus, deleteSyllabus }

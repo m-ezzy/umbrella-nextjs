@@ -1,7 +1,7 @@
 import TimetableUltimate from '@/components/timetable/TimetableUltimate'
-import { selectRoom } from '@/models/Room'
-import { selectTeachingByDegree } from '@/models/Teaching'
-import { selectByDegree } from '@/models/Timetable'
+import { selectRoom } from '@/models (to be deleted)/Room'
+import { selectTeachingByDegree } from '@/models (to be deleted)/Teaching'
+import { selectByDegree } from '@/models (to be deleted)/Timetable'
 
 export default async function Page({ params }: {params: { degree_id: string }}) {
   const roomData = await selectRoom();

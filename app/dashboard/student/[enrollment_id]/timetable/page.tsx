@@ -2,7 +2,6 @@ import TimetableView from '@/components/timetable/TimetableViewAll'
 import { prisma } from '@/lib/db';
 
 export default async function Page({ params }: {params: { enrollment_id: string }}) {
-  // const teachingData = await selectTeachingByDegree(params.degree_id);
   const timetableData = await prisma.timetable.findMany({
     include: {
       teaching: {
@@ -12,11 +11,7 @@ export default async function Page({ params }: {params: { enrollment_id: string 
             include: {
               batch: {
                 include: {
-                  syllabus: {
-                    include: {
-                      degree: true,
-                    },
-                  },
+                  syllabus: true,
                 },
               },
             },
@@ -28,15 +23,8 @@ export default async function Page({ params }: {params: { enrollment_id: string 
     },
     where: {
       teaching: {
-        // course: {
-        //   syllabus_course: {
-        //     some: {
-        //       course_semester: semester,
-        //     },
-        //   },
-        // },
         division: {
-          enrollment: {
+          enrollments: {
             some: {
               enrollment_id: parseInt(params.enrollment_id)
             }

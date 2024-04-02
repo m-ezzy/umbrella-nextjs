@@ -9,7 +9,7 @@ export default async function Page({ params }: {params: { degree_id: number }}) 
     select: {
       _count: {
         select: {
-          enrollment: true
+          enrollments: true
         }
       },
       batch_id: true,
@@ -18,18 +18,17 @@ export default async function Page({ params }: {params: { degree_id: number }}) 
       syllabus: {
         select: {
           syllabus_id: true,
-          duration_years: true,
           duration_semesters: true,
           year_effective: true,
           year_retired: true,
           degree_id: true,
         }
       },
-      division: {
+      divisions: {
         select: {
           _count: {
             select: {
-              enrollment: true
+              enrollments: true,
             }
           },
           division_id: true,
@@ -50,7 +49,6 @@ export default async function Page({ params }: {params: { degree_id: number }}) 
   const syllabus = await prisma.syllabus.findMany({
     select: {
       syllabus_id: true,
-      duration_years: true,
       duration_semesters: true,
       year_effective: true,
       year_retired: true,

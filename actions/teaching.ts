@@ -1,14 +1,23 @@
 "use server";
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { insert, deleteById } from "@/models/Teaching";
+import { prisma } from "@/lib/db";
 
 async function createTeaching(formData: FormData) {
-  const result:any = await insert(formData.get("division_id"), formData.get("course_id"), formData.get("professor_id"));
+  const result = await prisma.teaching.create({
+    data: {
+      course_id: Number(formData.get("course_id")),
+      division_id: Number(formData.get("division_id")),
+      professor_id: Number(formData.get("professor_id")),
+    }
+  });
   revalidatePath("/admin");
 }
 async function deleteTeaching(formData: FormData) {
-  const result:any = await deleteById(formData.get("teaching_id"));
+  const result:any = await prisma.teaching.delete({
+    where: {
+      teaching_id: Number(formData.get("teaching_id"))
+    }
+  });
   revalidatePath("/admin");
 }
 

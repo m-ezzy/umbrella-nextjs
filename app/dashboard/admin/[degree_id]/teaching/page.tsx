@@ -1,8 +1,5 @@
-import { selectAllByDepartment } from '@/models/Professor';
-import { selectWithDivisionBatchSyllabus } from '@/models/Course';
-import { selectTeachingByDegree } from '@/models/Teaching';
 import TeachingCreate from '@/components/teaching/TeachingCreate';
-import TeachingList from '@/components/teaching/TeachingList';
+import TeachingList from './TeachingList';
 import { prisma } from '@/lib/db';
 
 export default async function Page({ params }: {params: { degree_id: string }}) {

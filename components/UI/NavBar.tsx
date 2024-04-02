@@ -1,9 +1,9 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { auth } from "@/auth";
 import data from "@/data/data.json";
 
-export default async function NavBar() {
+export default async function Navbar() {
   const session: any = await auth();
   // console.log("session".bgCyan, session);
 
@@ -31,11 +31,11 @@ export default async function NavBar() {
           {/* <span className="material-symbols-outlined">notifications</span> */}
           <Link href={"/dashboard"} className="flex items-center gap-1">
             <span className="material-symbols-outlined">dashboard</span>
-            <span>Dashboard</span>
+            {/* <span>Dashboard</span> */}
           </Link>
           <Link href={"/account"} className="flex items-center">
           <span className="material-symbols-outlined">person</span>
-          <span>Account</span>
+          {/* <span>Account</span> */}
           </Link>
         </span>
       ) : (

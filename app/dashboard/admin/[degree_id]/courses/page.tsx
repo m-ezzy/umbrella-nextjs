@@ -14,6 +14,18 @@ export default async function Page({ params }: { params: any }) {
   //     degree_id: parseInt(params.degree_id),
   //   },
   // });
+  const department: any = await prisma.department.findFirst({
+    select: {
+      department_id: true,
+    },
+    where: {
+      degree: {
+        some: {
+          degree_id: parseInt(params.degree_id),
+        },
+      },
+    },
+  });
   const courses = await prisma.course.findMany({
     select: {
       course_id: true,
@@ -22,34 +34,25 @@ export default async function Page({ params }: { params: any }) {
       course_name_acronym: true,
       course_type: true,
       year_created: true,
-      syllabus_course: {
-        select: {
-          syllabus: {
-            select: {
-              syllabus_id: true,
-              year_effective: true,
-            },
-          },
-        },
-      },
     },
     where: {
-      syllabus_course: {
-        some: {
-          syllabus: {
+      department: {
+        degree: {
+          some: {
             degree_id: parseInt(params.degree_id),
           },
         },
       },
     },
   });
+
   // console.log(courses[0].syllabus_course[0].syllabus.year_effective);
 
   return (
     <div className="w-full h-full p-2 space-y-2 overflow-auto">
       {/* <SyllabusCreate degree_id={params.degree_id} /> */}
       {/* <SyllabusList degree_id={parseInt(params.degree_id)} syllabus={syllabus} /> */}
-      <CourseCreate degree_id={params.degree_id} />
+      <CourseCreate department_id={department.department_id} />
       <CourseList courses={courses} />
     </div>
   );

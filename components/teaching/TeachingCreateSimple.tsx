@@ -1,6 +1,6 @@
 "use client"
 import { use, useEffect, useState } from "react"
-import { getDegrees, getLectures } from "@/models/Professor"
+import { getDegrees, getLectures } from "@/models (to be deleted)/Professor"
 import { createTeaching } from "@/actions/teaching"
 
 export default function TeachingCreate({ division_courses, professors, teaching }: any) {

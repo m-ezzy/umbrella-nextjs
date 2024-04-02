@@ -29,12 +29,15 @@ export default function TimetableView({ timetableDataFiltered, handleClickCell }
     // row_end = Math.ceil(row_end / 60) + 1;
     let className = `${timetable.highlight ? 'bg-violet-300' : ''} border p-2 flex row-start-[${row_start}] row-span-[${row_span}] col-start-${weekday_num} col-span-1`;
 
+    // why don't you write the styles in style tag here dynamically and not use tailwind classes which are the problem here
+
     return (
       <div key={timetable.timetable_id} className={className} onClick={() => handleClickCell(timetable.timetable_id)}> {/* row-end-${row_end} col-end-${weekday_num + 1} */}
         {timetable.time_start} {timetable.course_name_acronym} {`(${timetable.name_first[0]}${timetable.name_sur[0]})`} {timetable.weekday}
       </div>
     );
   });
+
   return (
     <div className="bg-gray-100 border rounded-md p-2 grid grid-flow-col grid-cols-7 grid-rows-[repeat(1440,1fr)]"> {/* relative */}
       <div>Start Time</div>

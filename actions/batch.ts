@@ -2,7 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 
-async function createBatch(formData: FormData) {
+async function createBatch(previousState: any, formData: FormData) {
   const result = await prisma.batch.create({
     data: {
       year_started: Number(formData.get("year_started")),
@@ -12,6 +12,7 @@ async function createBatch(formData: FormData) {
     }
   });
   revalidatePath("/dashboard/admin");
+  return result;
 }
 async function updateBatch(formData: FormData) {
   const result = await prisma.batch.update({

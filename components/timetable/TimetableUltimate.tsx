@@ -334,7 +334,7 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
           </button>
         </div>
 
-        {/* <div className="bg-gray-200 rounded-md p-2">{message}</div> */}
+        {message && <div className="bg-gray-200 rounded-md p-2">{message}</div>}
 
       </form>
 

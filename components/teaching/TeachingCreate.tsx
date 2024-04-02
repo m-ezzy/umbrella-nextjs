@@ -1,6 +1,5 @@
 "use client"
-import { use, useEffect, useState } from "react"
-import { getDegrees, getLectures } from "@/models/Professor"
+import { useEffect, useState } from "react"
 import { createTeaching } from "@/actions/teaching"
 
 export default function TeachingCreate({ division_courses, professorsAll, teaching }: any) {
@@ -139,7 +138,7 @@ export default function TeachingCreate({ division_courses, professorsAll, teachi
   const handleChangeProfessor = (e) => setProfessorId(prev => e.target.value);
 
   return (
-    <form action={createTeaching} className="bg-white form border rounded-md p-2 grid grid-cols-4 gap-2 stick top-">
+    <form action={createTeaching} className="bg-gray-200 form rounded-md p-2 grid grid-cols-4 gap-2 stick top-">
       {/* <select name="department_id" required>
         <option value="">Select Department</option>
       </select> */}
@@ -172,7 +171,7 @@ export default function TeachingCreate({ division_courses, professorsAll, teachi
         {professorItems}
       </select>
 
-      <button type="submit" className="ms-aut">
+      <button type="submit">
         <span className="material-symbols-outlined">add</span>
         New Teaching
       </button>
