@@ -31,7 +31,7 @@
     @apply border-violet-400 rounded-md focus:ring-violet-600 focus:border-violet-600;
   }
   .border, .border-t, .border-b, .border-r, .border-l {
-    @apply border-black border-violet-400;
+    @apply border-black; /* border-white border-violet-400 */
   }
   /* input:required {
     @apply border-red-500;

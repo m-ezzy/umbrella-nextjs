@@ -31,11 +31,11 @@ export default async function Navbar() {
           {/* <span className="material-symbols-outlined">notifications</span> */}
           <Link href={"/dashboard"} className="flex items-center gap-1">
             <span className="material-symbols-outlined">dashboard</span>
-            {/* <span>Dashboard</span> */}
+            <span>Dashboard</span>
           </Link>
           <Link href={"/account"} className="flex items-center">
           <span className="material-symbols-outlined">person</span>
-          {/* <span>Account</span> */}
+          <span>Account</span>
           </Link>
         </span>
       ) : (

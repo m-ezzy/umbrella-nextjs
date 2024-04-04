@@ -415,9 +415,9 @@ model room {
   room_id           Int             @id @default(autoincrement())
   room_number       Int
   room_type         room_room_type?
-  room_capacity     Int?
-  room_row_count    Int?
-  room_column_count Int?
+  capacity          Int?
+  count_row         Int?
+  count_column      Int?
   floor_id          Int
   floor             floor           @relation(fields: [floor_id], references: [floor_id], onDelete: NoAction, onUpdate: NoAction, map: "room_ibfk_1")
   sessions          session[]
@@ -462,8 +462,8 @@ model session_attendance {
   // verified              Boolean           @db.TinyInt() @default(false) //approved
   position_row          Int?
   position_column       Int?
-  session               session           @relation(fields: [session_id], references: [session_id], onDelete: NoAction, onUpdate: NoAction, map: "session_attendance_ibfk_1")
-  user                  user              @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "session_attendance_ibfk_2")
+  session               session           @relation(fields: [session_id], references: [session_id], onDelete: Cascade, onUpdate: NoAction, map: "session_attendance_ibfk_1")
+  user                  user              @relation(fields: [user_id], references: [user_id], onDelete: Restrict, onUpdate: NoAction, map: "session_attendance_ibfk_2")
 
   @@unique([session_id, user_id], map: "session_attendance_session_user_UNIQUE")
   @@index([session_id], map: "session_attendance_session_idx")
@@ -512,7 +512,7 @@ model syllabus_course {
 /// assigned_teaching division_course_professor instructor
 model teaching {
   teaching_id  Int          @id @default(autoincrement())
-  course_id    Int
+  course_id    Int          // IMPORTANT! why don't you use syllabus_course_id here? it woyld be much easier to get course semester then
   division_id  Int
   professor_id Int
   course       course       @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "teaching_ibfk_1")

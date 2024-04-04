@@ -42,7 +42,7 @@ export default function TimetableViewSimple({ timetableDataFiltered, handleClick
   timetableDataFilteredSorted.forEach((timetable: any) => {
     items[timetable.weekday].push(
       <div key={timetable.timetable_id} className={`${timetable.highlight ? 'bg-violet-300' : ''} border p-2`} onClick={() => handleClickCell(timetable.timetable_id)}>
-        {timetable.time_start} {timetable.course_name_acronym} {`(${timetable.name_first[0]}${timetable.name_sur[0]})`}
+        {timetable.time_start.getUTCHours()}:{timetable.time_start.getUTCMinutes()} {timetable.teaching.course.course_name_acronym} {`(${timetable.teaching.professor.name_first[0]}${timetable.teaching.professor.name_sur[0]})`}
       </div>
     );
   });

@@ -4,16 +4,17 @@ import { insert, update, deleteById } from "@/models (to be deleted)/Timetable";
 import { prisma } from "@/lib/db";
 
 async function createTimetable(formData: FormData) {
-  const result: any = prisma.timetable.create({
+  const result: any = await prisma.timetable.create({
     data: {
       teaching_id: Number(formData.get("teaching_id")),
       weekday: formData.get("weekday"),
-      time_start: formData.get("time_start"),
-      time_end: formData.get("time_end"),
+      time_start: "1970-01-01T" + formData.get("time_start") + ":00.000Z",
+      time_end: "1970-01-01T" + formData.get("time_end") + ":00.000Z",
       room_id: Number(formData.get("room_id")),
     }
   })
   .catch((error) => {
+    console.error("createTimetable error", error);
     return { error: error.code }
   });
 
@@ -33,7 +34,7 @@ async function deleteTimetable(formData: FormData) {
   revalidatePath("/dashboard/admin");
 }
 
-async function actionTimetable(formData: FormData) {
+async function actionTimetable(previousState: any, formData: FormData) {
   let result;
 
   switch (formData.get("action")) {

@@ -45,7 +45,7 @@ export default async function DashboardSelector() {
   });
 
   // Professor - employeed in any department
-  const professorEmployeed: any[] = await prisma.faculty.findMany({
+  const professorEmployments: any[] = await prisma.faculty.findMany({
     select: {
       department_id: true,
       department: {
@@ -86,7 +86,7 @@ export default async function DashboardSelector() {
     </li>
   ));
 
-  const professorEmployeedList = professorEmployeed.map((item: any) => (
+  const professorEmploymentsList = professorEmployments.map((item: any) => (
     <li key={item.department.department_id} className="border rounded-md p-2 min-w-44">
       {/* <Link href={`/dashboard/professor`}> */}
       <Link href={`/dashboard/professor/${item.department_id}/`}>
@@ -111,7 +111,7 @@ export default async function DashboardSelector() {
       <ul className="flex gap-2">{ studentEnrollmentsList }</ul>
 
       <h3 className="font-semibold border-b p-2">Professor</h3>
-      <ul className="flex gap-2">{ professorEmployeedList }</ul>
+      <ul className="flex gap-2">{ professorEmploymentsList }</ul>
 
       <h3 className="font-semibold border-b p-2">Admin</h3>
       <ul className="flex gap-2">{ adminDegreesList }</ul>

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useFormState } from "react-dom";
 import TimetableFilter1 from "./TimetableFilter1";
 import TimetableFilter2 from "./TimetableFilter2";
 import TimetableFilter3 from "./TimetableFilter3";
@@ -34,6 +35,8 @@ type TimetableUltimateProps = {
 export default function TimetableUltimate({ timetableData, teachingData, roomData }: TimetableUltimateProps) {
   // console.log(timetableData, teachingData, roomData);
 
+  const [formState, dispatch] = useFormState(actionTimetable, null);
+
   let initialTeaching: any = teachingData[0] ? teachingData[0] : { teaching_id: "", syllabus_id: "", batch_id: "", division_id: "", semester: "", course_id: "", professor_id: "" };
 
   // let timetableDataFiltered: any = timetableData;
@@ -54,9 +57,9 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
   const [weekdays, setWeekdays] = useState([]);
   const [rooms, setRooms] = useState([]);
 
-  const [batch_id, setBatchId] = useState(initialTeaching.batch_id);
-  const [division_id, setDivisionId] = useState(initialTeaching.division_id);
-  const [semester, setSemester] = useState(initialTeaching.course_semester);
+  const [batch_id, setBatchId] = useState(initialTeaching.division.batch.batch_id);
+  const [division_id, setDivisionId] = useState(initialTeaching.division.division_id);
+  const [semester, setSemester] = useState(initialTeaching.course.syllabus_course[0].course_semester);
   const [course_id, setCourseId] = useState("");
   const [professor_id, setProfessorId] = useState("");
   const [teaching_id, setTeachingId] = useState("");
@@ -66,9 +69,9 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
   const [room_id, setRoomId] = useState("");
   const [timetable_id, setTimetableId] = useState("");
 
-  let uniqueBatch = new Set(teachingData.map((item: any) => item.batch_id));
+  let uniqueBatch = new Set(teachingData.map((item: any) => item.division.batch.batch_id));
   let uniqueDivision = new Set(teachingData.map((item: any) => item.division_id));
-  let uniqueSemester = new Set(teachingData.map((item: any) => item.course_semester));
+  let uniqueSemester = new Set(teachingData.map((item: any) => item.course.syllabus_course[0].course_semester));
   let uniqueCourse = new Set(teachingData.map((item: any) => item.course_id));
   let uniqueProfessor = new Set(teachingData.map((item: any) => item.professor_id));
   // let uniqueRoom = Array.from(new Set(teachingData.map((item: any) => item.room_id)));
@@ -92,7 +95,7 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
 
   useEffect(() => {
     if(batch_id) {
-      let divisionData = teachingData.filter((item: any) => item.batch_id == batch_id);
+      let divisionData = teachingData.filter((item: any) => item.division.batch.batch_id == batch_id);
       setDivisions(divisionData);
     }
   }, [batch_id]);
@@ -102,14 +105,14 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
     if(division_id && semester) {
       let filtered: any = timetableData;
 
-      filtered = filtered.filter((item: any) => item.division_id == division_id && item.course_semester == semester);
+      filtered = filtered.filter((item: any) => item.teaching.division_id == division_id && item.teaching.course.syllabus_course[0].course_semester == semester);
 
       // highlight the appropriate cells with color | course_id or professor_id fiters timetableData
       filtered = filtered.map((tt: any) => {
         tt["highlight"] = false;
-        if(course_id && professor_id) tt["highlight"] = tt.course_id == course_id && tt.professor_id == professor_id;
-        else if(course_id) tt["highlight"] = tt.course_id == course_id;
-        else if(professor_id) tt["highlight"] = tt.professor_id == professor_id;
+        if(course_id && professor_id) tt["highlight"] = tt.teaching.course_id == course_id && tt.teaching.professor_id == professor_id;
+        else if(course_id) tt["highlight"] = tt.teaching.course_id == course_id;
+        else if(professor_id) tt["highlight"] = tt.teaching.professor_id == professor_id;
 
         // fix the bug here
         if(weekday && tt.highlight) tt["highlight"] = tt.weekday == weekday;
@@ -169,8 +172,8 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
         
         //check if division is available. they might be attending another class at the same time
         let divisionIsBusy: any = timetableData.find((item: any) => {
-          let timeClash =  time_start == item.time_start.slice(0,5) && time_end == item.time_end.slice(0,5);
-          return item.division_id == division_id && item.course_semester == semester && item.weekday == weekday && item.time_start.slice(0,5) <= time_start && item.time_end.slice(0,5) >= time_end;
+          let timeClash =  time_start == item.time_start && time_end == item.time_end;
+          return item.teaching.division_id == division_id && item.teaching.course.syllabus_course[0].course_semester == semester && item.weekday == weekday && item.time_start <= time_start && item.time_end >= time_end;
         });
 
         if(divisionIsBusy) {
@@ -193,43 +196,43 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
   }, [teaching_id, weekday, time_start, time_end, room_id]);
   
   batchItems = teachingData.map((item: any) => {
-    if(uniqueBatch.has(item.batch_id)) {
-      uniqueBatch.delete(item.batch_id);
-      return <option key={item.batch_id} value={item.batch_id}>{item.year_started}</option>;
+    if(uniqueBatch.has(item.division.batch.batch_id)) {
+      uniqueBatch.delete(item.division.batch_id);
+      return <option key={item.division.batch_id} value={item.division.batch_id}>{item.division.batch.year_started}</option>;
     }
   });
   divisionItems = divisions.map((item: any) => {
     if(uniqueDivision.has(item.division_id)) {
       uniqueDivision.delete(item.division_id);
-      return <option key={item.division_id} value={item.division_id}>{item.division_name}</option>;
+      return <option key={item.division_id} value={item.division_id}>{item.division.division_name}</option>;
     }
   });
   semesterItems = teachingData.map((item: any) => {
-    if(uniqueSemester.has(item.course_semester)) {
-      uniqueSemester.delete(item.course_semester);
-      return <option key={item.course_semester} value={item.course_semester}>{item.course_semester}</option>;
+    if(uniqueSemester.has(item.course.syllabus_course[0].course_semester)) {
+      uniqueSemester.delete(item.course.syllabus_course[0].course_semester);
+      return <option key={item.course.syllabus_course[0].course_semester} value={item.course.syllabus_course[0].course_semester}>{item.course.syllabus_course[0].course_semester}</option>;
     }
   });
   courseItems = teachingData.map((item: any) => {
     if(uniqueCourse.has(item.course_id)) {
       uniqueCourse.delete(item.course_id);
-      return <option key={item.course_id} value={item.course_id}>{item.course_name}</option>;
+      return <option key={item.course_id} value={item.course_id}>{item.course.course_name}</option>;
     }
   });
   professorItems = teachingData.map((item: any) => {
     if(uniqueProfessor.has(item.professor_id)) {
       uniqueProfessor.delete(item.professor_id);
-      return <option key={item.professor_id} value={item.professor_id}>{item.name_prefix} {item.name_first} {item.name_sur}</option>;
+      return <option key={item.professor_id} value={item.professor_id}>{item.professor.name_prefix} {item.professor.name_first} {item.professor.name_sur}</option>;
     }
   });
   roomItems = roomData.map((item: any) => {
-    return <option key={item.room_id} value={item.room_id}>{item.building_name} {item.floor_number}0{item.room_number}</option>;
+    return <option key={item.room_id} value={item.room_id}>{item.floor.building.building_name} {item.floor.floor_number}0{item.room_number}</option>;
   });
 
   function handleClickCell(timetable_id: number) {
     let timetable: any = timetableDataFiltered.find((item: any) => item.timetable_id == timetable_id);
-    setCourseId(timetable.course_id);
-    setProfessorId(timetable.professor_id);
+    setCourseId(timetable.teaching.course_id);
+    setProfessorId(timetable.teaching.professor_id);
     // setTeachingId(timetable.teaching_id);
     setWeekday(timetable.weekday);
     setTimeStart(timetable.time_start);
@@ -244,7 +247,7 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
       {/* <TimetableFilter2 teachingData={teachingData} course_id={course_id} professor_id={professor_id} setCourseId={setCourseId} setProfessorId={setProfessorId} /> */}
       {/* <TimetableFilter3 teachingData={teachingData} weekday={weekday} time_start={time_start} time_end={time_end} room_id={room_id} setWeekday={setWeekday} setTimeStart={setTimeStart} setTimeEnd={setTimeEnd} setRoomId={setRoomId} /> */}
 
-      <form action={actionTimetable} className="bg-white form sticky top-0 grid gap-2">
+      <form action={dispatch} className="bg-white form sticky top-0 grid gap-2">
 
         {/* <div className="grid grid-cols-3 gap-2">
           <h4>Select Mode</h4>
@@ -335,6 +338,7 @@ export default function TimetableUltimate({ timetableData, teachingData, roomDat
         </div>
 
         {message && <div className="bg-gray-200 rounded-md p-2">{message}</div>}
+        {formState?.error && <div className="bg-red-200 rounded-md p-2">{formState.error}</div>}
 
       </form>
 

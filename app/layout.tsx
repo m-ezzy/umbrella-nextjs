@@ -46,7 +46,7 @@ export default async function RootLayout({
           <SessionProvider session={session}>
             <CheckSession>
               <NavBar />
-              {/* <div className=""> */}
+              {/* <div className="bg-gray-200 h-full"> */}
                 {children}
               {/* </div> */}
             </CheckSession>
