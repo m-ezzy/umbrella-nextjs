@@ -1,13 +1,13 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { insert, update, deleteById } from "@/models (to be deleted)/Timetable";
 import { prisma } from "@/lib/db";
+import { timetable_weekday } from "@prisma/client";
 
 async function createTimetable(formData: FormData) {
   const result: any = await prisma.timetable.create({
     data: {
       teaching_id: Number(formData.get("teaching_id")),
-      weekday: formData.get("weekday"),
+      weekday: formData.get("weekday") as keyof typeof timetable_weekday, // timetable_weekday[formData.get("weekday") as keyof typeof timetable_weekday],
       time_start: "1970-01-01T" + formData.get("time_start") + ":00.000Z",
       time_end: "1970-01-01T" + formData.get("time_end") + ":00.000Z",
       room_id: Number(formData.get("room_id")),

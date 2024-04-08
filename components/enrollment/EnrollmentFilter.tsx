@@ -1,32 +1,35 @@
-"use client";
-import { useEffect, useState } from "react";
-import FilterForm from "../UI/FilterForm";
-import { createEnrollment, updateEnrollment, deleteEnrollment } from "@/actions/enrollment";
+"use client"
+import { useEffect, useState } from "react"
+import FilterForm from "../UI/FilterForm"
+import SelectBatch from "@/components/_selectors/batch"
+import { createEnrollment, updateEnrollment, deleteEnrollment } from "@/actions/enrollment"
 
-export default function EnrollmentFilter({ enrollments, degree_id }: any) {
-  const [syllabus_id, setSyllabusId] = useState("");
-  const [batch_id, setBatchId] = useState("");
-  const [division_id, setDivisionId] = useState("");
-  const [user_id, setUserId] = useState("");
-  const [enrollment_number, setEnrollmentNumber] = useState("");
-  const [enrollment_id, setEnrollmentId] = useState("");
+export default function EnrollmentFilter({ batchs, enrollments, degree_id }: any) {
+  const [syllabus_id, setSyllabusId] = useState("")
+  const [batch_id, setBatchId] = useState("")
+  const [division_id, setDivisionId] = useState("")
+  const [user_id, setUserId] = useState("")
+  const [enrollment_number, setEnrollmentNumber] = useState("")
+  const [enrollment_id, setEnrollmentId] = useState("")
 
-  const handleChangeBatch = (e: any) => setBatchId(e.target.value);
-  const handleChangeDivision = (e: any) => setDivisionId(e.target.value);
+  const handleChangeBatch = (e: any) => setBatchId(e.target.value)
+  const handleChangeDivision = (e: any) => setDivisionId(e.target.value)
 
   const batchItems = enrollments.map((enrollment: any) => (
-    <option key={enrollment.batch.batch_id} value={enrollment.batch.batch_id}>{enrollment.batch.year_started}</option>
-  ));
+    <option key={enrollment.division.batch.batch_id} value={enrollment.division.batch.batch_id}>{enrollment.division.batch.year_started}</option>
+  ))
   const divisionItems = enrollments.map((enrollment: any) => (
     <option key={enrollment.division.division_id} value={enrollment.division.division_id}>{enrollment.division.division_name}</option>
-  ));
+  ))
 
   return (
     <form className="bg-gray-200 form rounded-md p-2 pt-6 grid grid-cols-4 gap-6 items-center">
-      <div className="relative">
+      {/* <div className="relative">
         <label htmlFor="batch_id" className="bg-violet-100 absolute left-2 -top-4 text-sm border border-violet-400 rounded-md p-1">Batch Year</label>
         <select name="batch_id" required className="w-full h-14" onChange={handleChangeBatch}>{batchItems}</select>
-      </div>
+      </div> */}
+
+      <SelectBatch batchs={batchs} selected={batch_id} setSelected={setBatchId} />
 
       <div className="relative">
         <label htmlFor="division_id" className="bg-violet-100 absolute left-2 -top-4 text-sm border border-violet-400 rounded-md p-1">Division</label>
@@ -63,5 +66,5 @@ export default function EnrollmentFilter({ enrollments, degree_id }: any) {
         </button>
       </div>
     </form>
-  );
+  )
 }

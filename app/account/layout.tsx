@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import Sidebar from "@/components/UI/Sidebar";
-import MenuList from "@/components/UI/MenuList";
+import MenuList from "@/app/dashboard/views/filter/_components/MenuList";
 import { auth } from "@/auth";
 
 export default async function Layout({ children }: { children: ReactNode }) {

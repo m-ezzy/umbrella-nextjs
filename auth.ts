@@ -134,7 +134,7 @@ const nextAuthOptions: NextAuthConfig = { // nextAuthOptions //authOptions
       return session
     },
     async jwt({ token, account, profile, user, isNewUser, trigger, session, ...other }: any) {
-      console.log("jwt".bgCyan)
+      // console.log("jwt".bgCyan)
       // console.log(token, account, profile, user, isNewUser, trigger, other);
 
       // Add user to the token right after signin

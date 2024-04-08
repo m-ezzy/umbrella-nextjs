@@ -10,7 +10,7 @@ datasource db {
 model admin {
   admin_id  Int    @id @default(autoincrement())
   degree_id Int
-  user_id   Int
+  user_id   Int // IMPORTANT! this should be faculty_id instead of user_id
   degree    degree @relation(fields: [degree_id], references: [degree_id], onDelete: NoAction, onUpdate: NoAction, map: "admin_ibfk_1")
   user      user   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "admin_ibfk_2")
 
@@ -57,13 +57,13 @@ model assignment_submission {
   submission_date DateTime   @db.Date
   obtained_marks  Int?
   assignment_id   Int
-  user_id         Int
+  enrollment_id   Int
   assignment      assignment @relation(fields: [assignment_id], references: [assignment_id], onDelete: NoAction, onUpdate: NoAction, map: "assignment_submission_ibfk_1")
-  user            user       @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "assignment_submission_ibfk_2")
+  enrollment      enrollment @relation(fields: [enrollment_id], references: [enrollment_id], onDelete: NoAction, onUpdate: NoAction, map: "assignment_submission_ibfk_2")
 
-  @@unique([assignment_id, user_id], map: "assignment_user_UNIQUE")
-  @@index([assignment_id], map: "assignment_submission_ibfk_1_idx")
-  @@index([user_id], map: "assignment_submission_ibfk_2_idx")
+  @@unique([assignment_id, enrollment_id], map: "assignment_enrollment_UNIQUE")
+  @@index([assignment_id], map: "assignment_submission_assignment_idx")
+  @@index([enrollment_id], map: "assignment_submission_enrollment_idx")
 }
 
 model auth_session { // user_session
@@ -258,19 +258,21 @@ model division {
 
 // batch_user division_user enrollment student
 model enrollment {
-  enrollment_id     Int      @id @default(autoincrement())
-  enrollment_number BigInt?  @unique(map: "enrollment_number_UNIQUE")
-  roll_number       String?  @db.VarChar(5) // @unique(map: "roll_number_UNIQUE")
-  batch_id          Int
-  division_id       Int
-  user_id           Int
-  batch             batch    @relation(fields: [batch_id], references: [batch_id], onDelete: NoAction, onUpdate: NoAction, map: "enrollment_ibfk_1")
-  division          division @relation(fields: [division_id], references: [division_id], onDelete: NoAction, onUpdate: NoAction, map: "enrollment_ibfk_2")
-  user              user     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "enrollment_ibfk_3")
-  result            result[]
+  enrollment_id          Int                    @id @default(autoincrement())
+  enrollment_number      BigInt?                @unique(map: "enrollment_number_UNIQUE")
+  roll_number            String?                @db.VarChar(5) // @unique(map: "roll_number_UNIQUE")
+  batch_id               Int // this shouldn't be here. just division_id is enough
+  division_id            Int
+  user_id                Int
+  batch                  batch                   @relation(fields: [batch_id], references: [batch_id], onDelete: NoAction, onUpdate: NoAction, map: "enrollment_ibfk_1")
+  division               division                @relation(fields: [division_id], references: [division_id], onDelete: NoAction, onUpdate: NoAction, map: "enrollment_ibfk_2")
+  user                   user                    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "enrollment_ibfk_3")
+  transactions           transaction_student[]
+  assignment_submissions assignment_submission[]
+  result                 result[]
 
-  @@index([batch_id], map: "enrollment_batch_idx")
   @@index([user_id], map: "enrollment_user_idx")
+  @@index([batch_id], map: "enrollment_batch_idx")
   @@index([division_id], map: "enrollment_division_idx")
   @@unique([batch_id, user_id], map: "enrollment_batch_user_UNIQUE")
   @@unique([division_id, user_id], map: "enrollment_division_user_UNIQUE")
@@ -307,9 +309,9 @@ model exam {
   @@index([division_id], map: "division_id")
 }
 
-model exam_student {
+model exam_student { //exam_user exam_enrollment
   exam_id             Int
-  user_id             Int
+  user_id             Int // IMPORTANT! this should be enrollment_id instead of user_id
   answer_paper_number String @db.VarChar(255)
   marks               Int
   exam                exam   @relation(fields: [exam_id], references: [exam_id], onDelete: NoAction, onUpdate: NoAction, map: "exam_student_ibfk_1")
@@ -334,6 +336,7 @@ model faculty {
   user_id           Int
   department        department          @relation(fields: [department_id], references: [department_id], onDelete: NoAction, onUpdate: NoAction, map: "faculty_ibfk_1")
   user              user                @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "faculty_ibfk_2")
+  transactions      transaction_faculty[]
 
   @@index([department_id], map: "faculty_department_idx")
   @@index([user_id], map: "faculty_user_idx")
@@ -357,7 +360,7 @@ model grade {
   grade_type_id Int
   grades        Int
   exam_id       Int
-  user_id       Int
+  user_id       Int // IMPORTANT! this should be enrollment_id instead of user_id
   user          user              @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "grade_ibfk_1")
   exam          exam              @relation(fields: [exam_id], references: [exam_id], onDelete: NoAction, onUpdate: NoAction, map: "grade_ibfk_2")
 
@@ -438,12 +441,14 @@ model salary {
 // lecture
 model session {
   session_id          Int                  @id @default(autoincrement())
-  open_for_attendance Boolean              @db.TinyInt() @default(false)
+  open_for_attendance Boolean              @db.TinyInt() @default(false) // status_attendance // open_for_attendance
+  // status - cancelled, postponed, rescheduled, delayed, on-time, started, ended, completed
   type                session_type         @default(lecture)
+  // ATTENTION! this wrong. just use time_start and time_end and put date in both of them
   date                DateTime             @db.Date
   time_start          DateTime             @db.Time(0)
   time_end            DateTime             @db.Time(0)
-  // lecture_duration   DateTime?            @db.Time(0)
+  // duration      DateTime?            @db.Time(0)
   teaching_id         Int
   room_id             Int
   teaching            teaching             @relation(fields: [teaching_id], references: [teaching_id], onDelete: NoAction, onUpdate: NoAction, map: "session_ibfk_1")
@@ -457,8 +462,8 @@ model session {
 model session_attendance {
   session_attendance_id Int               @id @default(autoincrement())
   session_id            Int
-  user_id               Int
-  status                attendance_status @default(absent)
+  user_id               Int // IMPORTANT! this is wrong. there should be enrollment_id here instead of user_id
+  status                attendance_status?
   // verified              Boolean           @db.TinyInt() @default(false) //approved
   position_row          Int?
   position_column       Int?
@@ -466,6 +471,7 @@ model session_attendance {
   user                  user              @relation(fields: [user_id], references: [user_id], onDelete: Restrict, onUpdate: NoAction, map: "session_attendance_ibfk_2")
 
   @@unique([session_id, user_id], map: "session_attendance_session_user_UNIQUE")
+  @@unique([session_id, position_row, position_column], map: "session_attendance_position_UNIQUE")
   @@index([session_id], map: "session_attendance_session_idx")
   @@index([user_id], map: "session_attendance_user_idx")
 }
@@ -509,12 +515,24 @@ model syllabus_course {
   @@index([course_id], map: "sc_course_idx")
 }
 
-/// assigned_teaching division_course_professor instructor
+// model division_course {
+//   division_id Int
+//   course_id   Int
+//   id          Int @id @default(autoincrement())
+// }
+
+// model division_course_professor {
+//   division_course_id Int
+//   professor_id       Int
+//   id                 Int @id @default(autoincrement())
+// }
+
+/// division_course assigned_teaching division_course_professor instructor
 model teaching {
   teaching_id  Int          @id @default(autoincrement())
   course_id    Int          // IMPORTANT! why don't you use syllabus_course_id here? it woyld be much easier to get course semester then
   division_id  Int
-  professor_id Int
+  professor_id Int         // IMPORTANT! why don't you use faculty_id here? it would be much easier to get professor details then
   course       course       @relation(fields: [course_id], references: [course_id], onDelete: NoAction, onUpdate: NoAction, map: "teaching_ibfk_1")
   division     division     @relation(fields: [division_id], references: [division_id], onDelete: NoAction, onUpdate: NoAction, map: "teaching_ibfk_2")
   professor    user         @relation(fields: [professor_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "teaching_ibfk_3")
@@ -532,6 +550,7 @@ model timetable {
   timetable_id Int               @id @default(autoincrement())
   time_start   DateTime          @db.Time(0)
   time_end     DateTime          @db.Time(0)
+  // duration     DateTime          @db.Time(0) // this should be stored instead of timee_end. because the session could go on for multiple days
   weekday      timetable_weekday
   teaching_id  Int
   room_id      Int
@@ -543,9 +562,25 @@ model timetable {
   @@unique([weekday, time_start, time_end, teaching_id], map: "timetable_UNIQUE")
 }
 
-/// salary fees
 model transaction {
   transaction_id Int @id @default(autoincrement())
+}
+
+// salary
+model transaction_faculty {
+  id         Int @id @default(autoincrement())
+  faculty_id Int
+  date       DateTime @db.Date
+  amount     Int
+  faculty    faculty @relation(fields: [faculty_id], references: [faculty_id], onDelete: Restrict, onUpdate: NoAction, map: "transaction_faculty_ibfk_1")
+}
+
+model transaction_student {
+  id            Int @id @default(autoincrement())
+  enrollment_id Int
+  date          DateTime @db.Date
+  amount        Int
+  enrollment    enrollment @relation(fields: [enrollment_id], references: [enrollment_id], onDelete: NoAction, onUpdate: NoAction, map: "transaction_student_ibfk_1")
 }
 
 model university_manager {
@@ -582,7 +617,6 @@ model user {
 
   admins                 admin[]
   admissions             admission[]
-  assignment_submissions assignment_submission[]
   book_issue_return      book_issue_return[]
   enrollments            enrollment[]
   exam_student           exam_student[]
@@ -636,6 +670,7 @@ enum assignment_type {
 }
 
 enum attendance_status {
+  pending
   present
   absent
   late //tardy

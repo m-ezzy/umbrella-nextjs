@@ -4,13 +4,14 @@ A University Management System
 The most Sophisticated, Integrated, Comprehensive, and User-Friendly University Management System ever developed.
 
 # Technologies
-- MySQL
-- TypeScript
-- Node.js
-- NextAuth.js
-- Next.js
-- React.js
-- Tailwind CSS
+- Database: MySQL
+- ORM: Prisma
+- Programming Language: TypeScript
+- Runtime: Node.js
+- Authentication: NextAuth.js
+- Framework: Next.js
+- Frontend: React.js
+- Styling: Tailwind CSS
 
 # Features
 - User Authentication
@@ -31,6 +32,14 @@ The most Sophisticated, Integrated, Comprehensive, and User-Friendly University 
 - Finance Management
 - Payroll Management
 - Inventory Management
+- Alumni Management
+- Event Management
+- Activity Management
+- Timetable Management
+- Calendar Management
+- Schedule Management
+- Assignment Management
+- Quiz Management
 
 # Installation
 1. Clone the repository

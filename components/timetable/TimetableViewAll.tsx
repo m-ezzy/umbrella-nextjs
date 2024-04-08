@@ -47,7 +47,8 @@ export default function TimetableViewAll({ timetableData, showDegree, showProfes
   timetableDataSorted.forEach((timetable: any) => {
     items[timetable.weekday].push(
       <div key={timetable.timetable_id} className={`${timetable.highlight ? 'bg-violet-300' : ''} border p-2`}>
-        {timetable.time_start.toLocaleTimeString({ hourCycle: 'h24', region: 'en-US' })} { }
+        {/* {timetable.time_start.toLocaleTimeString({ hourCycle: 'h24', region: 'en-US' })} */}
+        {timetable.time_start.getUTCHours()}:{timetable.time_start.getUTCMinutes()} { }
         {timetable.teaching.course.course_name_acronym} { }
         {showDegree && ` (${timetable.teaching.division.batch.syllabus.degree.degree_name_acronym})`} 
         {showProfessor && ` (${timetable.teaching.professor.name_first[0]}${timetable.teaching.professor.name_sur[0]})`} 
