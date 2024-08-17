@@ -2,7 +2,7 @@ import colors from 'colors';
 // import { seedDatabase } from "@/lib/db";
 
 async function initialScripts() {
-  console.log('Running initial scripts...'.green);
+  // console.log('Running initial scripts...'.green);
 
   // Enable colors for console
   colors.enable();

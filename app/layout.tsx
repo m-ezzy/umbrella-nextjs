@@ -6,8 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, redirect, usePathname } from 'next/navigation'
 import { SessionProvider, useSession } from "next-auth/react";
-import CheckSession from "@/components/CheckSessionClient";
-import NavBar from "@/components/UI/Navbar";
+import CheckSession from "@/components/auth/CheckSessionClient";
+import NavBar from "@/components/ui/Navbar";
 import initialScripts from "@/lib/initial-scripts";
 import { auth } from "@/auth";
 
@@ -41,12 +41,12 @@ export default async function RootLayout({
       <head>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional" />
       </head>
-      <body>
-        <div className={`${font.className} h-svh overflow-hidde`}> {/* bg-black text-white */}
+      <body className="h-screen">
+        <div className={`bg-gray-100 ${font.className} h-full`}> {/* bg-black text-white h-svh overflow-hidden */}
           <SessionProvider session={session}>
             <CheckSession>
               <NavBar />
-              {/* <div className="bg-gray-200 h-full"> */}
+              {/* <div className="bg-gray-400 max-h-max"> */}
                 {children}
               {/* </div> */}
             </CheckSession>

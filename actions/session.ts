@@ -21,7 +21,7 @@ async function createSession(formData: FormData) {
   return result
 }
 async function updateSession(previousState: any, formData: FormData) {
-  console.log(previousState)
+  // console.log(previousState)
 
   const result = await prisma.session.update({
     where: {

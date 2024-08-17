@@ -31,7 +31,7 @@ async function createUser(formData: FormData) {
 }
 async function updateUser(formData: FormData) {
   const session: any = await auth()
-  const user_id = session.user.user_id
+  const user_id = session.user.id
 
   const result:any = await prisma.user.update({
     where: { user_id: user_id },
@@ -84,7 +84,7 @@ async function updateUserProfilePicture(formData: FormData) {
     data: {
       profile_picture_url: file.name,
     },
-    where: { user_id: session.user.user_id },
+    where: { user_id: session.user.id },
   })
   .catch((error: any) => {
     return { error: error.message, status: 400 }

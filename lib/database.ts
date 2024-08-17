@@ -150,11 +150,11 @@ async function seedDatabase() { //seeder
       console.error(error);
     }
   }
-  console.log('All tables seeded'.bgGreen);
+  // console.log('All tables seeded'.bgGreen);
 }
 
 async function queryDatabase(query: string, values?: any[]) {
-  console.log("database queried".bgYellow);
+  // console.log("database queried".bgYellow);
   // const connection = await pool.getConnection();
 
   let err: any;

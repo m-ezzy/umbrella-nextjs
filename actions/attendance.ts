@@ -1,38 +1,37 @@
 "use server"
-import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
-import { prisma } from "@/lib/db";
-import { attendance_status } from "@prisma/client";
+
+import { revalidatePath, revalidateTag } from "next/cache"
+import { auth } from "@/auth"
+import { prisma } from "@/lib/db"
+import { attendance_status, session_attendance } from "@prisma/client"
 
 async function createAttendance(formData: FormData) {
-  const session: any = await auth();
+  // const session: any = await auth()
+  // const authorized: boolean = session.user.roles.student.enrollments.includes(formData.get("enrollment_id"))
 
   const result: any = await prisma.session_attendance.create({
+    // can this be done?
+    // data: formData,
+
     data: {
-      session_id: parseInt(formData.get("session_id")),
-      user_id: session.user.user_id,
-      // status: formData.get("status") ? formData.get("status") : "absent",
-      // verified: formData.get("verified") == "true" ? true : false,
-      position_row: parseInt(formData.get("position_row")?.toString()),
-      position_column: parseInt(formData.get("position_column")?.toString()),
-      // session: {
-      //   connect: {
-      //     session_id: parseInt(formData.get("session_id")),
-      //   },
-      // },
-      // user: {
-      //   connect: {
-      //     user_id: session.user.user_id,
-      //   },
-      // },
+      session_id: parseInt(formData.get("session_id") as string),
+      enrollment_id: parseInt(formData.get("enrollment_id") as string),
+      position_row: parseInt(formData.get("position_row") as string),
+      position_column: parseInt(formData.get("position_column") as string),
+      status: formData.get("status") as attendance_status | null,
     },
   })
-  .catch((error) => {
-    console.log(error);
+  .catch((error: any) => {
+    console.error(error)
     return { error: error }
-  });
+  })
 
-  return result;
+  // this should be here or where the request was triggered from
+  // revalidatePath("/dashboard")
+
+  revalidateTag("attendance")
+
+  return result
 }
 async function updateAttendance(formData: FormData) {
   const session: any = await auth()
@@ -40,19 +39,15 @@ async function updateAttendance(formData: FormData) {
   const result: any = await prisma.session_attendance.update({
     data: {
       position_row: parseInt(formData.get("position_row")),
-      position_column: parseInt(formData.get("position_column")),
+      position_column: parseInt(formData.get("position_column") as string),
       status: formData.get("status"),
     },
     where: {
-      // id: parseInt(formData.get("session_attendance_id")),
-      session_id_user_id: {
-        session_id: parseInt(formData.get("session_id")),
-        user_id: session.user.user_id,
-      },
+      id: parseInt(formData.get("session_attendance_id") as string),
     },
   })
   .catch((error) => {
-    console.log(error);
+    // console.log(error);
     return { error: error }
   })
 
@@ -70,7 +65,7 @@ async function updateAttendancePosition(formData: FormData) {
       // id: parseInt(formData.get("session_attendance_id")),
       session_id_user_id: {
         session_id: parseInt(formData.get("session_id")),
-        user_id: session.user.user_id,
+        user_id: session.user.id,
       },
     },
   })
@@ -157,32 +152,35 @@ async function createOrUpdateAttendancePosition(formData: FormData) {
   const session_attendance: any = await prisma.session_attendance.findUnique({
     where: {
       session_id_user_id: {
-        user_id: session.user.user_id,
+        user_id: session.user.id,
         session_id: parseInt(formData.get("session_id")),
       },
     },
   })
 
   if (!session_attendance) {
-    await createAttendance(formData);
+    await createAttendance(formData)
   } else {
-    await updateAttendancePosition(formData);
+    await updateAttendancePosition(formData)
   }
 
   revalidatePath(`/dashboard`);
 }
 async function deleteAttendance(formData: FormData) {
-  const session: any = await auth();
-
   const result: any = await prisma.session_attendance.delete({
     where: {
-      session_id_user_id: {
-        session_id: parseInt(formData.get("session_id")),
-        user_id: parseInt(formData.get("user_id")),
-      },
+      session_id: parseInt(formData.get("session_id") as string),
+      enrollment_id: parseInt(formData.get("enrollment_id") as string),
     },
-  });
-  revalidatePath(`/dashboard`);
+  })
+  .catch((error: any) => {
+    console.error(error)
+    return { error: error }
+  })
+
+  // revalidatePath(`/dashboard`)
+
+  return result
 }
 
 export { createAttendance, updateAttendance, updateAttendancePosition, updateAttendanceStatus, createOrUpdateAttendancePosition, deleteAttendance }
