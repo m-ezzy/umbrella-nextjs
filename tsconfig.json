@@ -20,8 +20,8 @@
     "paths": {
       "@/*": ["./*"]
     },
-    "types": ["react/next"] // Need to add this for react context API to work
+    // "types": ["react/next"] // Need to add this for react context API to work
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next-auth.d.ts"],
   "exclude": ["node_modules"]
 }

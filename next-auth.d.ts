@@ -5,7 +5,7 @@ export type ExtendedUser = DefaultSession["user"] & {
 };
 
 // Declare your framework library
-declare module "next-auth-123" {
+declare module "next-auth" {
   /**
    * The shape of the user object returned in the OAuth providers' `profile` callback,
    * or the second parameter of the `session` callback, when using a database.
@@ -20,9 +20,22 @@ declare module "next-auth-123" {
   /**
    * Returned by `useSession`, `auth`, contains information about the active session.
    */
-  interface Session {}
+  interface Session {
+    user: {
+      id: number
+      username?: string
+      email?: string
+      contact_no?: string
+      name_prefix?: string
+      name_first?: string
+      name_middle?: string
+      name_last?: string
+      profile_picture_url?: string
+    },
+    expires: string
+  }
 }
-declare module "@auth/core/jwt-123" {
+declare module "@auth/core/jwt" {
   /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
   interface JWT {
     /** OpenID ID Token */
@@ -35,9 +48,9 @@ declare global {
     export interface ProcessEnv {
       AUTH_PATH: string
       AUTH_SECRET: string
-      AUTH_GOOGLE_ID: string
-      AUTH_GOOGLE_SECRET: string
-      UNIVERSITY_NAME: string
+      // AUTH_GOOGLE_ID: string
+      // AUTH_GOOGLE_SECRET: string
+      // UNIVERSITY_NAME: string
 		}
 	}
 }

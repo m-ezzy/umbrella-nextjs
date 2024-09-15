@@ -25,14 +25,14 @@ model admin {
 }
 model admission {
   id           Int                 @id @default(autoincrement())
-  applied_date DateTime
+  applied_date DateTime            @db.DateTime()
   category     admission_category?
   quota        String?             @db.VarChar(45)
   status       admission_status?
   batch_id     Int //degree_id or syllabus_id or batch_id
   user_id      Int
   // degree    degree              @relation(fields: [degree_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_admission_degree")
-  batch        batch               @relation(fields: [batch_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_admission_batch")
+  batch        batch               @relation(fields: [batch_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_admission_batch")
   user         user                @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_admission_user")
 
   // @@index([degree_id], map: "INDX_admission_degree")
@@ -64,8 +64,8 @@ model assignment_submission { //assignment_student //assignment_enrollment
   group_number   Int?
   assignment_id  Int
   enrollment_id  Int
-  assignment     assignment @relation(fields: [assignment_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_as_assignment")
-  enrollment     enrollment @relation(fields: [enrollment_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_as_enrollment")
+  assignment     assignment @relation(fields: [assignment_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_as_assignment")
+  enrollment     enrollment @relation(fields: [enrollment_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_as_enrollment")
 
   @@unique([assignment_id, enrollment_id], map: "UK_as_assignment_enrollment")
   @@index([assignment_id], map: "INDX_as_assignment")
@@ -88,90 +88,94 @@ model assignment_submission { //assignment_student //assignment_enrollment
 //   @@index([group_id], map: "INDX_agm_group")
 //   @@index([enrollment_id], map: "INDX_agm_enrollment")
 // }
-model auth_session {
-  id    Int    @id
-  value String @db.VarChar(255)
-}
-model author {
-  id    Int           @id @default(autoincrement())
-  name  String        @db.VarChar(30)
-  books author_book[]
-}
-model author_book {
-  book_id   Int
-  author_id Int
-  book      book   @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "author_book_ibfk_1")
-  author    author @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "author_book_ibfk_2")
+// model auth_session {
+//   id      Int    @id
+//   value   String @db.VarChar(255)
+//   user_id Int
+//   user    user   @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_auth_session_user")
+// }
+// model author {
+//   id    Int           @id @default(autoincrement())
+//   name  String        @db.VarChar(30)
+//   books author_book[]
+// }
+// model author_book {
+//   book_id   Int
+//   author_id Int
+//   book      book   @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_author_book_book")
+//   author    author @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_author_book_author")
 
-  @@id([book_id, author_id])
-  @@unique([book_id, author_id], map: "book_author_UNIQUE")
-  @@index([author_id], map: "author_id")
-  @@index([book_id], map: "book_id_idx")
-}
+//   @@id([book_id, author_id])
+//   @@unique([book_id, author_id], map: "book_author_UNIQUE")
+//   @@index([author_id], map: "author_id")
+//   @@index([book_id], map: "book_id_idx")
+// }
 model batch {
   id               Int          @id @default(autoincrement())
   start_year       Int          // year_started
-  finish_year      Int?         // end_year / year_ended / class_of
+  finish_year      Int?         // year_ended / end_year / class_of
   // expected_finish_year
   // teaching_ended Boolean
   current_semester Int?         // 0 or NULL value means teaching for this course has not started yet
   syllabus_id      Int
-  syllabus         syllabus     @relation(fields: [syllabus_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "FK_batch_syllabus")
+  syllabus         syllabus     @relation(fields: [syllabus_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_batch_syllabus")
   admissions       admission[]
   enrollments      enrollment[]
   divisions        division[]
+  teachings        teaching[]
+  exams            exam[]
 
   @@unique([start_year, syllabus_id], map: "UK_batch_year_syllabus") // there's only one batch per year of a syllabus. but there could be another batch in same year that follows another syllabus of the same degree
   @@index([syllabus_id], map: "INDX_batch_syllabus")
 }
-model book {
-  id                Int                 @id
-  name              String              @db.VarChar(30)
-  brn_id            Int?
-  price             Int?
-  ISBN              String?             @db.VarChar(30)
-  publisher         String?             @db.VarChar(30)
-  published_date    DateTime?           @db.Date
-  edition           Int?
-  language          String?             @db.VarChar(30)
-  copies            Int?
-  author_book       author_book[]
-  book_course       book_course[]
-  book_issue_return book_issue_return[]
-  library_book      library_book[]
-}
-model book_course {
-  book_id   Int
-  course_id Int
-  book      book   @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_book_course_book")
-  course    course @relation(fields: [course_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_book_course_course")
+// model book {
+//   id             Int                 @id
+//   name           String              @db.VarChar(30)
+//   brn_id         Int?
+//   price          Int?
+//   ISBN           String?             @db.VarChar(30)
+//   publisher      String?             @db.VarChar(30)
+//   published_date DateTime?           @db.Date
+//   edition        Int?
+//   language       String?             @db.VarChar(30)
+//   copies         Int?
+//   authors        author_book[]
+//   courses        book_course[]
+//   transactions   book_transaction[]
+//   libraries      library_book[]
+// }
+// model book_course {
+//   book_id   Int
+//   course_id Int
+//   book      book   @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_book_course_book")
+//   course    course @relation(fields: [course_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_book_course_course")
 
-  @@id([book_id, course_id])
-  @@index([course_id], map: "INDX_book_course_course")
-}
-model book_issue_return {
-  id                   Int       @id
-  issue_date           DateTime? @db.Date
-  supposed_return_date DateTime? @db.Date
-  actual_return_date   DateTime? @db.Date
-  fine                 Int?
-  book_id              Int?
-  user_id              Int?
-  book                 book?     @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "book_issue_return_ibfk_2")
-  user                 user?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "book_issue_return_ibfk_1")
+//   @@id([book_id, course_id])
+//   @@index([course_id], map: "INDX_book_course_course")
+// }
+// model book_transaction { //book_transaction //book_issue_return
+//   id                   Int       @id
+//   issue_date           DateTime? @db.Date
+//   supposed_return_date DateTime? @db.Date
+//   actual_return_date   DateTime? @db.Date
+//   fine                 Int?
+//   book_id              Int?
+//   user_id              Int?
+//   book                 book?     @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "book_issue_return_ibfk_2")
+//   user                 user?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "book_issue_return_ibfk_1")
 
-  @@index([book_id], map: "book_transaction_book_idx")
-  @@index([user_id], map: "book_transaction_user_idx")
-}
+//   @@index([book_id], map: "book_transaction_book_idx")
+//   @@index([user_id], map: "book_transaction_user_idx")
+// }
 model building {
   id        Int       @id @default(autoincrement())
   name      String    @unique(map: "UK_building_name") @db.VarChar(255)
   // floor_count   Int?
   campus_id Int
-  campus    campus    @relation(fields: [campus_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_building_campus")
+  campus    campus    @relation(fields: [campus_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_building_campus")
   // department    department[]
   floors    floor[]
-  libraries library[]
+  // libraries library[]
 
   @@index([campus_id], map: "INDX_building_campus")
 }
@@ -182,13 +186,13 @@ model campus {
   city          String     @db.VarChar(100)
   state         String     @db.VarChar(100)
   country       String     @db.VarChar(100)
-  pincode       String     @db.VarChar(10)
+  pincode       Int
   gate_count    Int?       @default(1)
   university_id Int
-  university    university @relation(fields: [university_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_campus_university")
+  university    university @relation(fields: [university_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_campus_university")
   buildings     building[]
 }
-model chapter {
+model chapter { //unit module
   id          Int     @id @default(autoincrement())
   number      Int
   title       String? @db.VarChar(50)
@@ -196,11 +200,11 @@ model chapter {
   topics      String? @db.VarChar(255) // overview and listout of topics covered in this chapter of the course
   weightage   Int?
   course_id   Int
-  course      course  @relation(fields: [course_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_chapter_course")
+  course      course  @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_chapter_course")
 
   @@index([course_id], map: "INDX_chapter_course")
 }
-model course {
+model course { //has materials by professors
   id           Int              @id @default(autoincrement())
   code         String?          @unique(map: "UK_course_code") @db.VarChar(20)
   name         String           @db.VarChar(100)
@@ -208,12 +212,15 @@ model course {
   type         course_type
   category     course_category?
   credits      Int
+  // weightage    Int?
   semester     Int
   // year_created Int
+  // description  String?         @db.VarChar(255)
   syllabus_id  Int
   syllabus     syllabus         @relation(fields: [syllabus_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_course_syllabus")
   chapters     chapter[]
-  books        book_course[]
+  // books        book_course[]
+  divisions    division[]
   teachings    teaching[]
   exams        exam[]
   results      result[]
@@ -223,61 +230,94 @@ model course {
   @@unique([syllabus_id, name], map: "UK_course_name")
   @@unique([syllabus_id, name_acronym], map: "UK_course_name_acronym")
 }
-model course_user_elective {
-  id Int @id @default(autoincrement())
-}
-// degree_category --- regular,distance,open,part-time,full-time,sponsored,management,NRI,foreign
-// branch
-// stream --- Arts,Business,Commerce,Engineering,Science,IT,Medical,Law,Management,Education
+// model course_elective_enrollment { //almost as same as result
+//   id                Int        @id @default(autoincrement())
+//   status String     @db.VarChar(20) //pending, approved, rejected //no rejected state because the record will be deleted by admin on rejection
+//   course_id         Int
+//   enrollment_id     Int
+//   division_id       Int
+//   course            course     @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_cee_course")
+//   enrollment        enrollment @relation(fields: [enrollment_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_cee_enrollment")
+//   division          division?  @relation(fields: [division_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_cee_division")
+
+//   @@unique([course_id, enrollment_id], map: "UK_cee_course_enrollment")
+//   @@index([course_id], map: "INDX_cee_course")
+//   @@index([enrollment_id], map: "INDX_cee_enrollment")
+//   @@index([division_id], map: "INDX_cee_division")
+// }
 model degree {
   id            Int         @id @default(autoincrement())
-  name          String      @db.VarChar(50) @unique(map: "UK_degree_name")
-  name_acronym  String      @db.VarChar(20) @unique(map: "UK_degree_name_acronym")
+  name          String      @db.VarChar(50) //@unique(map: "UK_degree_name")
+  name_acronym  String      @db.VarChar(20) //@unique(map: "UK_degree_name_acronym")
   type          degree_type
+  // degree_category --- regular,distance,open,part-time,full-time,sponsored,management,NRI,foreign
+  // branch
+  // stream --- Arts,Business,Commerce,Engineering,Science,IT,Medical,Law,Management,Education
   department_id Int
   department    department  @relation(fields: [department_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_degree_department")
-  admin         admin[]
-  syllabus      syllabus[]
+  admins        admin[]
+  syllabuses    syllabus[]
 
+  @@unique([name, department_id], map: "UK_degree_name_department")
+  @@unique([name_acronym, department_id], map: "UK_degree_name_acronym_department")
   @@index([department_id], map: "INDX_degree_department")
 }
 model department { //faculty //school //college
-  id            Int        @id
-  name          String     @db.VarChar(50) @unique(map: "UK_department_name")
-  name_acronym  String     @db.VarChar(20) @unique(map: "UK_department_name_acronym")
+  id            Int        @id @default(autoincrement())
+  name          String     @db.VarChar(50) //@unique(map: "UK_department_name")
+  name_acronym  String     @db.VarChar(20) //@unique(map: "UK_department_name_acronym")
   university_id Int
   university    university @relation(fields: [university_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_department_university")
   degrees       degree[]
-  faculty       faculty[]
-  libraries     library[]
+  faculties     faculty[]
+  // libraries     library[]
+
+  @@unique([name, university_id], map: "UK_department_name_university")
+  @@unique([name_acronym, university_id], map: "UK_department_name_acronym_university")
+  @@index([university_id], map: "INDX_department_university")
 }
 model division {
   id          Int          @id @default(autoincrement())
   name        String       @db.VarChar(20)
   batch_id    Int
+  course_id   Int?
   batch       batch        @relation(fields: [batch_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_division_batch")
+  course      course?      @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_division_course")
   teaching    teaching[]
   enrollments enrollment[]
   exams       exam[]
+  results     result[]
 
-  @@unique([name, batch_id], map: "UK_division_name_batch")
+  // @@unique([name, batch_id], map: "UK_division_name_batch")
   @@index([batch_id], map: "INDX_division_batch")
+  @@index([course_id], map: "INDX_division_course")
 }
-// batch_user division_user enrollment student
-model enrollment {
+// model division_elective {
+//   id        Int    @id @default(autoincrement())
+//   name      String @db.VarChar(20)
+//   batch_id  Int
+//   course_id Int
+//   batch     batch  @relation(fields: [batch_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_division_elective_batch")
+//   course    course @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_division_elective_course")
+
+//   @@unique([name, batch_id, course_id], map: "UK_division_elective_name_batch_course")
+//   @@index([batch_id], map: "INDX_division_elective_batch")
+//   @@index([course_id], map: "INDX_division_elective_course")
+// }
+model enrollment { //batch_user division_user student
   id                     Int                     @id @default(autoincrement())
   enrollment_number      BigInt?                 @unique(map: "UK_enrollment_number")
   roll_number            String?                 @db.VarChar(5) // @unique(map: "roll_number_UNIQUE")
   batch_id               Int                     // this needs to be here too. what is there is no division? or if a student hasn't been assigned to a division yet or no division are created yet at the start of the new batch
   division_id            Int?
   user_id                Int
-  batch                  batch                   @relation(fields: [batch_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_enrollment_batch")
-  division               division?               @relation(fields: [division_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_enrollment_division")
-  user                   user                    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_enrollment_user")
-  transactions           transaction_student[]
+  batch                  batch                   @relation(fields: [batch_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_enrollment_batch")
+  division               division?               @relation(fields: [division_id], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "FK_enrollment_division")
+  user                   user                    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_enrollment_user")
+  // transactions           transaction_student[]
   session_attendances    session_attendance[]
   assignment_submissions assignment_submission[]
-  exam_students          exam_student[]
+  exams                  exam_enrollment[]
   results                result[]
 
   @@unique([batch_id, user_id], map: "UK_enrollment_batch_user")
@@ -286,17 +326,17 @@ model enrollment {
   @@index([batch_id], map: "INDX_enrollment_batch")
   @@index([division_id], map: "INDX_enrollment_division")
 }
-model event {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique(map: "name") @db.VarChar(255)
-  description String   @db.Text
-  start_date  DateTime @db.Date
-  end_date    DateTime @db.Date
-  start_time  DateTime @db.Time(0)
-  end_time    DateTime @db.Time(0)
-  venue       String   @db.VarChar(255)
-  organizer   String   @db.VarChar(255)
-}
+// model event {
+//   id          Int      @id @default(autoincrement())
+//   name        String   @unique(map: "name") @db.VarChar(255)
+//   description String   @db.Text
+//   start_date  DateTime @db.Date
+//   end_date    DateTime @db.Date
+//   start_time  DateTime @db.Time(0)
+//   end_time    DateTime @db.Time(0)
+//   venue       String   @db.VarChar(255)
+//   organizer   String   @db.VarChar(255)
+// }
 model exam {
   id            Int            @id @default(autoincrement())
   title         String         @db.VarChar(50)
@@ -306,28 +346,34 @@ model exam {
   duration      DateTime       @db.Time
   maximum_marks Int
   course_id     Int
-  division_id   Int
+  batch_id      Int?
+  division_id   Int?
   course        course       @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_exam_course")
-  division      division     @relation(fields: [division_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_exam_division")
-  exam_student  exam_student[]
-  // grade         grade[]
+  batch         batch?       @relation(fields: [batch_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_exam_batch")
+  division      division?    @relation(fields: [division_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_exam_division")
+  enrollments   exam_enrollment[]
 
   @@index([course_id], map: "INDX_exam_course")
   @@index([division_id], map: "INDX_exam_division")
 }
-model exam_student { //exam_enrollment //exam_attendance
+model exam_enrollment { //exam_student //exam_attendance //marks //grade
   id                  Int        @id @default(autoincrement())
   // seating arrangement - class, bench, lab, computer cubicle,...
   answer_paper_number String     @db.VarChar(255)
   marks_obtained      Int
+  row_num             Int?
+  col_num             Int?
   exam_id             Int
   enrollment_id       Int
-  exam                exam       @relation(fields: [exam_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_exam_student_exam")
-  enrollment          enrollment @relation(fields: [enrollment_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_exam_student_enrollment")
+  room_id             Int?
+  exam                exam       @relation(fields: [exam_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_exam_ee_exam")
+  enrollment          enrollment @relation(fields: [enrollment_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ee_enrollment")
+  room                room?      @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ee_room")
 
-  @@unique([exam_id, enrollment_id])
-  @@index([exam_id], map: "INDX_exam_student_exam")
-  @@index([enrollment_id], map: "INDX_exam_student_enrollment")
+  @@unique([exam_id, enrollment_id], map: "UK_ee_exam_enrollment")
+  @@index([exam_id], map: "INDX_ee_exam")
+  @@index([enrollment_id], map: "INDX_ee_enrollment")
+  @@index([room_id], map: "INDX_ee_room")
 }
 model faculty {
   id                Int                   @id @default(autoincrement())
@@ -340,9 +386,9 @@ model faculty {
   research_interest String?               @db.VarChar(50)
   department_id     Int
   user_id           Int
-  department        department            @relation(fields: [department_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_faculty_department")
-  user              user                  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_faculty_user")
-  transactions      transaction_faculty[]
+  department        department            @relation(fields: [department_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_faculty_department")
+  user              user                  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_faculty_user")
+  // transactions      transaction_faculty[]
 
   @@index([department_id], map: "INDX_faculty_department")
   @@index([user_id], map: "INDX_faculty_user")
@@ -352,116 +398,110 @@ model floor {
   number      Int
   // room_count   Int?
   building_id Int
-  building    building @relation(fields: [building_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_floor_building")
+  building    building @relation(fields: [building_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_floor_building")
   room        room[]
 
+  @@unique([number, building_id], map: "UK_floor_number_building")
   @@index([building_id], map: "INDX_floor_building")
 }
-/// grade mark
-// model grade {
-//   id            Int               @id @default(autoincrement())
-//   grade_name    grade_type?
-//   grade_type_id Int
-//   grades        Int
-//   exam_id       Int
-//   user_id       Int // IMPORTANT! this should be enrollment_id instead of user_id
-//   user          user              @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "grade_ibfk_1")
-//   exam          exam              @relation(fields: [exam_id], references: [exam_id], onDelete: NoAction, onUpdate: NoAction, map: "grade_ibfk_2")
-
-//   @@index([exam_id], map: "exam_id")
-//   @@index([user_id], map: "user_id")
-// }
-
 /// level roles permissions role_permissions user_role
-model level {
-  id Int @id
-}
-model library {
-  id            Int            @id @default(autoincrement())
-  name          String?        @unique(map: "UK_library_name") @db.VarChar(45)
-  department_id Int
-  building_id   Int?
-  department    department     @relation(fields: [department_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_library_department")
-  building      building?      @relation(fields: [building_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_library_building")
-  library_book  library_book[]
+// model level {
+//   id Int @id
+// }
+// model library {
+//   id            Int            @id @default(autoincrement())
+//   name          String?        @unique(map: "UK_library_name") @db.VarChar(45)
+//   department_id Int
+//   building_id   Int?
+//   department    department     @relation(fields: [department_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_library_department")
+//   buildings     building?      @relation(fields: [building_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_library_building")
+//   books         library_book[]
 
-  @@index([building_id], map: "INDX_library_building")
-  @@index([department_id], map: "INDX_library_department")
-}
-model library_book {
-  id         Int       @id @unique(map: "id_UNIQUE") @default(autoincrement())
-  library_id Int
-  book_id    Int
-  copies     Int?      @default(0)
-  date_added DateTime? @db.Date
-  library    library   @relation(fields: [library_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_lb_library")
-  book       book      @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_lb_book")
+//   @@index([building_id], map: "INDX_library_building")
+//   @@index([department_id], map: "INDX_library_department")
+// }
+// model library_book {
+//   id         Int       @id @unique(map: "id_UNIQUE") @default(autoincrement())
+//   library_id Int
+//   book_id    Int
+//   copies     Int?      @default(0)
+//   date_added DateTime? @db.Date
+//   library    library   @relation(fields: [library_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_lb_library")
+//   book       book      @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_lb_book")
 
-  @@unique([library_id, book_id], map: "UNIQUE_lb_library_book")
-  @@index([book_id], map: "INDX_lb_book")
-}
-model manager { //university_manager
-  id             Int        @id @default(autoincrement())
-  date_appointed DateTime   @db.Date //date appointed
-  date_end       DateTime?  @db.Date //date resigned
-  university_id  Int
-  user_id        Int
-  university     university @relation(fields: [university_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_manager_university")
-  user           user       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_manager_user")
+//   @@unique([library_id, book_id], map: "UNIQUE_lb_library_book")
+//   @@index([book_id], map: "INDX_lb_book")
+// }
+// model manager { //university_manager
+//   id             Int        @id @default(autoincrement())
+//   date_appointed DateTime   @db.Date //date appointed
+//   date_end       DateTime?  @db.Date //date resigned
+//   university_id  Int
+//   user_id        Int
+//   university     university @relation(fields: [university_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_manager_university")
+//   user           user       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_manager_user")
 
-  @@unique([university_id, user_id], map: "UK_manager_university_user")
-  @@index([university_id], map: "INDX_manager_university")
-  @@index([user_id], map: "INDX_manager_user")
-}
-model result {
-  id            Int        @id @default(autoincrement())
-  enrollment_id Int
-  course_id     Int
-  grade         String     @db.VarChar(50)
-  marks         Int
-  weightage     Int?
-  enrollment    enrollment @relation(fields: [enrollment_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "result_ibfk_1")
-  course        course     @relation(fields: [course_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "result_ibfk_2")
+//   @@unique([university_id, user_id], map: "UK_manager_university_user")
+//   @@index([university_id], map: "INDX_manager_university")
+//   @@index([user_id], map: "INDX_manager_user")
+// }
+model result { //course_enrollment //course_elective_enrollment
+  id                Int        @id @default(autoincrement())
+  grade             String     @db.VarChar(50) //pass, fail, pending
+  marks             Int
+  status_result     String?    @db.VarChar(20) //NULL, pass, failed
+  status_enrollment String     @db.VarChar(20) //pending, approved, rejected //no rejected state because the record will be deleted by admin on rejection
+  // weightage         Int?
+  course_id         Int
+  enrollment_id     Int
+  division_id       Int?
+  course            course     @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_result_course")
+  enrollment        enrollment @relation(fields: [enrollment_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_result_enrollment")
+  division          division?  @relation(fields: [division_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_result_division")
 
-  @@index([enrollment_id], map: "result_ibfk_1_idx")
-  @@index([course_id], map: "result_ibfk_2_idx")
+  @@unique([course_id, enrollment_id], map: "UK_result_course_enrollment")
+  @@index([course_id], map: "INDX_result_course")
+  @@index([enrollment_id], map: "INDX_result_enrollment")
+  @@index([division_id], map: "INDX_result_division")
 }
 model room {
-  id           Int         @id @default(autoincrement())
-  room_number  Int
-  room_type    room_type? // @default(classroom)
-  shape        room_shape? // @default(rectangular)
-  capacity     Int?
-  count_row    Int?
-  count_column Int?
-  floor_id     Int
-  floor        floor       @relation(fields: [floor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_room_floor")
-  sessions     session[]
-  timetables   timetable[]
+  id               Int               @id @default(autoincrement())
+  room_number      Int
+  room_type        room_type?        // @default(classroom)
+  shape            room_shape?       // @default(rectangular)
+  capacity         Int?
+  count_row        Int?
+  count_column     Int?
+  floor_id         Int
+  floor            floor             @relation(fields: [floor_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_room_floor")
+  sessions         session[]
+  timetables       timetable[]
+  exam_enrollments exam_enrollment[]
 
+  @@unique([room_number, floor_id], map: "UK_room_number_floor")
   @@index([floor_id], map: "INDX_room_floor")
 }
 // model room_type {
 //   id   Int    @id @default(autoincrement())
 //   name String @db.VarChar(20)
 // }
-model salary {
-  id Int @id @default(autoincrement())
-}
-model session { //session //academic_session //class_session
+// model salary {
+//   id Int @id @default(autoincrement())
+// }
+model session { //academic_session //class_session
   id                  Int                  @id @default(autoincrement())
   open_for_attendance Boolean              @default(false) @db.TinyInt() // status_attendance // open_for_attendance
   // status              String               // cancelled, postponed, rescheduled, delayed, on-time, started, ended, completed
   type                session_type         @default(lecture)
   // ATTENTION! this wrong. just use time_start and time_end and put date in both of them
   date                DateTime             @db.Date
-  time_start          DateTime             @db.Time(0)
-  time_end            DateTime             @db.Time(0)
-  // duration      DateTime?            @db.Time(0)
+  start_time          DateTime             @db.Time() //time_start
+  // end_time            DateTime             @db.DateTime() //time_end
+  duration            DateTime             @db.Time()
   teaching_id         Int
   room_id             Int
-  teaching            teaching             @relation(fields: [teaching_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_session_teaching")
-  room                room                 @relation(fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_session_room")
+  teaching            teaching             @relation(fields: [teaching_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_session_teaching")
+  room                room                 @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_session_room")
   attendances         session_attendance[]
 
   @@index([teaching_id], map: "INDX_session_teaching")
@@ -483,18 +523,18 @@ model session_attendance {
   @@index([session_id], map: "INDX_sa_session")
   @@index([enrollment_id], map: "INDX_sa_enrollment")
 }
-model staff {
-  id      Int    @id
-  role    String @db.VarChar(45)
-  salary  Int
-  user_id Int
-}
+// model staff {
+//   id      Int    @id
+//   role    String @db.VarChar(45)
+//   salary  Int
+//   user_id Int
+// }
 model syllabus {
   id                 Int      @id @default(autoincrement())
   code               String?  @db.VarChar(20) @unique(map: "UK_syllabus_code")
   // year_created       Int
   year_effective     Int
-  year_retired       Int?
+  // year_retired       Int?
   // duration_years     Int
   duration_semesters Int
   degree_id          Int
@@ -505,39 +545,16 @@ model syllabus {
   @@unique([code, year_effective], map: "UK_syllabus_code_year")
   @@index([degree_id], map: "INDX_syllabus_degree")
 }
-// model syllabus_course {
-//   code            String?          @db.VarChar(20) // different then the syllabus_code and course_code
-//   syllabus_id     Int
-//   course_id       Int
-//   course_category course_category?
-//   course_credits  Int
-//   course_semester Int
-//   syllabus        syllabus         @relation(fields: [syllabus_id], references: [syllabus_id], onDelete: Restrict, onUpdate: NoAction, map: "syllabus_course_ibfk_1")
-//   course          course           @relation(fields: [course_id], references: [course_id], onDelete: Restrict, onUpdate: NoAction, map: "syllabus_course_ibfk_2")
-
-//   @@unique([syllabus_id, course_id], map: "syllabus_course_UNIQUE")
-//   @@index([syllabus_id], map: "sc_syllabus_idx")
-//   @@index([course_id], map: "sc_course_idx")
-// }
-// model division_course {
-//   division_id Int
-//   course_id   Int
-//   id          Int @id @default(autoincrement())
-// }
-
-// model division_course_professor {
-//   division_course_id Int
-//   professor_id       Int
-//   id                 Int @id @default(autoincrement())
-// }
 model teaching {
   id           Int          @id @default(autoincrement())
   course_id    Int
-  division_id  Int
+  batch_id     Int?
+  division_id  Int?
   professor_id Int // IMPORTANT! why don't you use faculty_id here? it would be much easier to get professor details then
   course       course       @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_teaching_course")
-  division     division     @relation(fields: [division_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_teaching_division")
-  professor    user         @relation(fields: [professor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_teaching_professor")
+  batch        batch?       @relation(fields: [batch_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_teaching_batch")
+  division     division?    @relation(fields: [division_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_teaching_division")
+  professor    user         @relation(fields: [professor_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_teaching_professor")
   assignments  assignment[]
   timetables   timetable[]
   sessions     session[]
@@ -549,48 +566,49 @@ model teaching {
 }
 model timetable {
   id          Int               @id @default(autoincrement())
-  time_start  DateTime          @db.Time(0)
-  time_end    DateTime          @db.Time(0)
-  // duration     DateTime          @db.Time(0) // this should be stored instead of timee_end. because the session could go on for multiple days
   weekday     timetable_weekday
+  start_time  DateTime          @db.Time(0)
+  // end_time    DateTime          @db.Time(0)
+  duration     DateTime         @db.Time(0)
   teaching_id Int
   room_id     Int
-  teaching    teaching          @relation(fields: [teaching_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_timetable_teaching")
-  room        room              @relation(fields: [room_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_timetable_room")
+  teaching    teaching          @relation(fields: [teaching_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_timetable_teaching")
+  room        room              @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_timetable_room")
 
-  @@unique([weekday, time_start, time_end, teaching_id], map: "UK_timetable_wtstet")
+  @@unique([weekday, start_time, teaching_id], map: "UK_timetable_wstt")
   @@index([teaching_id], map: "INDX_timetable_teaching")
   @@index([room_id], map: "INDX_timetable_room")
 }
-model transaction {
-  id Int @id @default(autoincrement())
-}
-model transaction_faculty {
-  id         Int      @id @default(autoincrement())
-  date       DateTime @db.Date
-  amount     Int
-  faculty_id Int
-  faculty    faculty  @relation(fields: [faculty_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "FK_tf_faculty")
+// model transaction {
+//   id Int @id @default(autoincrement())
+// }
+// model transaction_faculty {
+//   id         Int      @id @default(autoincrement())
+//   date       DateTime @db.Date
+//   amount     Int
+//   faculty_id Int
+//   faculty    faculty  @relation(fields: [faculty_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "FK_tf_faculty")
 
-  @@index([faculty_id], map: "INDX_tf_faculty")
-}
-model transaction_student {
-  id            Int        @id @default(autoincrement())
-  enrollment_id Int
-  date          DateTime   @db.Date
-  amount        Int
-  enrollment    enrollment @relation(fields: [enrollment_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ts_enrollment")
+//   @@index([faculty_id], map: "INDX_tf_faculty")
+// }
+// model transaction_student {
+//   id            Int        @id @default(autoincrement())
+//   enrollment_id Int
+//   date          DateTime   @db.Date
+//   amount        Int
+//   enrollment    enrollment @relation(fields: [enrollment_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ts_enrollment")
 
-  @@index([enrollment_id], map: "INDX_ts_enrollment")
-}
+//   @@index([enrollment_id], map: "INDX_ts_enrollment")
+// }
 model university {
-  id          Int          @id @default(autoincrement())
-  name        String       @db.VarChar(100) @unique(map: "UK_university_name")
-  user_id     Int          // registrar_id, president_id, chancellor_id
-  user        user         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_university_founder")
-  managers    manager[]
-  campuses    campus[]
-  departments department[]
+  id           Int          @id @default(autoincrement())
+  name         String       @db.VarChar(50) // @unique(map: "UK_university_name")
+  name_acronym String       @db.VarChar(20) // @unique(map: "UK_university_name_acronym")
+  user_id      Int          // registrar_id, president_id, chancellor_id
+  founder      user         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_university_founder")
+  // managers     manager[]
+  campuses     campus[]
+  departments  department[]
 }
 // model university_user {
 //   user_id Int    @unique(map: "user_id_UNIQUE")
@@ -602,27 +620,28 @@ model user {
   id                  Int          @id @default(autoincrement())
   username            String?      @unique(map: "UK_user_username") @db.VarChar(50)
   password            String       @db.VarChar(50)
-  contact_no          String?      @unique(map: "UK_user_contact_no") @db.VarChar(20)
-  primary_email       String?      @unique(map: "UK_user_primary_email") @db.VarChar(50)
-  google_email        String?      @unique(map: "UK_user_google_email") @db.VarChar(50)
+  contact_no          String?      @unique(map: "UK_user_contact_no") @db.VarChar(20) //contact phone mobile
+  email               String?      @unique(map: "UK_user_email") @db.VarChar(50)
+  // google_email        String?      @unique(map: "UK_user_google_email") @db.VarChar(50)
   // github_username     String?      @unique(map: "UK_user_github_username") @db.VarChar(50)
   name_prefix         String?      @db.VarChar(50)
   name_first          String       @db.VarChar(50)
   name_middle         String?      @db.VarChar(50)
-  name_last           String?      @db.VarChar(50)
+  name_last           String?      @db.VarChar(50) //name_sur
   name_suffix         String?      @db.VarChar(50)
   gender              user_gender?
   date_of_birth       DateTime?    @db.Date
   profile_picture_url String?      @db.VarChar(255)
 
-  universities       university[]
-  managers           manager[]
-  admins             admin[]
-  faculty            faculty[]
-  teachings          teaching[]
-  admissions         admission[]
-  enrollments        enrollment[]
-  book_issue_return  book_issue_return[]
+  // auth_sessions       auth_session[]
+  universities        university[]
+  // managers            manager[]
+  admins              admin[]
+  faculties           faculty[]
+  teachings           teaching[]
+  admissions          admission[]
+  enrollments         enrollment[]
+  // book_transactions   book_transaction[]
 }
 
 enum admission_category {
@@ -708,8 +727,7 @@ enum faculty_designation {
   // vice_chancellor
   // chancellor
 }
-
-enum grade_type {
+enum grade_type { //result_component
   cec
   attendance
   internal_exam
@@ -718,7 +736,6 @@ enum grade_type {
   project
   practical
 }
-
 enum room_type {
   admin_office
   art
@@ -737,13 +754,11 @@ enum room_type {
   utility
   washroom
 }
-
 enum room_shape {
   circular // full circle
   curve // little curved section
   rectangular // rectangle
 }
-
 enum session_type {
   lecture
   lab
@@ -753,7 +768,6 @@ enum session_type {
   workshop
   conference
 }
-
 enum timetable_weekday {
   monday
   tuesday
@@ -763,7 +777,6 @@ enum timetable_weekday {
   saturday
   sunday
 }
-
 enum user_gender {
   M
   F

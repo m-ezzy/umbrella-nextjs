@@ -2,8 +2,8 @@ import Link from "next/link";
 import DivisionList from "@/components/modules/division/DivisionList";
 import { updateBatch, deleteBatch } from "@/actions/batch";
 
-export default async function BatchList({ degree_id, syllabus, batchs }: { degree_id: number, syllabus: any, batchs: any }) {
-  const batchItems = batchs.map((item: any) => (
+export default async function BatchList({ degree_id, syllabus, batches }: { degree_id: number, syllabus: any, batches: any }) {
+  const batchItems = batches.map((item: any) => (
     <li key={item.batch_id} className="bg-neutral-300 min-w-60 min-h-60 rounded-md p-2 space-y-4">
       <div className="flex justify-end gap-1">
         <form action={updateBatch}>

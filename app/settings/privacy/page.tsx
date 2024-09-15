@@ -8,7 +8,7 @@ export default async function Page() {
   return(
     <form className="p-2 block *:block">
       <label htmlFor="">Google Email</label>
-      <input type="text" placeholder="Google Email" value={user.google_email} />
+      <input type="text" placeholder="Google Email" defaultValue={user.google_email} />
       <button className="mt-2">Update</button>
     </form>
   );

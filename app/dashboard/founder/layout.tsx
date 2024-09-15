@@ -1,31 +1,34 @@
-import { ReactNode } from 'react'
-import Link from 'next/link'
-import { prisma } from '@/lib/db'
-import { auth } from '@/auth'
-import CreateButton from '@/components/ui/CreateButton';
+import { prisma } from '@/lib/db';
+import { auth } from '@/auth';
+import { FounderContextProvider } from '@/contexts/FounderContext';
+import FounderLayout from '@/layouts/FounderLayout';
 
-export default async function Layout({ children, params }: { children: ReactNode, params: any }) {
+export default async function Layout({ children }: { children: any }) {
   const session:any = await auth();
 
-  const founderUniversity: any[] = await prisma.university.findMany({
+  let founderUniversities: any[] = await prisma.university.findMany({
+    // include: {
+    //   _count: {
+    //     select: { departments: true },
+    //   },
+    //   departments: true,
+    // },
     where: {
       user_id: session.user.id,
     },
   });
-  const founderUniversityList = founderUniversity.map((item: any) => (
-    <li key={item.id} className="border rounded-md p-2 min-w-44">
-      <Link href={`/dashboard/founder`}>
-        <p>University: {item.name}</p>
-      </Link>
-    </li>
-  ));
+  founderUniversities = founderUniversities.map((university: any) => {
+    return {
+      ...university,
+      // departments: university.departments.length,
+      // department_count: university._count.departments,
+    };
+  });
   return (
-    <div className='w-full'>
-      <div className=''>
-        <CreateButton text="University" />
-      </div>
-      {founderUniversityList}
-      {children}
-    </div>
-  )
+    <FounderContextProvider>
+      <FounderLayout data={{ universities: founderUniversities }}>
+        {children}
+      </FounderLayout>
+    </FounderContextProvider>
+  );
 }

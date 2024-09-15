@@ -6,7 +6,7 @@ export default function SelectBatch({ batchs, selected, setSelected }: any) {
   let items: any[] = batchs.map((item: any) => {
     return <option key={item.batch_id} value={item.batch_id}>{item.year_started}</option>
   })
-
+  
   return (
     <div className="border rounded-md p-2">
       <label htmlFor="batch_id">Batch</label>

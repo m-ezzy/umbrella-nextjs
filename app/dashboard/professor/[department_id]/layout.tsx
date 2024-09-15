@@ -1,13 +1,14 @@
 import { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import Sidebar from '@/components/ui/Sidebar';
-import MenuList from '@/app/dashboard/views/filter/_components/MenuList';
+import MenuList from '@/components/ui/MenuList';
 import { prisma } from '@/lib/db';
+import { professorMenus } from '@/constants/menus';
 
 export default async function Layout({ children, params }: { children: ReactNode, params: any }) {
   const department: any = await prisma.department.findUniqueOrThrow({
     where: {
-      department_id: parseInt(params.department_id),
+      id: parseInt(params.department_id),
     },
   })
   .catch(() => {
@@ -17,14 +18,11 @@ export default async function Layout({ children, params }: { children: ReactNode
   if(department.error) {
     redirect('/dashboard');
   }
-
-  const nav = ['analysis', 'teaching', 'courses', 'timetable', 'sessions', 'attendance', 'assignments', 'exams', 'grades'];
-  // 'resourses', 'schedule', 'salary'
   return (
     <div className="h-full flex">
       <Sidebar>
-        <div className='bg-violet-100 font-bold border-b p-2 flex justify-center'>{department.department_name_acronym}</div>
-        <MenuList menus={nav} pathSegment={`/dashboard/views/filter/professor/${params.department_id}`} />
+        <div className='bg-violet-100 font-bold border-b p-2 flex justify-center'>{department.name_acronym}</div>
+        <MenuList menus={professorMenus} pathSegment={`/dashboard/professor/${params.department_id}`} pathPosition={4} />
       </Sidebar>
       {children}
     </div>

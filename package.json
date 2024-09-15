@@ -6,9 +6,12 @@
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma-generate && next-build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "next-build": "next build",
+    "prisma-generate": "prisma generate",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.18.0",
@@ -23,6 +26,7 @@
     "react": "^18",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
+    "swr": "^2.2.5",
     "zustand": "^4.5.4"
   },
   "devDependencies": {

@@ -2,7 +2,7 @@
 // import { createContext, PropsWithChildren, useContext, useState } from "react"
 import { PropsWithChildren, createContext, useState } from "react"
 
-export const RoleContext = createContext(null)
+export const RoleContext: any = createContext(null);
 
 // export function useRole() {
 //   return useContext(RoleContext)
@@ -16,10 +16,10 @@ export const RoleContext = createContext(null)
 // }
 
 export function RoleProvider({ children }: PropsWithChildren<any>) {
-  const [role, setRole] = useState("student")
+  const [role, setRole]: any = useState(null);
 
   return (
-    <RoleContext.Provider value={ role, setRole }>
+    <RoleContext.Provider value={{ role, setRole }}>
       {children}
     </RoleContext.Provider>
   )

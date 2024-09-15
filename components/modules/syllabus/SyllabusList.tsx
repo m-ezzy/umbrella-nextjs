@@ -1,26 +1,22 @@
-import Link from "next/link";
-import TableHeader from "@/components/ui/TableHeader";
-import { updateSyllabus, deleteSyllabus } from "@/actions/syllabus";
-import { prisma } from "@/lib/db";
+"use server"
+import Link from "next/link"
+import { updateSyllabus, deleteSyllabus } from "@/actions/syllabus"
+import { prisma } from "@/lib/db"
+import ListTable from "@/components/ui/ListTable";
 
-export default async function SyllabusList({ degree_id, syllabus }: { degree_id: number, syllabus: any }) {
-  // const syllabus = await prisma.syllabus.findMany({
-  //   select: {
-  //     syllabus_id: true,
-  //     year_effective: true,
-  //   },
-  //   where: {
-  //     degree_id: degree_id,
-  //   },
-  // });
-
-  const items = syllabus.map((item: any) => (
-    <li key={item.syllabus_id} className="border-b p-1 grid grid-cols-6 items-center">
+export default async function SyllabusList({ degree_ids }: { degree_ids: number[] }) {
+  const syllabuses = await prisma.syllabus.findMany({
+    where: {
+      degree_id: {
+        in: degree_ids,
+      },
+    },
+  });
+  const items = syllabuses.map((item: any) => (
+    <li key={item.id} className="border-b p-1 grid grid-cols-6 items-center">
       <div>{item.year_effective}</div>
-      <div>{item.syllabus_code}</div>
+      <div>{item.code}</div>
       <div>{item.duration_semesters}</div>
-      <div>{item._count.syllabus_course}</div>
-
       {/* <div>
         <form action={updateSyllabus}>
           <input type="hidden" name="syllabus_id" value={item.syllabus_id} hidden />
@@ -31,14 +27,14 @@ export default async function SyllabusList({ degree_id, syllabus }: { degree_id:
       </div> */}
       <div>
         <form action={deleteSyllabus}>
-          <input type="hidden" name="syllabus_id" value={item.syllabus_id} hidden />
+          <input type="hidden" name="syllabus_id" value={item.id} hidden />
           <button type="submit">
             <span className="material-symbols-outlined">delete</span>
           </button>
         </form>
       </div>
       <div>
-        <Link href={`syllabus/${item.syllabus_id}`}>View Courses</Link>
+        <Link href={`syllabus/${item.id}`}>View Courses</Link>
       </div>
     </li>
   ));
@@ -49,7 +45,7 @@ export default async function SyllabusList({ degree_id, syllabus }: { degree_id:
         <div>Effective from year</div>
         <div>Syllabus code</div>
         <div>Duration in semesters</div>
-        <div>Course Count</div>
+        {/* <div>Course Count</div> */}
         {/* <div>Edit</div> */}
         <div>Delete</div>
         <div>Courses</div>
@@ -57,6 +53,7 @@ export default async function SyllabusList({ degree_id, syllabus }: { degree_id:
       <ul className="flex-col">
         {items}
       </ul>
+      <ListTable data={syllabuses} />
     </div>
   )
 }

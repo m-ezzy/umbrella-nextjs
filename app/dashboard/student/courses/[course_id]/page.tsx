@@ -1,9 +1,10 @@
 
 export default async function Page({ params }: any) {
-  // console.log(params.course_id)
   return (
-    <main>
-      <div className="text-xl">{params.course_id}</div>
-    </main>
+    <div>{params.course_id}</div>
+    // show all teaching
+    // show all materials
+    // show all assignments
+    // show all exams
   );
 }

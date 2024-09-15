@@ -1,6 +1,11 @@
 import Link from "next/link";
 
-export default function BreadcrumbBar({ breadcrumbs }: any) {
+type breadcrumb = {
+  label: string
+  href: string
+  active?: true
+}
+export default function BreadcrumbBar({ breadcrumbs }: breadcrumb[]) {
   const items = breadcrumbs.map((item: any, index: number) => {
     let href = ""
     for(let i = 0; i < index; i++) {

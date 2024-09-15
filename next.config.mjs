@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    // allowedOrigins: ["lfxslwbc-3000.inc1.devtunnels.ms", "localhost:3000"],
+    // allowedOrigins: ["localhost:3000", "lfxslwbc-3000.inc1.devtunnels.ms"],
     serverActions: {
-      allowedOrigins: ["lfxslwbc-3000.inc1.devtunnels.ms", "localhost:3000"],
+      allowedOrigins: ["localhost:3000", "lfxslwbc-3000.inc1.devtunnels.ms"],
     },
   },
   async redirects() {

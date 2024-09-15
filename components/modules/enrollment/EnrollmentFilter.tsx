@@ -1,8 +1,7 @@
 "use client"
 import { useEffect, useState } from "react"
-import FilterForm from "../../ui/FilterForm"
 import SelectBatch from "@/components/selectors/batch"
-import { createEnrollment, updateEnrollment, deleteEnrollment } from "@/actions/enrollment"
+import { createEnrollment, deleteEnrollment } from "@/actions/enrollment"
 
 export default function EnrollmentFilter({ batchs, enrollments, degree_id }: any) {
   const [syllabus_id, setSyllabusId] = useState("")

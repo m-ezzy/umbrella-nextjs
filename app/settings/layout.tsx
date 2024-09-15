@@ -8,40 +8,35 @@ export default async function Layout({ children }: { children: ReactNode }) {
   // const menus: string[] = ["profile", "privacy", "security"];
   const menus: any = [
     {
-      key: "account",
-      title: "Account",
-      link: "/settings/account",
+      name: "Account",
+      href: "/account",
       icon: "person",
     },
     {
-      key: "profile",
-      title: "Profile",
-      link: "/settings/profile",
+      name: "Profile",
+      href: "/profile",
       icon: "person",
     },
     {
-      key: "privacy",
-      title: "Privacy",
-      link: "/settings/privacy",
+      name: "Privacy",
+      href: "/privacy",
       icon: "privacy",
     },
     {
-      key: "security",
-      title: "Security",
-      link: "/settings/security",
+      name: "Security",
+      href: "/security",
       icon: "security",
     },
     {
-      key: "notifications",
-      title: "Notifications",
-      link: "/settings/notifications",
+      name: "Notifications",
+      href: "/notifications",
       icon: "notifications",
     },
   ];
   return (
     <main className="h-full flex">
       {/* <Sidebar> */}
-        <MenuList menus={menus} pathSegment="/account/" />
+        <MenuList menus={menus} pathSegment="/settings" pathPosition={2} />
       {/* </Sidebar> */}
       <div className="w-full overflow-auto">
         {children}

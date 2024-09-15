@@ -34,13 +34,28 @@ async function createAttendance(formData: FormData) {
   return result
 }
 async function updateAttendance(formData: FormData) {
-  const session: any = await auth()
+  const session: any = await auth();
+
+  const data: any = {
+    position_row: parseInt(formData.get("position_row") as string),
+    position_column: parseInt(formData.get("position_column") as string),
+    status: formData.get("status") as string
+  }
+  if(data.position_row == null) {
+    delete data.position_row;
+  }
+  if(data.position_column == null) {
+    delete data.position_column;
+  }
+  if(data.status == null) {
+    delete data.status;
+  }
 
   const result: any = await prisma.session_attendance.update({
     data: {
-      position_row: parseInt(formData.get("position_row")),
+      position_row: parseInt(formData.get("position_row") as string),
       position_column: parseInt(formData.get("position_column") as string),
-      status: formData.get("status"),
+      status: formData.get("status") as string,
     },
     where: {
       id: parseInt(formData.get("session_attendance_id") as string),
@@ -58,21 +73,24 @@ async function updateAttendancePosition(formData: FormData) {
 
   const result: any = await prisma.session_attendance.update({
     data: {
-      position_row: parseInt(formData.get("position_row")),
-      position_column: parseInt(formData.get("position_column")),
+      position_row: parseInt(formData.get("position_row") as string),
+      position_column: parseInt(formData.get("position_column") as string),
     },
     where: {
       // id: parseInt(formData.get("session_attendance_id")),
-      session_id_user_id: {
-        session_id: parseInt(formData.get("session_id")),
-        user_id: session.user.id,
+      
+      // session_id: parseInt(formData.get("session_id") as string),
+      // enrollment_id: session.user.id,
+      
+      session_id_enrollment_id: {
+        session_id: parseInt(formData.get("session_id") as string),
+        enrollment_id: session.user.id,
       },
     },
   })
 }
 // async function updateAttendanceVerification(formData: FormData) {
 //   const session: any = await auth();
-
 //   const result: any = await prisma.session_attendance.update({
 //     data: {
 //       verified: parseInt(formData.get("verified")),

@@ -6,39 +6,45 @@ import { course_type } from "@prisma/client";
 async function createCourse(formData: FormData) {
   const result = await prisma.course.create({
     data: {
-      course_code: String(formData.get("course_code")),
-      course_name: String(formData.get("course_name")),
-      course_name_acronym: String(formData.get("course_name_acronym")),
-      course_type: formData.get("course_type") == "theory" ?  course_type.theory : course_type.practical,
-      year_created: Number(formData.get("year_created")),
+      code: String(formData.get("code")),
+      name: String(formData.get("name")),
+      name_acronym: String(formData.get("name_acronym")),
+      type: formData.get("course_type") == "theory" ?  course_type.theory : course_type.practical,
+      // year_created: Number(formData.get("year_created")),
     }
+  })
+  .catch((error) => {
+    return { error }
   });
   revalidatePath("/dashboard/admin");
+  return result;
 }
 async function updateCourse(formData: FormData) {
   const result = await prisma.course.update({
     data: {
-      course_code: String(formData.get("course_code")),
-      course_name: String(formData.get("course_name")),
-      course_name_acronym: String(formData.get("course_name_acronym")),
-      course_type: formData.get("course_type") == "theory" ?  course_type.theory : course_type.practical,
+      code: String(formData.get("course_code")),
+      name: String(formData.get("course_name")),
+      name_acronym: String(formData.get("course_name_acronym")),
+      type: formData.get("course_type") == "theory" ?  course_type.theory : course_type.practical,
     },
     where: {
-      course_id: Number(formData.get("course_id")),
+      id: Number(formData.get("course_id")),
     },
   });
   revalidatePath("/dashboard/admin");
 }
-async function deleteCourse(formData: FormData) {
+async function deleteCourse(previousState: any formData: FormData) {
   const result = await prisma.course.delete({
     where: {
-      course_id: Number(formData.get("course_id")),
+      id: Number(formData.get("course_id")),
     }
   })
   .catch((error) => {
     console.error("Error deleting course", error);
+    return { error }
   });
   revalidatePath("/dashboard/admin");
+  return result;
 }
 
 export { createCourse, updateCourse, deleteCourse }

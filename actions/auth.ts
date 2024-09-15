@@ -10,15 +10,16 @@ async function authenticateWithCredentials(previousState: any, formData: FormDat
 
   const result: any = await signIn('credentials', { uniqueIdentifier: uniqueIdentifier, password: password }) //, redirect: true, redirectTo: '/dashboard'})
   .catch((error: AuthError) => {
-    // console.log("error".bgRed, error.message)
+    console.log("auth error".bgRed, error.message);
     return { error: error.type }
   })
 
-  console.log("server action result: ", result)
   if(result.error) {
-    return result
+    return result;
+  } else {
+    revalidatePath("/");
+    redirect("/dashboard");
   }
-  redirect("/dashboard")
 }
 async function authenticateWithGoogle(formData: FormData) {
   const result = await signIn('google') //('google', { callbackUrl: '/api/auth/google/callback' })

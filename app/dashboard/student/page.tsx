@@ -1,5 +1,7 @@
-// move analysis here!
+import StudentDashboard from "@/components/dashboards/StudentDashboard";
 
 export default function Page() {
-  return <></>
+  return (
+    <StudentDashboard />
+  );
 }

@@ -15,10 +15,10 @@ async function createTeaching(formData: FormData) {
 async function deleteTeaching(formData: FormData) {
   const result:any = await prisma.teaching.delete({
     where: {
-      teaching_id: Number(formData.get("teaching_id"))
+      id: Number(formData.get("teaching_id"))
     }
   });
-  revalidatePath("/admin");
+  revalidatePath("/dashboard/admin");
 }
 
 export { createTeaching, deleteTeaching }

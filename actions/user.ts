@@ -4,21 +4,21 @@ import fs from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { auth, update } from "@/auth";
 import { prisma } from "@/lib/db";
 
 async function createUser(formData: FormData) {
   const result:any = await prisma.user.create({
     data: {
-      username: formData.get("username"),
-      password: formData.get("password"),
-      name_prefix: formData.get("name_prefix"),
-      name_first: formData.get("name_first"),
-      name_middle: formData.get("name_middle"),
-      name_sur: formData.get("name_sur"),
-      name_suffix: formData.get("name_suffix"),
-      primary_phone: formData.get("primary_phone"),
-      primary_email: formData.get("primary_email"),
+      username: formData.get("username") as string,
+      password: formData.get("password") as string,
+      name_prefix: formData.get("name_prefix") as string,
+      name_first: formData.get("name_first") as string,
+      name_middle: formData.get("name_middle") as string,
+      name_last: formData.get("name_last") as string,
+      name_suffix: formData.get("name_suffix") as string,
+      contact_no: formData.get("contact_no") as string,
+      email: formData.get("email") as string,
     },
   })
   .catch((error: any) => {
@@ -34,17 +34,17 @@ async function updateUser(formData: FormData) {
   const user_id = session.user.id
 
   const result:any = await prisma.user.update({
-    where: { user_id: user_id },
+    where: { id: user_id },
     data: {
-      username: formData.get("username"),
-      password: formData.get("password"),
-      name_prefix: formData.get("name_prefix"),
-      name_first: formData.get("name_first"),
-      name_middle: formData.get("name_middle"),
-      name_sur: formData.get("name_sur"),
-      name_suffix: formData.get("name_suffix"),
-      primary_phone: formData.get("primary_phone"),
-      primary_email: formData.get("primary_email"),
+      username: formData.get("username") as string,
+      password: formData.get("password") as string,
+      name_prefix: formData.get("name_prefix") as string,
+      name_first: formData.get("name_first") as string,
+      name_middle: formData.get("name_middle") as string,
+      name_last: formData.get("name_sur") as string,
+      name_suffix: formData.get("name_suffix") as string,
+      contact_no: formData.get("primary_phone") as string,
+      email: formData.get("primary_email") as string,
     },
   })
   .catch((error: any) => {
@@ -84,7 +84,7 @@ async function updateUserProfilePicture(formData: FormData) {
     data: {
       profile_picture_url: file.name,
     },
-    where: { user_id: session.user.id },
+    where: { id: session.user.id },
   })
   .catch((error: any) => {
     return { error: error.message, status: 400 }
@@ -94,5 +94,23 @@ async function updateUserProfilePicture(formData: FormData) {
 
   return { result }
 }
+async function deleteAccount(formData: FormData) {
+  const session: any = await auth();
+  const user_id = session.user.id;
 
-export { createUser, updateUser, updateUserProfilePicture };
+  const result:any = await prisma.user.delete({
+    where: { id: user_id },
+  })
+  .catch((error: any) => {
+    return { error: error.message, status: 400 }
+  });
+  
+  update({
+    user: { id: undefined }
+  });
+
+  redirect("/");
+  // return { result }
+}
+
+export { createUser, updateUser, updateUserProfilePicture, deleteAccount }

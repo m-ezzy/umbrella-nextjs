@@ -6,11 +6,12 @@ async function createSyllabus(formData: FormData) {
   const result1 = await prisma.syllabus.create({
     data: {
       degree_id: Number(formData.get("degree_id")),
-      syllabus_code: String(formData.get("syllabus_code")),
+      code: String(formData.get("syllabus_code")),
       duration_semesters: Number(formData.get("duration_semesters")),
       year_effective: Number(formData.get("year_effective")),
     }
   });
+  console.log("Created syllabus".bgMagenta, result1);
   revalidatePath("/dashboard/admin");
 }
 async function updateSyllabus(formData: FormData) {
@@ -19,7 +20,7 @@ async function updateSyllabus(formData: FormData) {
       year_effective: Number(formData.get("year_effective")),
     },
     where: {
-      syllabus_id: Number(formData.get("syllabus_id")),
+      id: Number(formData.get("syllabus_id")),
     },
   });
   revalidatePath("/dashboard/admin");
@@ -27,7 +28,7 @@ async function updateSyllabus(formData: FormData) {
 async function deleteSyllabus(formData: FormData) {
   const result = await prisma.syllabus.delete({
     where: {
-      syllabus_id: Number(formData.get("syllabus_id")),
+      id: Number(formData.get("syllabus_id")),
     }
   })
   .catch((error) => {
