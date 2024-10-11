@@ -1,51 +1,39 @@
-import TimetableView from '@/components/modules/timetable/TimetableViewAll'
-import { prisma } from '@/lib/db';
-import { auth } from '@/auth';
+import prisma from "@/lib/prisma"
+import { auth } from '@/lib/auth'
+import TimetableView from '@/components/modules/TimetableView'
+import { Prisma } from "@prisma/client"
 
-export default async function Page({ params }: {params: { enrollment_id: string }}) {
-  const session: any = await auth();
+export default async function Page({
+  params,
+  searchParams,
+}: {
+  params: any,
+  searchParams: string,
+}) {
+  // 1. search params
+  console.log(searchParams)
+  // 2. recat context state
+  console.log()
 
-  const timetableData = await prisma.timetable.findMany({
-    include: {
-      teaching: {
-        include: {
-          course: true,
-          division: {
-            include: {
-              batch: {
-                include: {
-                  syllabus: true,
-                },
-              },
-            },
-          },
-          professor: true,
-        },
-      },
-      room: true,
-    },
-    where: {
-      teaching: {
-        division: {
-          enrollments: {
-            // every: {
-              // user_id: session.user.id,
-            // },
-            some: {
-              id: parseInt(session.user.id),
-            },
-          },
-        },
-      },
-    }
-  });
+
+
+
+
+  const degree_id = 0
+  const batch_id = 0
+  const division_id = 0
+  const batch_year = 0
+  const division_name = null
+  const course_id = 0
+  const semester = 0
+
   // async function setSemester(event: any) {
   //   "use server";
   //   const semester = event.target.elements.semester.value;
   // }
   
   return (
-    <div className='w-full h-full overflow-auto p-2'>
+    <>
       {/* <form action={setSemester}>
         <select name="semester" id="semester">
           <option value="1">Semester 1</option>
@@ -59,7 +47,7 @@ export default async function Page({ params }: {params: { enrollment_id: string 
         </select>
         <input type="submit" value="Submit" />
       </form> */}
-      <TimetableView timetableData={timetableData} showDegree={false} showProfessor={true} />
-    </div>
-  );
+      <TimetableView data={data} showDegree={false} showProfessor={true} />
+    </>
+  )
 }

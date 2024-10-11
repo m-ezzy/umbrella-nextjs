@@ -1,16 +1,15 @@
-"use client";
-import { createContext, useContext, useState } from "react";
+'use client'
 
-const StudentContext: any = createContext(null);
+import { createContext, useContext, useState } from 'react'
+
+const StudentContext: any = createContext(null)
 
 export function useStudentContext() {
-  return useContext(StudentContext);
+  return useContext(StudentContext)
 }
-
 export function StudentContextProvider({ children, data }: any) {
-  const [currentMenu, setCurrentMenu] = useState(null);
-  const [filters, setFilters] = useState({});
-
+  const [currentMenu, setCurrentMenu] = useState(null)
+  const [filters, setFilters] = useState(null)
   // const [university, setUniversity] = useState(null);
   // const [department, setDepartment] = useState(null);
   // const [degree, setDegree] = useState(null);
@@ -48,5 +47,5 @@ export function StudentContextProvider({ children, data }: any) {
     }}>
       {children}
     </StudentContext.Provider>
-  );
+  )
 }

@@ -1,0 +1,183 @@
+model admission {
+  id           Int                 @id @default(autoincrement())
+  applied_date DateTime            @db.DateTime()
+  category     admission_category?
+  quota        String?             @db.VarChar(45)
+  status       admission_status?
+  batch_id     Int //degree_id or syllabus_id or batch_id
+  user_id      Int
+
+  // degree degree @relation(fields: [degree_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_admission_degree")
+  batch batch @relation(fields: [batch_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_admission_batch")
+  user  user  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_admission_user")
+
+  // @@index([degree_id], map: "INDX_admission_degree")
+  @@index([batch_id], map: "INDX_admission_batch")
+  @@index([user_id], map: "INDX_admission_user")
+}
+
+model batch {
+  id               Int  @id @default(autoincrement())
+  start_year       Int // year_started
+  finish_year      Int? // year_ended / end_year / class_of
+  // expected_finish_year
+  // teaching_ended Boolean
+  current_semester Int? // 0 or NULL value means teaching for this course has not started yet
+  // degree_id        Int
+  syllabus_id      Int
+
+  syllabus syllabus @relation(fields: [syllabus_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_batch_syllabus")
+
+  admissions  admission[]
+  enrollments enrollment[]
+  divisions   division[]
+  teachings   teaching[]
+  exams       exam[]
+
+  @@unique([start_year, syllabus_id], map: "UK_batch_year_syllabus") // there's only one batch per year of a syllabus. but there could be another batch in same year that follows another syllabus of the same degree
+  @@index([syllabus_id], map: "INDX_batch_syllabus")
+}
+
+model division {
+  id        Int    @id @default(autoincrement())
+  name      String @db.VarChar(20)
+  batch_id  Int
+  course_id Int?
+
+  batch  batch   @relation(fields: [batch_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_division_batch")
+  course course? @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_division_course")
+
+  teaching    teaching[]
+  enrollments enrollment[]
+  exams       exam[]
+  results     result[]
+
+  @@unique([name, batch_id], map: "UK_division_name_batch")
+  @@index([batch_id], map: "INDX_division_batch")
+  @@index([course_id], map: "INDX_division_course")
+}
+
+// model division_elective {
+//   id        Int    @id @default(autoincrement())
+//   name      String @db.VarChar(20)
+//   batch_id  Int
+//   course_id Int
+
+//   batch     batch  @relation(fields: [batch_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_division_elective_batch")
+//   course    course @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_division_elective_course")
+
+//   @@unique([name, batch_id, course_id], map: "UK_division_elective_name_batch_course")
+//   @@index([batch_id], map: "INDX_division_elective_batch")
+//   @@index([course_id], map: "INDX_division_elective_course")
+// }
+
+//batch_user division_user student
+model enrollment {
+  id                Int     @id @default(autoincrement())
+  enrollment_number String? // @unique(map: "UK_enrollment_number")
+  roll_number       String? @db.VarChar(5) // @unique(map: "roll_number_UNIQUE")
+  // batch_id needs to be here too. what if there is no division? or if a student hasn't been assigned to a division yet or no division are created yet at the start of the new batch or divsiion is dissolved as being created
+  batch_id          Int
+  division_id       Int?
+  user_id           Int
+
+  batch    batch     @relation(fields: [batch_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_enrollment_batch")
+  division division? @relation(fields: [division_id], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "FK_enrollment_division")
+  user     user      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_enrollment_user")
+
+  // transactions           transaction_student[]
+  session_attendances    session_attendance[]
+  assignment_submissions assignment_submission[]
+  exams                  exam_enrollment[]
+  results                result[]
+
+  @@unique([batch_id, user_id], map: "UK_enrollment_batch_user")
+  @@unique([division_id, user_id], map: "UK_enrollment_division_user")
+  @@unique([enrollment_number, batch_id], map: "UK_enrollment_number_batch")
+  @@unique([roll_number, division_id], map: "UK_enrollment_roll_division")
+  @@index([user_id], map: "INDX_enrollment_user")
+  @@index([batch_id], map: "INDX_enrollment_batch")
+  @@index([division_id], map: "INDX_enrollment_division")
+}
+
+//almost as same as result
+// model course_elective_enrollment {
+//   id                Int        @id @default(autoincrement())
+//   status String     @db.VarChar(20) //pending, approved, rejected //no rejected state because the record will be deleted by admin on rejection
+//   course_id         Int
+//   enrollment_id     Int
+//   division_id       Int
+
+//   course            course     @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_cee_course")
+//   enrollment        enrollment @relation(fields: [enrollment_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_cee_enrollment")
+//   division          division?  @relation(fields: [division_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_cee_division")
+
+//   @@unique([course_id, enrollment_id], map: "UK_cee_course_enrollment")
+//   @@index([course_id], map: "INDX_cee_course")
+//   @@index([enrollment_id], map: "INDX_cee_enrollment")
+//   @@index([division_id], map: "INDX_cee_division")
+// }
+
+//course_enrollment //course_elective_enrollment
+model result {
+  id                Int     @id @default(autoincrement())
+  grade             String  @db.VarChar(50) //pass, fail, pending
+  marks             Int
+  status_result     String? @db.VarChar(20) //NULL, pass, failed
+  status_enrollment String  @db.VarChar(20) //pending, approved, rejected //no rejected state because the record will be deleted by admin on rejection
+  // weightage         Int?
+  course_id         Int
+  enrollment_id     Int
+  division_id       Int?
+
+  course     course     @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_result_course")
+  enrollment enrollment @relation(fields: [enrollment_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_result_enrollment")
+  division   division?  @relation(fields: [division_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_result_division")
+
+  @@unique([course_id, enrollment_id], map: "UK_result_course_enrollment")
+  @@index([course_id], map: "INDX_result_course")
+  @@index([enrollment_id], map: "INDX_result_enrollment")
+  @@index([division_id], map: "INDX_result_division")
+}
+
+enum admission_category {
+  general
+  SC
+  ST
+  OBC
+  EWS
+  PWD
+  TFW
+}
+
+enum admission_status {
+  pending
+  rejected
+  enrolled
+}
+
+// enum admission_type {
+//   regular
+//   lateral
+//   direct
+//   transfer
+//   distance
+//   open
+//   part_time  @map("part-time")
+//   full_time  @map("full-time")
+//   sponsored
+//   management
+//   NRI
+//   foreign
+// }
+
+//result_component
+enum grade_type {
+  cec
+  attendance
+  internal_exam
+  external_exam
+  assignment
+  project
+  practical
+}

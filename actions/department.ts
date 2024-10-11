@@ -1,9 +1,28 @@
 "use server";
-import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/db";
-import { auth } from "@/auth";
 
-async function createDepartment(previousState: any, formData: FormData) {
+import { revalidatePath } from "next/cache";
+import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+
+export async function getDepartments(previousState: any, formData: FormData) {
+  const session: any = await auth();
+
+  const result: any = await prisma.department.findMany({
+    where: {
+      university: {
+        user_id: session.user.id,
+      },
+    },
+  })
+  .then((departments) => {
+    return { data: departments };
+  })
+  .catch((error) => {
+    return { error: error.message };
+  });
+  return result;
+}
+export async function createDepartment(previousState: any, formData: FormData) {
   const session: any = await auth();
 
   const university: any = await prisma.university.findUnique({
@@ -18,7 +37,7 @@ async function createDepartment(previousState: any, formData: FormData) {
   const result: any = await prisma.department.create({
     data: {
       name: formData.get("name") as string,
-      name_acronym: formData.get("name_acronym") as string,
+      name_short: formData.get("name_short") as string,
       university_id: Number(formData.get("university_id")),
     }
   })
@@ -32,7 +51,9 @@ async function createDepartment(previousState: any, formData: FormData) {
   revalidatePath("/dashboard/founder");
   return result;
 }
-async function deleteDepartment(previousState: any, formData: FormData) {
+export async function updateDepartment(p: any, fd: FormData) {
+}
+export async function deleteDepartment(previousState: any, formData: FormData) {
   const session: any = await auth();
 
   const department: any = await prisma.department.findUnique({
@@ -51,6 +72,9 @@ async function deleteDepartment(previousState: any, formData: FormData) {
       id: Number(formData.get("id"))
     }
   })
+  .then((result) => {
+    return { success: true }
+  })
   .catch((error) => {
     console.error(error);
     return { error: error.message };
@@ -58,5 +82,3 @@ async function deleteDepartment(previousState: any, formData: FormData) {
   revalidatePath("/dashboard/founder");
   return result;
 }
-
-export { createDepartment, deleteDepartment }

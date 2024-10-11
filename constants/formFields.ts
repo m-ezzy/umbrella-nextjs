@@ -5,7 +5,7 @@ export const university: any = [
     name: 'name',
   },
   {
-    label: "Name Acronym",
-    name: "name_acronym",
+    label: "Name Short",
+    name: "name_short",
   },
 ];

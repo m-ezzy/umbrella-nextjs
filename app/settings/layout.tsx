@@ -1,46 +1,22 @@
-import { ReactNode } from "react";
-import Sidebar from "@/components/ui/Sidebar";
-import MenuList from "@/components/ui/MenuList";
-import { auth } from "@/auth";
+import { ReactNode } from "react"
+import { auth } from "@/lib/auth"
+import { settingMenus } from "@/constants/menus"
+import Sidebar from "@/components/ui/basic/Sidebar"
+import MenuList from "@/components/ui/advanced/MenuList"
+import { redirect } from "next/navigation"
 
 export default async function Layout({ children }: { children: ReactNode }) {
-  const session:any = await auth();
-  // const menus: string[] = ["profile", "privacy", "security"];
-  const menus: any = [
-    {
-      name: "Account",
-      href: "/account",
-      icon: "person",
-    },
-    {
-      name: "Profile",
-      href: "/profile",
-      icon: "person",
-    },
-    {
-      name: "Privacy",
-      href: "/privacy",
-      icon: "privacy",
-    },
-    {
-      name: "Security",
-      href: "/security",
-      icon: "security",
-    },
-    {
-      name: "Notifications",
-      href: "/notifications",
-      icon: "notifications",
-    },
-  ];
+  const session = await auth()
+  if(!session) redirect("/login?next=/settings")
+
   return (
     <main className="h-full flex">
       {/* <Sidebar> */}
-        <MenuList menus={menus} pathSegment="/settings" pathPosition={2} />
+        <MenuList menus={settingMenus} pathSegment="/settings" pathPosition={2} />
       {/* </Sidebar> */}
       <div className="w-full overflow-auto">
         {children}
       </div>
     </main>
-  );
+  )
 }

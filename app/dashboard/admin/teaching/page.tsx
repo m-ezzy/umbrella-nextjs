@@ -1,6 +1,8 @@
-import TeachingCreate from '@/components/modules/teaching/TeachingCreate';
-import TeachingList from './TeachingList';
-import { prisma } from '@/lib/db';
+"use client"
+
+import prisma from "@/lib/prisma"
+import TeachingModal from '@/components/forms/TeachingForm'
+import TeachingList from '@/components/lists/TeachingList'
 
 export default async function Page({ params }: {params: { degree_id: string }}) {
   const division_courses = await prisma.division.findMany({
@@ -114,9 +116,9 @@ export default async function Page({ params }: {params: { degree_id: string }}) 
   // console.log(teaching[0].course);
 
   return (
-    <div className='w-full p-2 overflow-auto relative'>
-      <TeachingCreate division_courses={division_courses} professorsAll={professors} teaching={teaching} />
-      <TeachingList teaching={teaching} />
-    </div>
-  );
+    <>
+      <TeachingModal data={teaching} />
+      <TeachingList role="admin" data={teaching} />
+    </>
+  )
 }

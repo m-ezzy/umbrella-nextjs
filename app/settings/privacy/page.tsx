@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 
 export default async function Page() {
   const session:any = await auth();
@@ -7,9 +7,9 @@ export default async function Page() {
 
   return(
     <form className="p-2 block *:block">
-      <label htmlFor="">Google Email</label>
+      {/* <label htmlFor="">Google Email</label>
       <input type="text" placeholder="Google Email" defaultValue={user.google_email} />
-      <button className="mt-2">Update</button>
+      <button className="mt-2">Update</button> */}
     </form>
   );
 }

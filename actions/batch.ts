@@ -1,60 +1,44 @@
 "use server"
 
-import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/db";
+import { revalidatePath } from "next/cache"
+import { Prisma, batch } from "@prisma/client"
+import prisma from "@/lib/prisma"
+// import { batchSchema, batch } from "@/lib/data-schemas-zod"
 
-async function createBatch(previousState: any, formData: FormData) {
+export async function createBatch(syllabus_id: number, previousState: any, formData: FormData) {
+  console.log(typeof syllabus_id, previousState, formData)
+  
+  const params: any = Object.fromEntries(formData.entries())
+  
+  type FormErrors = Partial<Record<keyof batch, string[]>>
+
   let result: any = await prisma.batch.create({
     data: {
-      start_year: Number(formData.get("start_year")),
+      start_year: Number(params.start_year),
       finish_year: Number(formData.get("finish_year")),
       current_semester: Number(formData.get("current_semester")),
-      syllabus_id: Number(formData.get("syllabus_id")),
+      syllabus_id: syllabus_id,
     }
   })
-  .then((batch) => {
-    return { success: true }
-  })
-  .catch((error) => {
-    return { error: error.message }
-  });
+  .then((batch) => ({ success: true }) )
+  .catch((error) => ({ error: error.message }) );
 
   if(result.error == undefined) {
     revalidatePath("/dashboard/admin");
   }
   return result;
 }
-async function updateBatch(formData: FormData) {
-  const result = await prisma.batch.update({
-    data: {
-      year_started: Number(formData.get("year_started")),
-      year_ended: Number(formData.get("year_ended")),
-      current_semester: Number(formData.get("current_semester")),
-      syllabus_id: Number(formData.get("syllabus_id")),
-    },
-    where: {
-      id: Number(formData.get("batch_id"))
-    },
-  })
-  .catch((error) => {
-    return { error }
-  });
-
-  revalidatePath("/dashboard/admin");
-  return result;
+export async function updateBatch(previousState: any, formData: FormData) {
 }
-async function deleteBatch(formData: FormData) {
+export async function deleteBatch(previousState: any, formData: FormData) {
   const result = await prisma.batch.delete({
     where: {
-      id: Number(formData.get("batch_id"))
-    }
+      id: Number(formData.get("id")),
+    },
   })
-  .catch((error) => {
-    return { error }
-  });
+  .then((result) => ({ success: true, result }) )
+  .catch((error) => ({ error }) );
 
   revalidatePath("/dashboard/admin");
   return result;
 }
-
-export { createBatch, updateBatch, deleteBatch }

@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/db";
-import RoomGrid from "@/components/modules/attendance/RoomGridStudent";
+import prisma from "@/lib/prisma";
+import RoomGrid from "@/components/modules/RoomGridStudent";
 
 export default async function Page({ params }: any) {
   const session_id = 1; // 😂

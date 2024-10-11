@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+*/
+
+/* for google icons */
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 100,
+  'GRAD' -100,
+  'opsz' 24
+}
+
+/* .bg-primary {
+  background-color: #ac37ff;
+}
+.bg-secondary {
+  background-color: #ff0080;
+}
+.bg-tertiary {
+  background-color: #ff4d4d;
+} */
+
+/* .layout-dashboard > ul a {
+  background-color: blue;
+} */
+
+/* .grid-row-1441 {
+  grid-template-rows: repeat(1441, minmax(0, 1fr));
+} */
+
+@layer base {
+  h1 {
+    @apply text-4xl;
+  }
+  h2 {
+    @apply text-3xl;
+  }
+  h3 {
+    @apply text-2xl;
+  }
+  a {
+    /* @apply text-violet-600 hover:text-violet-400; */
+    @apply text-gray-700 hover:text-black;
+  }
+  a:hover {
+    /* @apply bg-white; */
+  }
+  button, button[type=submit], ::-webkit-file-upload-button {
+    @apply bg-transparent border rounded p-2 flex gap-1 justify-center justify-items-center align-middle text-center content-center items-center;
+    /* bg-violet-500 text-white */
+  }
+  button:hover, button:focus, ::-webkit-file-upload-button:hover {
+    @apply bg-black text-white; /* bg-violet-600 */
+
+  }
+  button[disabled] {
+    @apply bg-gray-400;
+  }
+  input[type], select, textarea {
+    @apply border rounded focus:border-black focus:ring-black;
+    /* @apply border-violet-400 rounded focus:border-violet-600 focus:ring-violet-600; */
+  }
+  option {
+  }
+  .border, .border-2, .border-4, .border-t, .border-b, .border-r, .border-l {
+    @apply border-gray-400; /* border-black border-violet-400 */
+  }
+  /* input:required {
+    @apply border-red-500;
+  } */
+
+  input[required], select[required] {
+    /* position: relative; */
+  }
+  input[required]::before, select[required]::before {
+    /* content: "*";
+    color: rgb(255, 95, 95);
+    position: absolute;
+    right: 0.2rem;
+    top: 0rem; */
+
+    /* background-image: radial-gradient(#F00 16%, transparent 16%), radial-gradient(#F00 16%, transparent 16%);
+    background-size: 1em 1em;
+    background-position: right top;
+    background-repeat: no-repeat; */
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .layout-dashboard > ul > a {
+    @apply grid grid-cols-1 text-center p-2 gap-0;
+  }
+}

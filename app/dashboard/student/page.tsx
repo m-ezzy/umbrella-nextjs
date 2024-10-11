@@ -1,7 +1,5 @@
-import StudentDashboard from "@/components/dashboards/StudentDashboard";
+import StudentDashboard from "@/components/dashboards/StudentDashboard"
 
-export default function Page() {
-  return (
-    <StudentDashboard />
-  );
+export default async function Page() {
+  return <StudentDashboard />
 }

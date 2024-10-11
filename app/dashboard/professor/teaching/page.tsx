@@ -1,9 +1,9 @@
-import TeachingList from './TeachingList';
-import { auth } from '@/auth';
-import { prisma } from '@/lib/db';
+// import TeachingList from '../../../../components/lists/TeachingListProfessor';
+import { auth } from '@/lib/auth';
+import prisma from "@/lib/prisma";
 
 export default async function Page({ params }: {params: { department_id: string }}) {
-  let session: any = await auth();
+  const session: any = await auth();
 
   let teaching: any = await prisma.teaching.findMany({
     select: {
@@ -33,7 +33,7 @@ export default async function Page({ params }: {params: { department_id: string 
                     select: {
                       degree_id: true,
                       degree_name: true,
-                      degree_name_acronym: true,
+                      degree_name_short: true,
                     },
                   },
                 },
@@ -52,7 +52,7 @@ export default async function Page({ params }: {params: { department_id: string 
 
   return (
     <div className='w-full p-2 overflow-auto'>
-      <TeachingList teaching={teaching} />
+      {/* <TeachingList teaching={teaching} /> */}
     </div>
   );
 }

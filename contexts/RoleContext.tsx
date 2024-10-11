@@ -1,23 +1,19 @@
 "use client"
-// import { createContext, PropsWithChildren, useContext, useState } from "react"
-import { PropsWithChildren, createContext, useState } from "react"
 
-export const RoleContext: any = createContext(null);
+import { PropsWithChildren, createContext, useContext, useState } from "react"
 
-// export function useRole() {
-//   return useContext(RoleContext)
+export const RoleContext: any = createContext(null)
 
-//   const role = useContext(RoleContext)
+export function useRole() {
+  // return useContext(RoleContext)
 
-//   if (role === undefined) {
-//     throw new Error("useRole must be used within a RoleProvider")
-//   }
-//   return role
-// }
-
-export function RoleProvider({ children }: PropsWithChildren<any>) {
-  const [role, setRole]: any = useState(null);
-
+  const role = useContext(RoleContext)
+  if (role === undefined) throw new Error("useRole must be used within a RoleProvider")
+  return role
+}
+export function RoleProvider({ children }: any) {
+  const [role, setRole] = useState(null)
+  
   return (
     <RoleContext.Provider value={{ role, setRole }}>
       {children}

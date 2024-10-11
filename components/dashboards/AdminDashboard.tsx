@@ -2,9 +2,9 @@
 import Link from "next/link";
 import { Chart } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
-import Charts from "@/components/charts/AdminCharts";
-import { prisma } from "@/lib/db";
-import { auth } from "@/auth";
+import AdminCharts from "@/components/charts/AdminCharts";
+import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 export default async function AdminDashboard() {
   const session: any = await auth();
@@ -72,9 +72,10 @@ export default async function AdminDashboard() {
   // const professor_sessions = await prisma
 
   return (
-    <div className="w-full p-2 overflow-auto">
+    <div className="p-2">
       <h1>Admin Dashboard</h1>
-      <Charts batchs={batchs} enrollments={[]} teaching={[]} />
+      <p>Something something admining</p>
+      <AdminCharts batchs={batchs} enrollments={[]} teaching={[]} />
     </div>
-  );
+  )
 }

@@ -1,10 +1,11 @@
 "use server";
-import { prisma } from '@/lib/db';
-import { auth } from '@/auth';
+
+import prisma from "@/lib/prisma";
+import { auth } from '@/lib/auth';
 import { deleteDepartment } from '@/actions/department';
-import ListTable from '@/components/ui/ListTable';
+import ListTable from '@/components/ui/advanced/ListTable';
 import ListWithFilters from '@/components/ui/ListWithFilters';
-import DeleteForm from '@/components/ui/DeleteForm';
+import DeleteForm from '@/components/ui/advanced/DeleteForm';
 
 export default async function DepartmentData({ filters, university }: any) {
   const session: any = await auth();
@@ -31,7 +32,7 @@ export default async function DepartmentData({ filters, university }: any) {
   const dataset: any = departments.map((department: any) => {
     return {
       "Name": department.name,
-      "Name Acronym": department.name_acronym,
+      "Name Short": department.name_short,
       "Delete": <DeleteForm id={department.id} serverAction={deleteDepartment} objectName="Department" />,
     };
   });

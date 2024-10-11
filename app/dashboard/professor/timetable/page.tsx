@@ -1,8 +1,8 @@
 // import { Session } from 'next-auth';
-import TimetableView from '@/components/modules/timetable/TimetableViewAll'
-import { auth } from '@/auth';
-import { prisma } from '@/lib/db';
-import SelectCourse from '@/components/selectors/course';
+import TimetableView from '@/components/modules/TimetableView'
+import { auth } from '@/lib/auth';
+import prisma from "@/lib/prisma";
+import SelectCourse from '@/components/selectors/CourseFilter';
 
 export default async function Page({ params }: { params: any }) {
   const session: any = await auth(); // type Session

@@ -1,13 +1,13 @@
-"use server"
+"use server";
 
-import { revalidatePath, revalidateTag } from "next/cache"
-import { auth } from "@/auth"
-import { prisma } from "@/lib/db"
-import { attendance_status, session_attendance } from "@prisma/client"
+import { revalidatePath, revalidateTag } from "next/cache";
+import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { attendance_status, session_attendance } from "@prisma/client";
 
-async function createAttendance(formData: FormData) {
-  // const session: any = await auth()
-  // const authorized: boolean = session.user.roles.student.enrollments.includes(formData.get("enrollment_id"))
+export async function createAttendance(previousState: any, formData: FormData) {
+  // const session: any = await auth();
+  // const authorized: boolean = session.user.roles.student.enrollments.includes(formData.get("enrollment_id"));
 
   const result: any = await prisma.session_attendance.create({
     // can this be done?
@@ -24,16 +24,16 @@ async function createAttendance(formData: FormData) {
   .catch((error: any) => {
     console.error(error)
     return { error: error }
-  })
+  });
 
   // this should be here or where the request was triggered from
   // revalidatePath("/dashboard")
 
-  revalidateTag("attendance")
+  revalidateTag("attendance");
 
-  return result
+  return result;
 }
-async function updateAttendance(formData: FormData) {
+export async function updateAttendance(previousState: any, formData: FormData) {
   const session: any = await auth();
 
   const data: any = {
@@ -55,7 +55,7 @@ async function updateAttendance(formData: FormData) {
     data: {
       position_row: parseInt(formData.get("position_row") as string),
       position_column: parseInt(formData.get("position_column") as string),
-      status: formData.get("status") as string,
+      // status: formData.get("status") as string,
     },
     where: {
       id: parseInt(formData.get("session_attendance_id") as string),
@@ -68,7 +68,7 @@ async function updateAttendance(formData: FormData) {
 
   return result
 }
-async function updateAttendancePosition(formData: FormData) {
+export async function updateAttendancePosition(previousState: any, formData: FormData) {
   const session: any = await auth()
 
   const result: any = await prisma.session_attendance.update({
@@ -89,7 +89,7 @@ async function updateAttendancePosition(formData: FormData) {
     },
   })
 }
-// async function updateAttendanceVerification(formData: FormData) {
+// export async function updateAttendanceVerification(formData: FormData) {
 //   const session: any = await auth();
 //   const result: any = await prisma.session_attendance.update({
 //     data: {
@@ -133,8 +133,7 @@ async function updateAttendancePosition(formData: FormData) {
 //     },
 //   },
 // }
-
-async function updateAttendanceStatus(previousState: any, formData: FormData) {
+export async function updateAttendanceStatus(previousState: any, formData: FormData) {
   const session: any = await auth()
 
   const result: any = await prisma.session_attendance.updateMany({
@@ -142,7 +141,7 @@ async function updateAttendanceStatus(previousState: any, formData: FormData) {
       status: attendance_status.present, // formData.get("status") as attendance_status // attendance_status[formData.get("status") as attendance_status]
     },
     where: {
-      session_id: parseInt(formData.get("session_id")),
+      session_id: parseInt(formData.get("session_id") as string),
       NOT: {
         position_row: null,
         position_column: null,
@@ -156,49 +155,50 @@ async function updateAttendanceStatus(previousState: any, formData: FormData) {
   revalidatePath(`/dashboard`)
   return result
 }
-async function createOrUpdateAttendancePosition(formData: FormData) {
-  const session: any = await auth()
+export async function createOrUpdateAttendancePosition(previousState: any, formData: FormData) {
+  const session: any = await auth();
 
-  const academicSession: any = await prisma.session.findUnique({
-    where: {
-      session_id: parseInt(formData.get("session_id")),
-    },
-  });
-  if(academicSession.open_for_attendance == false) { return { error: "Session is closed for attendance" } }
+  // const academicSession: any = await prisma.session.findUnique({
+  //   where: {
+  //     id: parseInt(formData.get("session_id") as string),
+  //   },
+  // });
+  // if(academicSession.open_for_attendance == false) { return { error: "Session is closed for attendance" } }
 
   // check if the row exists or not. if not then create it
   const session_attendance: any = await prisma.session_attendance.findUnique({
     where: {
-      session_id_user_id: {
-        user_id: session.user.id,
-        session_id: parseInt(formData.get("session_id")),
+      session_id_enrollment_id: {
+        enrollment_id: session.user.id,
+        session_id: parseInt(formData.get("session_id") as string),
+      },
+      session: {
+        open_for_attendance: true,
       },
     },
   })
 
   if (!session_attendance) {
-    await createAttendance(formData)
+    await createAttendance(previousState, formData)
   } else {
-    await updateAttendancePosition(formData)
+    await updateAttendancePosition(previousState, formData)
   }
 
   revalidatePath(`/dashboard`);
+  return { success: true }
 }
-async function deleteAttendance(formData: FormData) {
+export async function deleteAttendance(previousState: any, formData: FormData) {
   const result: any = await prisma.session_attendance.delete({
     where: {
-      session_id: parseInt(formData.get("session_id") as string),
-      enrollment_id: parseInt(formData.get("enrollment_id") as string),
+      session_id_enrollment_id: {
+        session_id: parseInt(formData.get("session_id") as string),
+        enrollment_id: parseInt(formData.get("enrollment_id") as string),
+      },
     },
   })
-  .catch((error: any) => {
-    console.error(error)
-    return { error: error }
-  })
+  .then((result: any) => ({ success: true }) )
+  .catch((error: any) => ({ error }) );
 
-  // revalidatePath(`/dashboard`)
-
-  return result
+  revalidatePath(`/dashboard`);
+  return result;
 }
-
-export { createAttendance, updateAttendance, updateAttendancePosition, updateAttendanceStatus, createOrUpdateAttendancePosition, deleteAttendance }

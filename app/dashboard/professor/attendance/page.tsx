@@ -1,5 +1,5 @@
-import { auth } from "@/auth";
-import { prisma } from "@/lib/db";
+import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 
 export default async function Page({ params }: any) {
   const session: any = await auth();

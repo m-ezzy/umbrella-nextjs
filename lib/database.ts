@@ -1,20 +1,20 @@
+// database.ts / db.ts
+
 import fs, { createReadStream } from 'fs';
-import { Pool } from 'mysql2';
 import * as csv from 'csv';
-// import mysql from 'mysql';
-// import { Connection } from 'mysql2';
-import mysql, { QueryError, Connection, ConnectionOptions } from 'mysql2/promise';
-// import { FieldInfo, MysqlError } from 'mysql';
+// import mysql, { FieldInfo, MysqlError } from 'mysql';
+// import { Connection, Pool } from 'mysql2';
+// import mysql, { QueryError, Connection, ConnectionOptions } from 'mysql2/promise';
 
-const connectionOptions: ConnectionOptions = {
-  host: process.env.DATABASE_HOST,
-  user: process.env.DATABASE_USERNAME,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE_NAME,
-  // waitForConnections: true,
-};
+// const connectionOptions: ConnectionOptions = {
+//   host: process.env.DATABASE_HOST,
+//   user: process.env.DATABASE_USERNAME,
+//   password: process.env.DATABASE_PASSWORD,
+//   database: process.env.DATABASE_NAME,
+//   // waitForConnections: true,
+// }
 
-const pool: any = mysql.createPool(connectionOptions)
+// const pool: any = mysql.createPool(connectionOptions)
 
 let csvFilesPath = `../Data/${process.env.UNIVERSITY_NAME}/csv/`;
 csvFilesPath = `C:/ProgramData/MySQL/MySQL Server 8.0/Uploads`;
@@ -138,35 +138,36 @@ let tableNames:any = [
 //     });
 //   });
 // };
-async function seedDatabase() { //seeder
-  // SELECT @@global.local_infile
-  // SET GLOBAL local_infile=1
-  // SET GLOBAL secure_file_priv="D:/Programming/Projects/Umbrella/Data/GLS University/csv"
 
-  for (const tableName of tableNames) {
-    try {
-      await seedTableFromCSV(tableName);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-  // console.log('All tables seeded'.bgGreen);
-}
+// async function seedDatabase() { //seeder
+//   // SELECT @@global.local_infile
+//   // SET GLOBAL local_infile=1
+//   // SET GLOBAL secure_file_priv="D:/Programming/Projects/Umbrella/Data/GLS University/csv"
 
-async function queryDatabase(query: string, values?: any[]) {
-  // console.log("database queried".bgYellow);
-  // const connection = await pool.getConnection();
+//   for (const tableName of tableNames) {
+//     try {
+//       await seedTableFromCSV(tableName);
+//     } catch (error) {
+//       console.error(error);
+//     }
+//   }
+//   // console.log('All tables seeded'.bgGreen);
+// }
 
-  let err: any;
-  const [rows, fields]: any = await pool.query(query, values)
-  .catch((error: any) => {
-    err = JSON.stringify(error);
-    console.error(error);
-  });
+// async function queryDatabase(query: string, values?: any[]) {
+//   // console.log("database queried".bgYellow);
+//   // const connection = await pool.getConnection();
 
-  // connection.release();
-  if (err) return { error: err }
-	return JSON.parse(JSON.stringify(rows));
-}
+//   let err: any;
+//   const [rows, fields]: any = await pool.query(query, values)
+//   .catch((error: any) => {
+//     err = JSON.stringify(error);
+//     console.error(error);
+//   });
 
-export { seedDatabase, queryDatabase };
+//   // connection.release();
+//   if (err) return { error: err }
+// 	return JSON.parse(JSON.stringify(rows));
+// }
+
+// export { seedDatabase, queryDatabase };

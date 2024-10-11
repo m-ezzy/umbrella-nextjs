@@ -1,7 +1,8 @@
-import TimetableUltimate from '@/components/modules/timetable/TimetableUltimate'
-import { prisma } from '@/lib/db';
+import prisma from '@/lib/prisma'
+import TimetableModal from '@/components/forms/TimetableForm'
+import TimetableView from '@/components/modules/TimetableView'
 
-export default async function Page({ params }: {params: { degree_id: string }}) {
+export default async function Page({ params, searchParams }: { params: any, searchParams: any }) {
   const roomData = await prisma.room.findMany({
     include: {
       floor: {
@@ -10,15 +11,10 @@ export default async function Page({ params }: {params: { degree_id: string }}) 
         },
       },
     },
-  });
-
+  })
   const teachingData = await prisma.teaching.findMany({
     include: {
-      course: {
-        include: {
-          syllabus_course: true,
-        },
-      },
+      course: true,
       division: {
         include: {
           batch: true,
@@ -26,27 +22,21 @@ export default async function Page({ params }: {params: { degree_id: string }}) 
       },
       professor: true,
     },
-    where: {
-      division: {
-        batch: {
-          syllabus: {
-            degree_id: parseInt(params.degree_id),
-          },
-        },
-      },
-    }
-  });
-  // console.log(teachingData);
-
+    // where: {
+    //   division: {
+    //     batch: {
+    //       syllabus: {
+    //         degree_id: parseInt(params?.degree_id),
+    //       },
+    //     },
+    //   },
+    // }
+  })
   const timetableData = await prisma.timetable.findMany({
     include: {
       teaching: {
         include: {
-          course: {
-            include: {
-              syllabus_course: true,
-            },
-          },
+          course: true,
           division: {
             include: {
               batch: true,
@@ -65,23 +55,22 @@ export default async function Page({ params }: {params: { degree_id: string }}) 
         },
       }
     },
-    where: {
-      teaching: {
-        division: {
-          batch: {
-            syllabus: {
-              degree_id: parseInt(params.degree_id),
-            },
-          },
-        },
-      },
-    },
-  });
-  // console.log(timetableData);
-
+    // where: {
+    //   teaching: {
+    //     division: {
+    //       batch: {
+    //         syllabus: {
+    //           degree_id: parseInt(params.degree_id),
+    //         },
+    //       },
+    //     },
+    //   },
+    // },
+  })
   return (
-    <div className='w-full overflow-auto'>
-      <TimetableUltimate roomData={roomData} teachingData={teachingData} timetableData={timetableData} />
-    </div>
-  );
+    <>
+      <TimetableModal />
+      <TimetableView data={timetableData} />
+    </>
+  )
 }

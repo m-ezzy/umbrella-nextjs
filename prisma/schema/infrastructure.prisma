@@ -1,0 +1,98 @@
+model campus {
+  id            Int    @id @default(autoincrement())
+  name          String @db.VarChar(100) //@unique(map: "UK_campus_name")
+  address       String @db.VarChar(255)
+  city          String @db.VarChar(100)
+  state         String @db.VarChar(100)
+  country       String @db.VarChar(100)
+  pincode       Int
+  gate_count    Int?   @default(1)
+  university_id Int
+
+  university university @relation(fields: [university_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_campus_university")
+
+  buildings building[]
+
+  @@unique([name, university_id], map: "UK_campus_name_university")
+  @@index([university_id], map: "INDX_campus_university")
+}
+
+model building {
+  id        Int    @id @default(autoincrement())
+  name      String @db.VarChar(255) //@unique(map: "UK_building_name")
+  // floor_count   Int?
+  campus_id Int
+
+  campus campus @relation(fields: [campus_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_building_campus")
+
+  // department department[]
+  floors floor[]
+  // libraries  library[]
+
+  @@unique([name, campus_id], map: "UK_building_name_campus")
+  @@index([campus_id], map: "INDX_building_campus")
+}
+
+model floor {
+  id          Int @id @default(autoincrement())
+  number      Int
+  // room_count   Int?
+  building_id Int
+
+  building building @relation(fields: [building_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_floor_building")
+
+  room room[]
+
+  @@unique([number, building_id], map: "UK_floor_number_building")
+  @@index([building_id], map: "INDX_floor_building")
+}
+
+model room {
+  id           Int        @id @default(autoincrement())
+  number       Int
+  type         room_type  @default(classroom)
+  shape        room_shape @default(rectangular)
+  capacity     Int?
+  row_count    Int?
+  column_count Int?
+  floor_id     Int
+
+  floor floor @relation(fields: [floor_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_room_floor")
+
+  sessions         session[]
+  timetables       timetable[]
+  exam_enrollments exam_enrollment[]
+
+  @@unique([number, floor_id], map: "UK_room_number_floor")
+  @@index([floor_id], map: "INDX_room_floor")
+}
+
+// model room_type {
+//   id   Int    @id @default(autoincrement())
+//   name String @db.VarChar(20)
+// }
+
+enum room_type {
+  admin_office
+  art
+  auditorium
+  canteen
+  conference
+  classroom
+  computer
+  lab
+  law
+  library
+  meeting
+  office
+  reading
+  store
+  utility
+  washroom
+}
+
+enum room_shape {
+  circular // full circle
+  curve // little curved section
+  rectangular // rectangle
+}

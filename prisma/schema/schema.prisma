@@ -1,0 +1,32 @@
+// main.prisma
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+generator markdown {
+  provider = "prisma-markdown"
+  output   = "../generates/ERD.md"
+  title    = "ER Diagram"
+}
+
+generator docs {
+  provider = "node node_modules/prisma-docs-generator"
+  output   = "../generates/docs"
+}
+
+generator fake_data {
+  provider = "prisma-generator-fake-data"
+  output   = "../generates/fake-data.ts"
+}
+
+generator zod {
+  provider = "zod-prisma-types"
+  output   = "../generates/zod"
+}

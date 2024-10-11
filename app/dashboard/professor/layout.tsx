@@ -1,13 +1,13 @@
-import { ReactNode } from 'react';
-import { redirect } from 'next/navigation';
-import Sidebar from '@/components/ui/Sidebar';
-import MenuList from '@/components/ui/MenuList';
-import { prisma } from '@/lib/db';
-import { auth } from '@/auth';
-import { professorMenus } from '@/constants/menus';
+import { ReactNode } from 'react'
+import { redirect } from 'next/navigation'
+import prisma from "@/lib/prisma"
+import { auth } from '@/lib/auth'
+import { getRoleMenus, professorMenus } from '@/constants/menus'
+import Sidebar from '@/components/ui/basic/Sidebar'
+import MenuList from '@/components/ui/advanced/MenuList'
 
 export default async function Layout({ children }: { children: ReactNode }) {
-  const session: any = await auth();
+  const session: any = await auth()
 
   const faculties: any = await prisma.faculty.findMany({
     include: {
@@ -22,18 +22,25 @@ export default async function Layout({ children }: { children: ReactNode }) {
     },
   })
   .catch((error: any) => {
-    return { error: error.message };
-  });
+    return { error }
+  })
 
   if(faculties.error) {
-    redirect('/dashboard');
+    redirect('/dashboard')
   }
+  if(faculties.length == 0) return <div>You're not employed in any department yet</div>
+  
   return (
     <div className="w-full h-full flex">
       <Sidebar>
-        <MenuList menus={professorMenus} pathSegment="/dashboard/professor" pathPosition={3} />
+        <MenuList menus={getRoleMenus("professor")} pathSegment="/dashboard/professor" pathPosition={3} />
       </Sidebar>
-      {children}
+      <div>
+        {/* FilterList */}
+        <div>
+          {children}
+        </div>
+      </div>
     </div>
-  );
+  )
 }

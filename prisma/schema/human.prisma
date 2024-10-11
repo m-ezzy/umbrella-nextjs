@@ -1,0 +1,83 @@
+// model manager { //university_manager
+//   id             Int        @id @default(autoincrement())
+//   date_appointed DateTime   @db.Date //date appointed
+//   date_end       DateTime?  @db.Date //date resigned
+//   university_id  Int
+//   user_id        Int
+//   university     university @relation(fields: [university_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_manager_university")
+//   user           user       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_manager_user")
+
+//   @@unique([university_id, user_id], map: "UK_manager_university_user")
+//   @@index([university_id], map: "INDX_manager_university")
+//   @@index([user_id], map: "INDX_manager_user")
+// }
+
+// model salary {
+//   id Int @id @default(autoincrement())
+// }
+
+// model staff {
+//   id      Int    @id
+//   role    String @db.VarChar(45)
+//   salary  Int
+//   user_id Int
+// }
+
+// model transaction {
+//   id Int @id @default(autoincrement())
+// }
+// model transaction_faculty {
+//   id         Int      @id @default(autoincrement())
+//   date       DateTime @db.Date
+//   amount     Int
+//   faculty_id Int
+//   faculty    faculty  @relation(fields: [faculty_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "FK_tf_faculty")
+
+//   @@index([faculty_id], map: "INDX_tf_faculty")
+// }
+
+// model transaction_student {
+//   id            Int        @id @default(autoincrement())
+//   enrollment_id Int
+//   date          DateTime   @db.Date
+//   amount        Int
+//   enrollment    enrollment @relation(fields: [enrollment_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ts_enrollment")
+
+//   @@index([enrollment_id], map: "INDX_ts_enrollment")
+// }
+
+model faculty {
+  id                Int                 @id @default(autoincrement())
+  designation       faculty_designation
+  date_join         DateTime?           @db.Date()
+  date_leave        DateTime?           @db.Date()
+  qualification     String?             @db.VarChar(50)
+  experience_years  Int?
+  specialization    String?             @db.VarChar(50)
+  research_interest String?             @db.VarChar(50)
+  department_id     Int
+  user_id           Int
+
+  department department @relation(fields: [department_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_faculty_department")
+  user       user       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_faculty_user")
+
+  // transactions      transaction_faculty[]
+
+  @@index([department_id], map: "INDX_faculty_department")
+  @@index([user_id], map: "INDX_faculty_user")
+}
+
+enum faculty_designation {
+  dean
+  head
+  assistant_professor @map("assistant professor")
+  associate_professor @map("associate professor")
+  librarian
+  clerk
+  // lecturer
+  professor
+  // director
+  // principal
+  // vice_chancellor
+  // chancellor
+}

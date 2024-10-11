@@ -1,0 +1,60 @@
+//academic_session //class_session //lecture
+model session {
+  id                  Int          @id @default(autoincrement())
+  open_for_attendance Boolean      @default(false) @db.TinyInt() // status_attendance // open_for_attendance
+  // status              String               // cancelled, postponed, rescheduled, delayed, on-time, started, ended, completed
+  type                session_type @default(lecture)
+  // ways to store date and time:   1. start_date, start_time, duration   2. start_datetime, end_datetime   3. start_datetime, duration
+  start_time          DateTime     @db.DateTime()
+  end_time            DateTime     @db.DateTime()
+  teaching_id         Int
+  room_id             Int
+
+  teaching teaching @relation(fields: [teaching_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_session_teaching")
+  room     room     @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_session_room")
+
+  attendances session_attendance[]
+
+  @@unique([start_time, teaching_id], map: "UK_session_starttime_teaching")
+  @@index([teaching_id], map: "INDX_session_teaching")
+  @@index([room_id], map: "INDX_session_room")
+}
+
+model session_attendance {
+  id              Int                @id @default(autoincrement())
+  position_row    Int?
+  position_column Int?
+  status          attendance_status? @default(pending)
+  // verified        Boolean            @db.TinyInt() @default(false) //approved
+  session_id      Int
+  enrollment_id   Int
+
+  session    session    @relation(fields: [session_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_sa_session")
+  enrollment enrollment @relation(fields: [enrollment_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_sa_enrollment")
+
+  @@unique([session_id, enrollment_id], map: "UK_sa_session_enrollment")
+  @@unique([session_id, position_row, position_column], map: "UK_sa_session_position")
+  @@index([session_id], map: "INDX_sa_session")
+  @@index([enrollment_id], map: "INDX_sa_enrollment")
+}
+
+enum session_type {
+  lecture
+  lab
+  tutorial
+  practical
+  seminar
+  workshop
+  conference
+}
+
+enum attendance_status {
+  pending
+  present
+  absent
+  late //tardy
+  leave
+  // holiday
+  // excused absence
+  // unexcused absence
+}

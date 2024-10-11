@@ -1,15 +1,36 @@
-"use client";
-import { Suspense } from 'react';
-import { createDepartment, deleteDepartment } from '@/actions/department';
-import { useFounderContext } from '@/contexts/FounderContext';
-import CreateForm from '@/components/ui/CreateForm';
-import DepartmentData from './DepartmentData';
+"use client"
+
+import { Suspense, useEffect, useState } from 'react'
+import { useFormState } from 'react-dom'
+import { getDepartments, createDepartment, deleteDepartment } from '@/actions/department'
+import { useFounderContext } from '@/contexts/FounderContext'
+import CreateForm from '@/components/ui/advanced/CreateForm'
+import DepartmentData from './DepartmentData'
+import { TableSkeleton } from '@/components/ui/basic/skeletons'
+import ListTable from '@/components/ui/advanced/ListTable'
 
 export default function Page({ data }: any) {
-  const { filters, setFilters }: any = useFounderContext();
-  console.log(filters);
+  // const [value, setValue]: any = useState(undefined)
+  const { filters, setFilters }: any = useFounderContext()
+  const [departmentData, setDepartmentData]: any = useState([])
+  const [state, dispatch, isPending]: any = useFormState(getDepartments, null)
 
-  const selectedUniversity = filters.find((filter: any) => filter.name === 'University')?.options.find((option: any) => option.selected);
+  const selectedUniversity = filters.find((filter: any) => filter.name === 'University')?.options.find((option: any) => option.selected)
+
+  // useEffect(() => {
+  //   setValue({ filters, selectedUniversity });
+  // }, []);
+
+  useEffect(() => {
+    const fetcher = async () => {
+      const fd = new FormData()
+      fd.append('filters', JSON.stringify(filters))
+      fd.append('selectedUniversity', JSON.stringify(selectedUniversity))
+      const result: any = await getDepartments(state, fd)
+      setDepartmentData((prev: any) => result.data)
+    }
+    fetcher()
+  }, [])
 
   const createFormFields: any[] = [
     // {
@@ -19,10 +40,9 @@ export default function Page({ data }: any) {
     //   options: filters[0].options,
     // },
     {
-      type: 'number',
+      type: 'hidden',
       label: 'University',
       name: 'university_id',
-      hidden: true,
       defaultValue: selectedUniversity?.value,
     },
     {
@@ -39,21 +59,24 @@ export default function Page({ data }: any) {
     },
     {
       type: 'text',
-      label: 'Name Acronym',
-      name: 'name_acronym',
+      label: 'Name Short',
+      name: 'name_short',
     },
-  ];
+  ]
 
-  const createButtonDisabled = selectedUniversity ? false : true;
+  const createButtonDisabled = selectedUniversity ? false : true
 
   return (
-    <div className='h-full p-2 space-y-2 overflow-y-auto'>
-      <CreateForm fields={createFormFields} serverAction={createDepartment} objectName='Department' disabled={createButtonDisabled} />
-      <Suspense fallback={<div>Loading department list...</div>}>
-        <DepartmentData filters={filters} university={selectedUniversity} />
-      </Suspense>
-      {/* <ListTable data={dataset} /> */}
+    <>
+      <CreateForm fields={createFormFields} serverAction={createDepartment} objectName='Department' buttonDisabled={createButtonDisabled} />
+      {/* {value !== undefined && ( */}
+        {/* <Suspense fallback={<TableSkeleton columns={4} />} > */}
+          {/* <DepartmentData filters={filters} university={selectedUniversity} /> */}
+          {/* <DepartmentData {...value} /> */}
+        {/* </Suspense> */}
+      {/* )} */}
+      {departmentData ? <ListTable data={departmentData} /> : <TableSkeleton columns={4} />}
       {/* <ListWithFilters dataset={founderUniversity} id_column='id' /> */}
-    </div>
-  );
+    </>
+  )
 }

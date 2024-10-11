@@ -1,6 +1,6 @@
 "use client";
 import { useFounderContext } from "@/contexts/FounderContext";
-import FilterList from "@/components/ui/FilterList";
+import FilterList from "@/components/ui/advanced/FilterList";
 
 export default function FounderFilters({ data }: any) {
   const { currentMenu, setCurrentMenu, filters, setFilters }: any = useFounderContext();

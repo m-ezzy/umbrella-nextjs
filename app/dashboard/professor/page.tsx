@@ -1,8 +1,5 @@
+import ProfessorDashboard from "@/components/dashboards/ProfessorDashboard"
 
-export default function Page() {
-  return (
-    <div className="p-2">
-      <h1>Professor Dashboard</h1>
-    </div>
-  );
+export default async function Page() {
+  return <ProfessorDashboard />
 }

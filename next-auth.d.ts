@@ -23,14 +23,14 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: number
-      username?: string
-      email?: string
-      contact_no?: string
-      name_prefix?: string
-      name_first?: string
-      name_middle?: string
-      name_last?: string
-      profile_picture_url?: string
+      // username?: string
+      // email?: string
+      // contact_no?: string
+      // name_prefix?: string
+      // name_first?: string
+      // name_middle?: string
+      // name_last?: string
+      // profile_picture_url?: string
     },
     expires: string
   }
@@ -48,8 +48,8 @@ declare global {
     export interface ProcessEnv {
       AUTH_PATH: string
       AUTH_SECRET: string
-      // AUTH_GOOGLE_ID: string
-      // AUTH_GOOGLE_SECRET: string
+      AUTH_GOOGLE_ID: string
+      AUTH_GOOGLE_SECRET: string
       // UNIVERSITY_NAME: string
 		}
 	}

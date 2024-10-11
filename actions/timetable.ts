@@ -1,55 +1,61 @@
 "use server";
+
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/db";
+import prisma from "@/lib/prisma";
 import { timetable_weekday } from "@prisma/client";
 
-async function createTimetable(formData: FormData) {
+export async function createTimetable(previousState: any, formData: FormData) {
   const result: any = await prisma.timetable.create({
     data: {
       teaching_id: Number(formData.get("teaching_id")),
       weekday: formData.get("weekday") as keyof typeof timetable_weekday, // timetable_weekday[formData.get("weekday") as keyof typeof timetable_weekday],
-      time_start: "1970-01-01T" + formData.get("time_start") + ":00.000Z",
-      time_end: "1970-01-01T" + formData.get("time_end") + ":00.000Z",
+      start_time: "1970-01-01T" + formData.get("start_time") + ":00.000Z",
+      end_time: "1970-01-01T" + formData.get("end_time") + ":00.000Z",
       room_id: Number(formData.get("room_id")),
     }
   })
+  .then((result) => {
+    return { success: true }
+  })
   .catch((error) => {
-    console.error("createTimetable error", error);
-    return { error: error.code }
+    return { error: error.message }
   });
 
   revalidatePath("/dashboard/admin");
-
   return result;
 }
-async function updateTimetable(formData: FormData) {
-  //
+export async function updateTimetable(previousState: any, formData: FormData) {
 }
-async function deleteTimetable(formData: FormData) {
-  const result:any = await prisma.timetable.delete({
+export async function deleteTimetable(previousState: any, formData: FormData) {
+  const result: any = await prisma.timetable.delete({
     where: {
-      timetable_id: Number(formData.get("timetable_id"))
+      id: Number(formData.get("id"))
     }
+  })
+  .then((result) => {
+    return { success: true }
+  })
+  .catch((error) => {
+    return { error: error.message }
   });
   revalidatePath("/dashboard/admin");
+  return result;
 }
 
-async function actionTimetable(previousState: any, formData: FormData) {
+export async function actionTimetable(previousState: any, formData: FormData) {
   let result;
-
+  
   switch (formData.get("action")) {
     case "create":
-      result = await createTimetable(formData);
+      result = await createTimetable(previousState, formData);
       break;
     case "update":
-      await updateTimetable(formData);
+      result = await updateTimetable(previousState, formData);
       break;
     case "delete":
-      await deleteTimetable(formData);
+      result = await deleteTimetable(previousState, formData);
       break;
   }
 
   return result;
 }
-
-export { createTimetable, updateTimetable, deleteTimetable, actionTimetable }

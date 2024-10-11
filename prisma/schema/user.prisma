@@ -1,0 +1,50 @@
+model user {
+  id                  Int          @id @default(autoincrement())
+  username            String?      @unique(map: "UK_user_username") @db.VarChar(50)
+  password            String       @db.VarChar(50)
+  contact_no          String?      @unique(map: "UK_user_contact_no") @db.VarChar(20) //contact phone mobile
+  email               String?      @unique(map: "UK_user_email") @db.VarChar(50) //primary_email
+  // google_email        String?      @unique(map: "UK_user_google_email") @db.VarChar(50)
+  // github_username     String?      @unique(map: "UK_user_github_username") @db.VarChar(50)
+  name_prefix         String?      @db.VarChar(50)
+  name_first          String       @db.VarChar(50)
+  name_middle         String?      @db.VarChar(50)
+  name_last           String?      @db.VarChar(50) //name_sur
+  name_suffix         String?      @db.VarChar(50)
+  gender              user_gender?
+  date_of_birth       DateTime?    @db.Date
+  profile_picture_url String?      @db.VarChar(255)
+  ///FAKE:{notificationsEnabled: faker.datatype.boolean(), preferredColor: faker.color.rgb()}
+  // settings            Json?        @db.Json
+  // created_at          DateTime     @default(now()) @db.DateTime
+
+  // auth_sessions auth_session[]
+  universities university[]
+  // managers     manager[]
+  admins       admin[]
+  faculties    faculty[]
+  teachings    teaching[]
+  admissions   admission[]
+  enrollments  enrollment[]
+  // book_transactions book_transaction[]
+}
+
+// model auth_session {
+//   id      Int    @id
+//   value   String @db.VarChar(255)
+//   user_id Int
+
+//   user    user   @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_auth_session_user")
+// }
+
+/// level roles permissions role_permissions user_role
+// model level {
+//   id Int @id
+// }
+
+//sex //gender //UserGender
+enum user_gender {
+  M //Male
+  F //Female
+  O //Other
+}

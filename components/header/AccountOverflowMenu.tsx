@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { prisma } from "@/lib/db";
-import { auth } from "@/auth";
+import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 export default async function AccountOverflowMenu() {
   const session: any = await auth();

@@ -1,8 +1,9 @@
-"use server"
-import { revalidatePath } from "next/cache"
-import { prisma } from "@/lib/db"
+"use server";
 
-async function createEnrollment(previousState: any, formData: FormData) {
+import { revalidatePath } from "next/cache";
+import prisma from "@/lib/prisma";
+
+export async function createEnrollment(previousState: any, formData: FormData) {
   let result = await prisma.enrollment.create({
     data: {
       enrollment_number: Number(formData.get("enrollment_number")),
@@ -14,23 +15,21 @@ async function createEnrollment(previousState: any, formData: FormData) {
   })
   .catch((error) => {
     return { error: error }
-  })
+  });
 
-  revalidatePath("/dashboard/admin")
-  return result
+  revalidatePath("/dashboard/admin");
+  return result;
 }
-async function deleteEnrollment(formData: FormData) {
+export async function deleteEnrollment(previousState: any, formData: FormData) {
   let result = await prisma.enrollment.delete({
     where: {
-      enrollment_id: Number(formData.get("enrollment_id"))
-    }
+      id: Number(formData.get("id")),
+    },
   })
   .catch((error) => {
     return { error: error }
-  })
+  });
 
-  revalidatePath("/dashboard/admin")
-  return result
+  revalidatePath("/dashboard/admin");
+  return result;
 }
-
-export { createEnrollment, deleteEnrollment }

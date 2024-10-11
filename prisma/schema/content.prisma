@@ -1,0 +1,101 @@
+model syllabus {
+  id                 Int     @id @default(autoincrement())
+  code               String? @db.VarChar(20) //@unique(map: "UK_syllabus_code")
+  // year_created       Int
+  year_effective     Int
+  // year_retired       Int?
+  duration_years     Int // one could also have 3 semesters in a year
+  duration_semesters Int
+  deleted            Boolean @default(false)
+  degree_id          Int
+
+  degree degree @relation(fields: [degree_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_syllabus_degree")
+
+  courses course[]
+  batches batch[]
+
+  @@unique([degree_id, year_effective], map: "UK_syllabus_degree_year")
+  @@unique([degree_id, code], map: "UK_syllabus_degree_code")
+  @@index([degree_id], map: "INDX_syllabus_degree")
+}
+
+//has materials by professors
+model course {
+  id          Int              @id @default(autoincrement())
+  code        String?          @db.VarChar(50) // @unique(map: "UK_course_code")
+  name        String           @db.VarChar(100)
+  name_short  String           @db.VarChar(20)
+  type        course_type
+  category    course_category?
+  credits     Int //weightage
+  semester    Int
+  // year_created Int
+  // description  String?         @db.VarChar(255)
+  deleted     Boolean @default(false)
+  syllabus_id Int
+
+  syllabus syllabus @relation(fields: [syllabus_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_course_syllabus")
+
+  chapters  chapter[]
+  // books     book_course[]
+  resources course_resource[]
+  divisions division[]
+  teachings teaching[]
+  exams     exam[]
+  results   result[]
+
+  @@unique([syllabus_id, name], map: "UK_course_syllabus_name")
+  @@unique([syllabus_id, name_short], map: "UK_course_syllabus_ns")
+  @@unique([syllabus_id, code], map: "UK_course_syllabus_code")
+  @@index([syllabus_id], map: "INDX_course_syllabus")
+}
+
+// model syllabus_course {
+//   id          Int @id @default(autoincrement())
+//   syllabus_id Int
+//   course_id   Int
+//   semester    Int
+//   credits     Int
+// }
+
+// unit module course_part
+model chapter {
+  id          Int     @id @default(autoincrement())
+  number      Int
+  title       String? @db.VarChar(50)
+  description String? @db.VarChar(100)
+  topics      String? @db.VarChar(255) // overview and listout of topics covered in this chapter of the course
+  weightage   Int?
+  course_id   Int
+
+  course course @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_chapter_course")
+
+  @@index([course_id], map: "INDX_chapter_course")
+}
+
+// material resource content
+model course_resource {
+  id        Int    @id @default(autoincrement())
+  title     String @db.VarChar(50)
+  url       String @db.VarChar(255)
+  type      String @db.VarChar(20) // book, video, pdf, doc, ppt, image, audio, link
+  // book_id   Int?
+  course_id Int
+
+  course course @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_course_resource_course")
+
+  @@index([course_id], map: "INDX_course_resource_course")
+}
+
+enum course_category {
+  core //mandatory
+  elective
+  project
+  MOOC
+  foundation
+}
+
+enum course_type {
+  theory
+  practical
+}

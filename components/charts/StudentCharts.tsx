@@ -1,9 +1,11 @@
-"use client";
-import { CategoryScale, Chart } from "chart.js/auto";
-import { Line, Pie, Scatter } from "react-chartjs-2";
+"use client"
 
-Chart.register(CategoryScale);
+import { CategoryScale, Chart } from "chart.js/auto"
+import { Bar, Bubble, Chart as ReactChart, ChartProps, Doughnut, Line, Pie, PolarArea, Radar, Scatter } from "react-chartjs-2"
 
+Chart.register(CategoryScale)
+
+// attendance metrics
 export function AttendanceMetrics({ session_attendance }: any) {
   return (
     <div className="border size-1/6">
@@ -28,6 +30,31 @@ export function AttendanceMetrics({ session_attendance }: any) {
   );
 }
 
-// marks metrics
-
 // assignments completed vs pending
+
+// exam marks performance
+export function ExamMarksMetrics({ exam_marks, course_id }: any) {
+  return (
+    <div className="border">
+      <Bar
+        data={{
+          labels: exam_marks.map((item: any) => item.student_id),
+          datasets: [
+            {
+              label: "Marks",
+              data: exam_marks.map((item: any) => item.marks),
+              backgroundColor: "#3e95cd",
+            },
+          ],
+        }}
+        options={{
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        }}
+      />
+    </div>
+  )
+}

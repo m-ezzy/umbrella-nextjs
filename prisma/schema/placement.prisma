@@ -1,0 +1,40 @@
+// model company {
+//   id          Int     @id @default(autoincrement())
+//   name        String  @unique(map: "UK_company_name") @db.VarChar(50)
+//   description String? @db.VarChar(255)
+//   logo_url    String? @db.VarChar(255)
+  
+//   placements placement[]
+// }
+
+// model placement {
+//   id         Int      @id @default(autoincrement())
+//   drive_date DateTime //visit_date
+//   created_at DateTime @default(now()) @db.DateTime
+//   updated_at DateTime @updatedAt @db.DateTime
+//   batch_id   Int
+//   company_id Int
+
+//   batch   batch   @relation(fields: [batch_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_placement_batch")
+//   company company @relation(fields: [company_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_placement_company")
+// }
+
+// model placement_enrollment {
+//   id           Int @id @default(autoincrement())
+//   placement_id Int
+//   student_id   Int
+//   // created_at  DateTime     @default(now()) @db.DateTime
+
+//   placement placement @relation(fields: [placement_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_placement_enrollment_placement")
+//   student   student   @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_placement_enrollment_student")
+// }
+
+// model rounds {
+//   id           Int     @id @default(autoincrement())
+//   placement_id Int
+//   title        String  @db.VarChar(50)
+//   description  String? @db.VarChar(255)
+//   // created_at  DateTime     @default(now()) @db.DateTime
+
+//   placement placement @relation(fields: [placement_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_rounds_placement")
+// }

@@ -1,0 +1,85 @@
+// model library {
+//   id            Int            @id @default(autoincrement())
+//   name          String?        @unique(map: "UK_library_name") @db.VarChar(45)
+//   department_id Int
+//   building_id   Int?
+//   department    department     @relation(fields: [department_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_library_department")
+//   buildings     building?      @relation(fields: [building_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_library_building")
+//   books         library_book[]
+
+//   @@index([building_id], map: "INDX_library_building")
+//   @@index([department_id], map: "INDX_library_department")
+// }
+
+// model author {
+//   id    Int           @id @default(autoincrement())
+//   name  String        @db.VarChar(30)
+//   books author_book[]
+// }
+
+// model book {
+//   id             Int                 @id
+//   name           String              @db.VarChar(30)
+//   brn_id         Int?
+//   price          Int?
+//   ISBN           String?             @db.VarChar(30)
+//   publisher      String?             @db.VarChar(30)
+//   published_date DateTime?           @db.Date
+//   edition        Int?
+//   language       String?             @db.VarChar(30)
+//   copies         Int?
+//   authors        author_book[]
+//   courses        book_course[]
+//   transactions   book_transaction[]
+//   libraries      library_book[]
+// }
+
+// model author_book {
+//   book_id   Int
+//   author_id Int
+//   book      book   @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_author_book_book")
+//   author    author @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_author_book_author")
+
+//   @@id([book_id, author_id])
+//   @@unique([book_id, author_id], map: "book_author_UNIQUE")
+//   @@index([author_id], map: "author_id")
+//   @@index([book_id], map: "book_id_idx")
+// }
+
+// model library_book {
+//   id         Int       @id @unique(map: "id_UNIQUE") @default(autoincrement())
+//   library_id Int
+//   book_id    Int
+//   copies     Int?      @default(0)
+//   date_added DateTime? @db.Date
+//   library    library   @relation(fields: [library_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_lb_library")
+//   book       book      @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_lb_book")
+
+//   @@unique([library_id, book_id], map: "UNIQUE_lb_library_book")
+//   @@index([book_id], map: "INDX_lb_book")
+// }
+
+// model book_course {
+//   book_id   Int
+//   course_id Int
+//   book      book   @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_book_course_book")
+//   course    course @relation(fields: [course_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_book_course_course")
+
+//   @@id([book_id, course_id])
+//   @@index([course_id], map: "INDX_book_course_course")
+// }
+
+// model book_transaction { //book_transaction //book_issue_return
+//   id                   Int       @id
+//   issue_date           DateTime? @db.Date
+//   supposed_return_date DateTime? @db.Date
+//   actual_return_date   DateTime? @db.Date
+//   fine                 Int?
+//   book_id              Int?
+//   user_id              Int?
+//   book                 book?     @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "book_issue_return_ibfk_2")
+//   user                 user?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "book_issue_return_ibfk_1")
+
+//   @@index([book_id], map: "book_transaction_book_idx")
+//   @@index([user_id], map: "book_transaction_user_idx")
+// }

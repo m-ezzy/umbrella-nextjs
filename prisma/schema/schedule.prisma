@@ -1,0 +1,49 @@
+model teaching {
+  id           Int  @id @default(autoincrement())
+  batch_id     Int?
+  division_id  Int?
+  course_id    Int
+  professor_id Int // IMPORTANT! why don't you use faculty_id here? it would be much easier to get professor details then
+
+  batch     batch?    @relation(fields: [batch_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_teaching_batch")
+  division  division? @relation(fields: [division_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_teaching_division")
+  course    course    @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_teaching_course")
+  professor user      @relation(fields: [professor_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_teaching_professor")
+
+  assignments assignment[]
+  timetables  timetable[]
+  sessions    session[]
+
+  @@unique([batch_id, division_id, course_id, professor_id], map: "UK_teaching_bdcp")
+  @@index([batch_id], map: "INDX_teaching_batch")
+  @@index([division_id], map: "INDX_teaching_division")
+  @@index([course_id], map: "INDX_teaching_course")
+  @@index([professor_id], map: "INDX_teaching_professor")
+}
+
+model timetable {
+  id          Int               @id @default(autoincrement())
+  weekday     timetable_weekday
+  start_time  DateTime          @db.Time(0)
+  end_time    DateTime          @db.Time(0)
+  // duration     DateTime         @db.Time(0)
+  teaching_id Int
+  room_id     Int
+
+  teaching teaching @relation(fields: [teaching_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_timetable_teaching")
+  room     room     @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_timetable_room")
+
+  @@unique([weekday, start_time, teaching_id], map: "UK_timetable_wstt")
+  @@index([teaching_id], map: "INDX_timetable_teaching")
+  @@index([room_id], map: "INDX_timetable_room")
+}
+
+enum timetable_weekday {
+  monday
+  tuesday
+  wednesday
+  thursday
+  friday
+  saturday
+  sunday
+}

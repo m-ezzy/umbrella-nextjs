@@ -1,13 +1,14 @@
-"use server";
-import path from "path";
-import fs from "fs/promises";
-import { NextRequest, NextResponse } from "next/server";
-import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
-import { auth, update } from "@/auth";
-import { prisma } from "@/lib/db";
+"use server"
 
-async function createUser(formData: FormData) {
+import path from "path"
+import fs from "fs/promises"
+import { NextRequest, NextResponse } from "next/server"
+import { redirect } from "next/navigation"
+import { revalidatePath } from "next/cache"
+import { auth, update } from "@/lib/auth"
+import prisma from "@/lib/prisma"
+
+export async function createUser(previousState: any, formData: FormData) {
   const result:any = await prisma.user.create({
     data: {
       username: formData.get("username") as string,
@@ -29,7 +30,7 @@ async function createUser(formData: FormData) {
   // return NextResponse.redirect("/account/personal");
   // redirect("/account/personal");
 }
-async function updateUser(formData: FormData) {
+export async function updateUser(formData: FormData) {
   const session: any = await auth()
   const user_id = session.user.id
 
@@ -47,22 +48,20 @@ async function updateUser(formData: FormData) {
       email: formData.get("primary_email") as string,
     },
   })
-  .catch((error: any) => {
-    return { error: error.message, status: 400 }
-  });
-
-  return { result }
+  .then((data: any) => ({ data }) )
+  .catch((error: any) => ({ error: error.message, status: 400 }) );
+  return result;
 }
-async function updateUserProfilePicture(formData: FormData) {
+export async function updateUserProfilePicture(formData: FormData) {
   const fileField: File | null = formData.get("profile_picture") as unknown as File;
   if (!fileField) {
-    return { error: "no file was provided", status: 400 }
+    return { error: "No file was provided", status: 400 }
   }
 
   const file = fileField as File
   console.log(`File name: ${file.name} Content-Length: ${file.type}`.bgMagenta)
 
-  const session: any = await auth()
+  const session: any = await auth();
 
   const destinationPath = path.join(process.cwd(), `/public/data/user/profile_pictures/${file.name}`)
   // if (!path.existsSync(destinationPath)) {
@@ -76,7 +75,9 @@ async function updateUserProfilePicture(formData: FormData) {
   //delete the old file
   if(formData.get("old_profile_picture") != "") {
     const oldFile = path.join(process.cwd(), `/public/data/user/profile_pictures/${formData.get("old_profile_picture")}`)
-    await fs.rm(oldFile)
+    let result = await fs.rm(oldFile).catch((error: any) => {
+      return { error: error.message }
+    })
   }
 
   // update the user profile picture url in the database
@@ -88,13 +89,13 @@ async function updateUserProfilePicture(formData: FormData) {
   })
   .catch((error: any) => {
     return { error: error.message, status: 400 }
-  });
+  })
 
-  revalidatePath("/account/personal")
+  revalidatePath("/settings/account")
 
-  return { result }
+  return result
 }
-async function deleteAccount(formData: FormData) {
+export async function deleteAccount(previousState: any, formData: FormData) {
   const session: any = await auth();
   const user_id = session.user.id;
 
@@ -112,5 +113,3 @@ async function deleteAccount(formData: FormData) {
   redirect("/");
   // return { result }
 }
-
-export { createUser, updateUser, updateUserProfilePicture, deleteAccount }

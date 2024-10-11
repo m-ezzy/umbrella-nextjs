@@ -1,4 +1,5 @@
+import { ObjectPageSkeleton } from "@/components/ui/basic/skeletons"
 
-export default async function Loading() {
-  return <div>Loading...</div>
+export default function Loading() {
+  return <ObjectPageSkeleton />
 }

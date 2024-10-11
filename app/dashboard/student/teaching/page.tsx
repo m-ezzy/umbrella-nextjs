@@ -1,34 +1,35 @@
-import TeachingList from './TeachingList';
-import { auth } from '@/auth';
-import { prisma } from '@/lib/db';
+import prisma from "@/lib/prisma"
+import { auth } from '@/lib/auth'
+import TeachingList from '@/components/lists/TeachingList'
 
-export default async function Page({ params }: {params: { enrollment_id: string }}) {
-  let session: any = await auth();
+// export default async function Page({ params }: {params: { enrollment_id: string }}) {
+export default async function Page() {
+  const session: any = await auth()
 
-  let teaching: any = await prisma.teaching.findMany({
+  let data: any = await prisma.teaching.findMany({
     include: {
-      course: {
-        include: {
-          syllabus_course: true,
-        },
-      },
+      batch: true,
+      division: true,
+      course: true,
       professor: true,
     },
     where: {
       division: {
         enrollments: {
           some: {
-            enrollment_id: parseInt(params.enrollment_id),
+            user_id: session.user.id,
           },
         },
       },
     },
-  });
-  // console.log(teaching);
-
+  })
+  .catch((error) => {
+    console.error(error)
+    return []
+  })
   return (
-    <div className='w-full p-2 overflow-auto'>
-      <TeachingList teaching={teaching} />
-    </div>
-  );
+    <>
+      <TeachingList role="student" data={data} />
+    </>
+  )
 }

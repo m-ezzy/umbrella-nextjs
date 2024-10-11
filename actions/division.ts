@@ -1,37 +1,43 @@
 "use server";
-import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/db";
 
-async function createDivision(formData: FormData) {
+import { revalidatePath } from "next/cache";
+import prisma from "@/lib/prisma";
+
+export async function createDivision(previousState: any, formData: FormData) {
   const result = await prisma.division.create({
     data: {
+      name: String(formData.get("name")),
       batch_id: Number(formData.get("batch_id")),
-      division_name: String(formData.get("division_name")),
     }
   })
-  .catch((error) => {
-    console.error("Error creating division", error);
-  });
+  .then((result) => ({ success: true }) )
+  .catch((error) => ({ error: error.message }) );
+
   revalidatePath("/dashboard/admin");
+  return result;
 }
-async function updateDivision(formData: FormData) {
+export async function updateDivision(previousState: any, formData: FormData) {
   const result = await prisma.division.update({
     data: {
-      division_name: String(formData.get("division_name")),
+      name: String(formData.get("division_name")),
     },
     where: {
-      division_id: Number(formData.get("division_id"))
+      id: Number(formData.get("division_id")),
     },
   });
+
   revalidatePath("/dashboard/admin");
+  return result;
 }
-async function deleteDivision(formData: FormData) {
+export async function deleteDivision(previousState: any, formData: FormData) {
   const result = await prisma.division.delete({
     where: {
-      division_id: Number(formData.get("division_id"))
-    }
-  });
+      id: Number(formData.get("id")),
+    },
+  })
+  .then((result) => ({ success: true }) )
+  .catch((error) => ({ error: error.message }) );
+
   revalidatePath("/dashboard/admin");
+  return result;
 }
-export { createDivision, updateDivision, deleteDivision }

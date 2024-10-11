@@ -4,7 +4,7 @@ import { Doughnut, Line, Pie } from "react-chartjs-2";
 
 Chart.register(CategoryScale);
 
-export default function Charts({ batchs, enrollments, teaching }: any) {
+export default function AdminCharts({ batchs, enrollments, teaching }: any) {
   return <></>
   
   return (

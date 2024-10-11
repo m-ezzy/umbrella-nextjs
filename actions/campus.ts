@@ -1,9 +1,10 @@
 "use server";
-import { revalidatePath, revalidateTag } from "next/cache";
-import { prisma } from "@/lib/db";
-import { auth } from "@/auth";
 
-async function createCampus(previousState: any, formData: FormData) {
+import { revalidatePath, revalidateTag } from "next/cache";
+import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+
+export async function createCampus(previousState: any, formData: FormData) {
   const session: any = await auth();
 
   const result: any = await prisma.campus.create({
@@ -31,7 +32,7 @@ async function createCampus(previousState: any, formData: FormData) {
   
   return result;
 }
-async function deleteCampus(previousState: any, formData: FormData) {
+export async function deleteCampus(previousState: any, formData: FormData) {
   const session: any = await auth();
 
   const result: any = await prisma.campus.delete({
@@ -55,5 +56,3 @@ async function deleteCampus(previousState: any, formData: FormData) {
 
   return result;
 }
-
-export { createCampus, deleteCampus }
